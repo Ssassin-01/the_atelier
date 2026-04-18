@@ -20,19 +20,22 @@ class RecipeComponentAdapter extends TypeAdapter<RecipeComponent> {
       title: fields[0] as String,
       ingredients: (fields[1] as List).cast<Ingredient>(),
       steps: (fields[2] as List).cast<RecipeStep>(),
+      imageUrl: fields[3] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, RecipeComponent obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
       ..write(obj.ingredients)
       ..writeByte(2)
-      ..write(obj.steps);
+      ..write(obj.steps)
+      ..writeByte(3)
+      ..write(obj.imageUrl);
   }
 
   @override

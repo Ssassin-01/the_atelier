@@ -15,6 +15,7 @@ List<Recipe> getMockRecipes() {
       components: [
         RecipeComponent(
           title: 'A. Pumpkin Cream',
+          imageUrl: 'assets/images/pumpkin_cream.png',
           ingredients: [
             Ingredient(name: 'Frozen Kabocha', amount: '300', unit: 'g'),
             Ingredient(name: 'Milk', amount: '90', unit: 'g'),
@@ -36,8 +37,9 @@ List<Recipe> getMockRecipes() {
         ),
         RecipeComponent(
           title: 'B. Mini Rice Balls',
+          imageUrl: 'assets/images/mini_mochi.png',
           ingredients: [
-            Ingredient(name: 'Dry Glutinous Rice Flour', amount: '50g', unit: ''),
+            Ingredient(name: 'Dry Glutinous Rice Flour', amount: '50', unit: 'g'),
             Ingredient(name: 'Hot Water', amount: '32', unit: 'g'),
             Ingredient(name: 'Sugar', amount: '4', unit: 'g'),
             Ingredient(name: 'Salt', amount: '0.5', unit: 'g'),
@@ -52,6 +54,7 @@ List<Recipe> getMockRecipes() {
         ),
         RecipeComponent(
           title: 'C. Pumpkin Seed Tuile',
+          imageUrl: 'assets/images/seed_tuile.png',
           ingredients: [
             Ingredient(name: 'Pumpkin Seeds', amount: '50', unit: 'g'),
             Ingredient(name: 'Butter', amount: '35', unit: 'g'),
@@ -70,6 +73,7 @@ List<Recipe> getMockRecipes() {
         ),
         RecipeComponent(
           title: 'D. Soybean Rice Crumble',
+          imageUrl: 'assets/images/soybean_crumble.png',
           ingredients: [
             Ingredient(name: 'Rice Flour', amount: '35', unit: 'g'),
             Ingredient(name: 'Soybean Powder', amount: '20', unit: 'g'),
@@ -87,6 +91,7 @@ List<Recipe> getMockRecipes() {
         ),
         RecipeComponent(
           title: 'E. Rice Ice Cream',
+          imageUrl: 'assets/images/rice_ice_cream.png',
           ingredients: [
             Ingredient(name: 'Cooked Glutinous Rice', amount: '50', unit: 'g'),
             Ingredient(name: 'Milk', amount: '350', unit: 'g'),

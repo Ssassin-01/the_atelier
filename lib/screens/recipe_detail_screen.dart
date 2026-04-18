@@ -29,6 +29,14 @@ class RecipeDetailScreen extends StatelessWidget {
             floating: false,
             pinned: true,
             backgroundColor: ArtisanalTheme.background,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: ArtisanalTheme.ink),
+              onPressed: () => Navigator.pop(context),
+            ),
+            actions: [
+              IconButton(onPressed: () {}, icon: const Icon(Icons.share_outlined, color: ArtisanalTheme.primary)),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: SingleChildScrollView(
                 physics: const NeverScrollableScrollPhysics(),
@@ -71,31 +79,89 @@ class RecipeDetailScreen extends StatelessWidget {
               ),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 40.0),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SummaryNoteScreen()),
-                    ),
-                    icon: const Icon(Icons.menu_book, size: 20),
-                    label: Text(
-                      'Open Journal Summary',
-                      style: ArtisanalTheme.hand(fontSize: 18),
-                    ),
-                    style: TextButton.styleFrom(
-                      foregroundColor: ArtisanalTheme.ink,
-                      backgroundColor: ArtisanalTheme.secondary.withValues(alpha: 0.05),
+          
+          SliverToBoxAdapter(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFFFBF9F6),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(36),
+                  topRight: Radius.circular(36),
+                ),
+              ),
+              child: Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(36),
+                          topRight: Radius.circular(36),
+                        ),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.04),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 60),
-                ...recipe.components.map((comp) => AnimatedRecipePostIt(component: comp)),
-                const SizedBox(height: 100),
-              ]),
+                  
+                  Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SummaryNoteScreen()),
+                          ),
+                          icon: const Icon(Icons.menu_book, size: 20),
+                          label: Text(
+                            'Open Journal Summary',
+                            style: ArtisanalTheme.hand(fontSize: 18),
+                          ),
+                          style: TextButton.styleFrom(
+                            foregroundColor: ArtisanalTheme.ink,
+                            backgroundColor: ArtisanalTheme.secondary.withValues(alpha: 0.05),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          ),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 60),
+                      
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 0),
+                        child: Column(
+                          children: [
+                            ...recipe.components.map((comp) => AnimatedRecipePostIt(component: comp)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -121,7 +187,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
   void initState() {
     super.initState();
     _controller = AnimationController(
-        duration: const Duration(milliseconds: 800), vsync: this);
+        duration: const Duration(milliseconds: 850), vsync: this);
   }
 
   @override
@@ -131,8 +197,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
   }
 
   void _onHorizontalDragUpdate(DragUpdateDetails details) {
-    // Relative drag to control rotation
-    double delta = details.primaryDelta! / 300.0;
+    double delta = details.primaryDelta! / 320.0;
     _controller.value -= delta;
   }
 
@@ -173,21 +238,21 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
                 final angle = _controller.value * math.pi;
                 return Transform(
                   transform: Matrix4.identity()
-                    ..setEntry(3, 2, 0.0008) // Perspective
-                    ..rotateY(angle), // Balanced center rotation
-                  alignment: Alignment.center, // GO BACK TO CENTER SO IT STAYS VISIBLE
+                    ..setEntry(3, 2, 0.0008)
+                    ..rotateY(angle),
+                  alignment: Alignment.center,
                   child: angle < math.pi / 2 
-                    ? _postItWrapper(_buildIngredientsContent()) // Front face
+                    ? _postItWrapper(_buildIngredientsContent(), widget.component.imageUrl) 
                     : Transform(
-                        transform: Matrix4.identity()..rotateY(math.pi), // Face user
+                        transform: Matrix4.identity()..rotateY(math.pi),
                         alignment: Alignment.center,
-                        child: _postItWrapper(_buildMethodsContent(l10n)),
+                        child: _postItWrapper(_buildMethodsContent(l10n), widget.component.imageUrl),
                       ),
                 );
               },
             ),
             
-            // Fixed Indicators
+            // Tab Indicators
             Positioned(
               top: 25,
               child: Row(
@@ -200,16 +265,47 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
               ),
             ),
 
-            // Tape on top
-            Positioned(
-              top: -15,
-              child: const WashiTape(
-                width: 90, 
-                rotation: 0.012,
-                opacity: 0.85, 
-              ),
+            // DYNAMIC WASHI TAPE (Reacts to flip tension)
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                // Sticker tilts slightly as the paper flips
+                final tension = math.sin(_controller.value * math.pi) * 0.04; 
+                return Positioned(
+                  top: -15,
+                  child: WashiTape(
+                    width: 90, 
+                    rotation: 0.012 + tension, // Add dynamic tilt
+                    opacity: 0.85, 
+                  ),
+                );
+              },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniPolaroid(String imagePath) {
+    return Container(
+      width: 80,
+      padding: const EdgeInsets.fromLTRB(6, 6, 6, 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(2, 4),
+          ),
+        ],
+      ),
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: ArtisanalImage(
+          imagePath: imagePath,
+          fit: BoxFit.cover,
         ),
       ),
     );
@@ -221,11 +317,16 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 20),
-        Text(
-          widget.component.title,
-          style: ArtisanalTheme.hand(fontSize: 26, color: ArtisanalTheme.ink).copyWith(
-            fontWeight: FontWeight.bold,
-            decoration: TextDecoration.underline,
+        SizedBox(
+          width: 180,
+          child: Text(
+            widget.component.title,
+            style: ArtisanalTheme.hand(fontSize: 26, color: ArtisanalTheme.ink).copyWith(
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(height: 20),
@@ -244,7 +345,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
             ],
           ),
         )),
-        const SizedBox(height: 32),
+        const SizedBox(height: 16),
         Align(
           alignment: Alignment.bottomRight,
           child: Opacity(
@@ -268,10 +369,15 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 20),
-        Text(
-          'Method: ${widget.component.title}',
-          style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.primary).copyWith(
-            fontWeight: FontWeight.bold,
+        SizedBox(
+          width: 180,
+          child: Text(
+            'Method: ${widget.component.title}',
+            style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.primary).copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(height: 20),
@@ -289,7 +395,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
             ],
           ),
         )).toList(),
-        const SizedBox(height: 32),
+        const SizedBox(height: 16),
         Align(
           alignment: Alignment.bottomLeft,
           child: Opacity(
@@ -327,21 +433,37 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
     );
   }
 
-  Widget _postItWrapper(Widget child) {
+  Widget _postItWrapper(Widget child, String? imageUrl) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 32),
-      padding: const EdgeInsets.fromLTRB(28, 56, 28, 28),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFEF9E7),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 15,
-            offset: const Offset(6, 6),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(28, 56, 28, 28),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEF9E7),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 15,
+                  offset: const Offset(6, 6),
+                ),
+              ],
+            ),
+            child: child,
           ),
+          if (imageUrl != null)
+            Positioned(
+              top: 50,
+              right: 15,
+              child: Transform.rotate(
+                angle: 0.08,
+                child: _buildMiniPolaroid(imageUrl),
+              ),
+            ),
         ],
       ),
-      child: child,
     );
   }
 }

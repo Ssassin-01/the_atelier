@@ -15,9 +15,13 @@ class RecipeComponent extends HiveObject {
   @HiveField(2)
   List<RecipeStep> steps;
 
+  @HiveField(3)
+  final String? imageUrl;
+
   RecipeComponent({
     required this.title,
     required this.ingredients,
     required this.steps,
+    this.imageUrl,
   });
 }
