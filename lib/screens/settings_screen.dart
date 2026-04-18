@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/artisanal_theme.dart';
 import '../widgets/custom_clippers.dart';
+import '../providers/locale_provider.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final currentLocale = ref.watch(localeProvider);
+
     return Scaffold(
       backgroundColor: ArtisanalTheme.background,
       body: CustomScrollView(
@@ -16,7 +22,7 @@ class SettingsScreen extends StatelessWidget {
             floating: true,
             leading: const Icon(Icons.menu, color: ArtisanalTheme.ink),
             title: Text(
-              'Atelier Profile',
+              l10n.atelierProfile,
               style: ArtisanalTheme.hand(fontSize: 28, color: ArtisanalTheme.ink)
                   .copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.5),
             ),
@@ -32,24 +38,32 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildProfileHeader(),
+                _buildProfileHeader(l10n),
                 const SizedBox(height: 32),
-                _buildSettingsGroup('Data & Business', [
-                  _settingsItem(Icons.receipt_long, 'Ingredient Price DB'),
-                  _settingsItem(Icons.backup, 'Cloud Backup & Sync'),
-                  _settingsItem(Icons.menu_book, 'Export All Recipes'),
+                _buildSettingsGroup(l10n.dataAndBusiness, [
+                  _settingsItem(Icons.receipt_long, l10n.ingredientPriceDb),
+                  _settingsItem(Icons.backup, l10n.cloudBackupSync),
+                  _settingsItem(Icons.menu_book, l10n.exportAllRecipes),
                 ]),
                 const SizedBox(height: 28),
-                _buildSettingsGroup('Preferences', [
-                  _settingsItem(Icons.notifications_active, 'Timer & Notifications'),
-                  _settingsItem(Icons.lightbulb_outline, 'Display & Theme'),
-                  _settingsItem(Icons.straighten, 'Units', trailer: 'Metric'),
+                _buildSettingsGroup(l10n.preferences, [
+                  _settingsItem(Icons.notifications_active, l10n.notifications),
+                  _settingsItem(Icons.lightbulb_outline, l10n.displayAndTheme),
+                  _settingsItem(
+                    Icons.language,
+                    l10n.language,
+                    trailer: l10n.currentLanguage,
+                    onTap: () {
+                      final newLocale = currentLocale.languageCode == 'en' ? const Locale('ko') : const Locale('en');
+                      ref.read(localeProvider.notifier).state = newLocale;
+                    },
+                  ),
                 ]),
                 const SizedBox(height: 28),
-                _buildSettingsGroup('Information', [
-                  _settingsItem(Icons.contact_support, 'Help & Support'),
-                  _settingsItem(Icons.local_police, 'Terms & Privacy'),
-                  _settingsItemStatic(Icons.info_outline, 'App Version', value: 'v1.0.0'),
+                _buildSettingsGroup(l10n.information, [
+                  _settingsItem(Icons.contact_support, l10n.helpAndSupport),
+                  _settingsItem(Icons.local_police, l10n.termsAndPrivacy),
+                  _settingsItemStatic(Icons.info_outline, l10n.appVersion, value: 'v1.0.0'),
                 ]),
                 const SizedBox(height: 48),
                 Center(
@@ -64,7 +78,7 @@ class SettingsScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          '[ LOG OUT ]',
+                          '[ ${l10n.logout.toUpperCase()} ]',
                           style: ArtisanalTheme.hand(
                             fontSize: 26,
                             color: const Color(0xFFB33939),
@@ -83,7 +97,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(AppLocalizations l10n) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -103,12 +117,10 @@ class SettingsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Profile photo: white-bordered square frame + tape
               Stack(
                 clipBehavior: Clip.none,
                 alignment: Alignment.topCenter,
                 children: [
-                  // White frame (polaroid-ish but square)
                   Transform.rotate(
                     angle: 0.017,
                     child: Container(
@@ -139,7 +151,6 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Tape across top
                   Positioned(
                     top: -12,
                     child: Transform.rotate(
@@ -163,9 +174,8 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              // Name, email, badge
               Text(
-                'Atelier Studio',
+                l10n.atelierStudio,
                 style: ArtisanalTheme.hand(fontSize: 34, color: ArtisanalTheme.ink)
                     .copyWith(fontWeight: FontWeight.bold),
               ),
@@ -175,7 +185,6 @@ class SettingsScreen extends StatelessWidget {
                 style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.ink),
               ),
               const SizedBox(height: 16),
-              // PRO PLAN stamp
               Transform.rotate(
                 angle: -0.035,
                 child: Container(
@@ -185,7 +194,7 @@ class SettingsScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    'PRO PLAN',
+                    l10n.proPlan,
                     style: ArtisanalTheme.hand(
                       fontSize: 16,
                       color: const Color(0xFFC69C6D),
@@ -194,7 +203,6 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              // Edit button below
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -247,13 +255,13 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _settingsItem(IconData icon, String label, {String? trailer}) {
+  Widget _settingsItem(IconData icon, String label, {String? trailer, VoidCallback? onTap}) {
     return Column(
       children: [
         Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () {},
+            onTap: onTap ?? () {},
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Row(

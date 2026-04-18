@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/artisanal_theme.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/custom_clippers.dart';
 import '../widgets/polaroid_card.dart';
 
@@ -8,13 +9,15 @@ class BusinessLedgerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: ArtisanalTheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const Icon(Icons.menu, color: ArtisanalTheme.primary),
-        title: Text('The Atelier', style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 24, fontStyle: FontStyle.italic)),
+        title: Text(l10n.appTitle, style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 24, fontStyle: FontStyle.italic)),
         centerTitle: true,
         actions: [
           Padding(
@@ -33,21 +36,21 @@ class BusinessLedgerScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Business & Operations',
+              l10n.businessOperations,
               style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 20, fontStyle: FontStyle.italic, color: ArtisanalTheme.primary),
             ),
             const SizedBox(height: 24),
             Row(
               children: [
-                _buildQuickAction('Manage\nDatabase', Icons.storage, const Color(0xFF8C6F1D)),
+                _buildQuickAction(l10n.manageDatabase, Icons.storage, const Color(0xFF8C6F1D)),
                 const SizedBox(width: 12),
-                _buildQuickAction('Cloud\nSync', Icons.cloud_sync, ArtisanalTheme.primary),
+                _buildQuickAction(l10n.cloudSync, Icons.cloud_sync, ArtisanalTheme.primary),
                 const SizedBox(width: 12),
-                _buildQuickAction('Export\nPDF', Icons.picture_as_pdf, const Color(0xFF8C6F1D)),
+                _buildQuickAction(l10n.exportPdf, Icons.picture_as_pdf, const Color(0xFF8C6F1D)),
               ],
             ),
             const SizedBox(height: 40),
-            _buildSerratedLedgerCard(),
+            _buildSerratedLedgerCard(context),
             const SizedBox(height: 120),
           ],
         ),
@@ -83,7 +86,8 @@ class BusinessLedgerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSerratedLedgerCard() {
+  Widget _buildSerratedLedgerCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -102,7 +106,7 @@ class BusinessLedgerScreen extends StatelessWidget {
                   children: [
                     // Receipt Header
                     Text(
-                      'INGREDIENT LEDGER',
+                      l10n.ingredientLedger,
                       style: ArtisanalTheme.lightTheme.textTheme.labelLarge?.copyWith(letterSpacing: 2, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
@@ -111,7 +115,7 @@ class BusinessLedgerScreen extends StatelessWidget {
                       style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 48, color: ArtisanalTheme.primary),
                     ),
                     Text(
-                      'Total Monthly Spend (Oct)',
+                      '${l10n.totalMonthlySpend} (Oct)',
                       style: ArtisanalTheme.lightTheme.textTheme.bodyMedium?.copyWith(color: Colors.black38),
                     ),
                     const SizedBox(height: 32),
@@ -119,7 +123,7 @@ class BusinessLedgerScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     
                     // Vault Section
-                    _buildLedgerSectionTitle('Recipe Vault', Icons.stars),
+                    _buildLedgerSectionTitle(context, l10n.recipeVault, Icons.stars),
                     const SizedBox(height: 16),
                     _buildVaultItem('Sourdough Levain Base', '82%'),
                     _buildVaultItem('Laminated Croissant Dough', '76%'),
@@ -130,7 +134,7 @@ class BusinessLedgerScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     
                     // Disbursements
-                    _buildLedgerSectionTitle('Recent Disbursements', null),
+                    _buildLedgerSectionTitle(context, l10n.recentDisbursements, null),
                     const SizedBox(height: 16),
                     _buildDisbursementItem('24 Oct 2023', 'Artisan Flour Mill', '€840.50'),
                     _buildDisbursementItem('22 Oct 2023', 'Normandy Butter Co.', '€1,120.00'),
@@ -164,7 +168,7 @@ class BusinessLedgerScreen extends StatelessWidget {
           child: Transform.rotate(
             angle: -0.1,
             child: Text(
-              'Review!',
+              l10n.review,
               style: ArtisanalTheme.hand(fontSize: 20, color: const Color(0xFFBA1A1A)).copyWith(fontWeight: FontWeight.bold),
             ),
           ),
@@ -204,17 +208,18 @@ class BusinessLedgerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLedgerSectionTitle(String title, IconData? icon) {
+  Widget _buildLedgerSectionTitle(BuildContext context, String title, IconData? icon) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         if (icon != null) ...[Icon(icon, size: 14, color: ArtisanalTheme.secondary), const SizedBox(width: 8)],
         Text(title, style: ArtisanalTheme.lightTheme.textTheme.displaySmall?.copyWith(fontSize: 18, fontStyle: FontStyle.italic)),
         const Spacer(),
-        if (title == 'Recipe Vault')
+        if (title == l10n.recipeVault)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(color: ArtisanalTheme.background, borderRadius: BorderRadius.circular(12)),
-            child: Text('High Margin', style: ArtisanalTheme.lightTheme.textTheme.labelSmall?.copyWith(fontSize: 10)),
+            child: Text(l10n.highMargin, style: ArtisanalTheme.lightTheme.textTheme.labelSmall?.copyWith(fontSize: 10)),
           ),
       ],
     );

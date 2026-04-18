@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/artisanal_theme.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/polaroid_card.dart';
 import 'recipe_detail_screen.dart';
 
@@ -8,6 +9,8 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
@@ -25,7 +28,7 @@ class DashboardScreen extends StatelessWidget {
                   child: Transform.rotate(
                     angle: -0.07,
                     child: Text(
-                      'Journal No. 42',
+                      '${l10n.journalNo} 42',
                       style: ArtisanalTheme.hand(
                         fontSize: 24,
                         color: ArtisanalTheme.primary.withAlpha((0.8 * 255).toInt()),
@@ -37,14 +40,14 @@ class DashboardScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Find your\nperfect recipe',
+                      l10n.findPerfectRecipe,
                       style: ArtisanalTheme.lightTheme.textTheme.displayLarge?.copyWith(
                         height: 1.1,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'What are we baking today?',
+                      l10n.whatAreWeBaking,
                       style: ArtisanalTheme.hand(
                         fontSize: 32,
                         color: ArtisanalTheme.primaryContainer,
@@ -73,7 +76,7 @@ class DashboardScreen extends StatelessWidget {
                   Expanded(
                     child: TextField(
                       decoration: InputDecoration(
-                        hintText: 'Search doughs, techniques...',
+                        hintText: l10n.searchHint,
                         hintStyle: ArtisanalTheme.hand(
                           fontSize: 24,
                           color: ArtisanalTheme.outline.withAlpha((0.5 * 255).toInt()),
@@ -94,13 +97,13 @@ class DashboardScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  'Recent R&D',
+                  l10n.recentRnD,
                   style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 24),
                 ),
                 Row(
                   children: [
                     Text(
-                      'View Lab',
+                      l10n.viewLab,
                       style: ArtisanalTheme.hand(fontSize: 20, color: ArtisanalTheme.primary),
                     ),
                     const Icon(Icons.arrow_right_alt, color: ArtisanalTheme.primary, size: 20),
@@ -143,8 +146,8 @@ class DashboardScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const RecipeDetailScreen(
-                            title: 'Lavender Madeleine',
+                          builder: (context) => RecipeDetailScreen(
+                            title: l10n.lavenderMadeleine,
                             imageUrl: 'https://images.unsplash.com/photo-1549419163-9426f4974f76?q=80&w=400&auto=format&fit=crop',
                           ),
                         ),
@@ -153,8 +156,8 @@ class DashboardScreen extends StatelessWidget {
                     child: PolaroidCard(
                       rotation: 0.04,
                       tapeColor: ArtisanalTheme.primary.withAlpha((0.2 * 255).toInt()),
-                      title: 'Lavender Madeleine',
-                      subtitle: 'Feb 12 ??Floral Infusion',
+                      title: l10n.lavenderMadeleine,
+                      subtitle: l10n.lavenderMadeleineDesc,
                       image: Image.network(
                         'https://lh3.googleusercontent.com/aida-public/AB6AXuDllbnw96jDsqz1WAohJ2Wxkup4u5imOZIkhoNNlggGow_gHpdpVpoXrzdwiOXnoDLyC7EOPfaMxHa1QrZgR_2unUrUvIlFcqPL6ePL0vyQZ-bFJ6RcVf-1qWCkL24BF2x_qQejDLUlg1A9Q-3SuOSlhIMGyURdR826Lyb5o942-FWQfktbHsotLLd3EikMVCT_rXuVLRdul6BP0RAxCcUKWS6ppM4TtI4nRLVU3RRpImOeyeLNyBjDigLIQn4jU666fZeBrIMV-6M',
                         fit: BoxFit.cover,
@@ -167,8 +170,8 @@ class DashboardScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const RecipeDetailScreen(
-                            title: 'Heritage Sourdough',
+                          builder: (context) => RecipeDetailScreen(
+                            title: l10n.heritageSourdough,
                             imageUrl: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?q=80&w=400&auto=format&fit=crop',
                           ),
                         ),
@@ -177,8 +180,8 @@ class DashboardScreen extends StatelessWidget {
                     child: PolaroidCard(
                       rotation: -0.05,
                       tapeColor: Colors.black12,
-                      title: 'Heritage Sourdough',
-                      subtitle: 'Feb 10 ??80% Hydration',
+                      title: l10n.heritageSourdough,
+                      subtitle: l10n.heritageSourdoughDesc,
                       image: Image.network(
                         'https://lh3.googleusercontent.com/aida-public/AB6AXuDyx-s-5_bMiOPXczyE5MBVC8AeMUPDCSmSBsl2K9e40nluqNHFKYm2_c7fdArOEZ4is6cr5vXFQSNUWLAyhobGVDxolrj3nDxjaDJr2cUCa17itH1Jb_pAuVQShztKqA8Nf6I4E0JI8dS2AOBLhT9UDtITOKFRHqHKPTySAxPzGp9kaZZ_OLLiAqxW6xfaCLfG0ZeYnCutd8sy-Hsv7URYYJ1fWYJuL5DyNmOWvJItYmAS23DQdftWtxpTNl53ZYUp5wNFXgLGCvs',
                         fit: BoxFit.cover,
@@ -191,7 +194,7 @@ class DashboardScreen extends StatelessWidget {
             const SizedBox(height: 48),
             // Collections
             Text(
-              'Collections',
+              l10n.collections,
               style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 24),
             ),
             const SizedBox(height: 24),
@@ -202,11 +205,11 @@ class DashboardScreen extends StatelessWidget {
               mainAxisSpacing: 24,
               crossAxisSpacing: 24,
               childAspectRatio: 4 / 3,
-              children: const [
-                CollectionCard(volume: 'Vol. I', title: 'Breads', icon: Icons.bakery_dining),
-                CollectionCard(volume: 'Vol. II', title: 'Cakes', icon: Icons.cake),
-                CollectionCard(volume: 'Vol. III', title: 'Cookies', icon: Icons.cookie),
-                CollectionCard(volume: 'Vol. IV', title: 'Tarts', icon: Icons.pie_chart),
+              children: [
+                CollectionCard(volume: '${l10n.volume} I', title: l10n.breads, icon: Icons.bakery_dining),
+                CollectionCard(volume: '${l10n.volume} II', title: l10n.cakes, icon: Icons.cake),
+                CollectionCard(volume: '${l10n.volume} III', title: l10n.cookies, icon: Icons.cookie),
+                CollectionCard(volume: '${l10n.volume} IV', title: l10n.tarts, icon: Icons.pie_chart),
               ],
             ),
             const SizedBox(height: 80),

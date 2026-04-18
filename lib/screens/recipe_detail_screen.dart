@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/artisanal_theme.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/polaroid_card.dart';
 
 import 'summary_note_screen.dart';
@@ -13,9 +14,10 @@ class RecipeDetailScreen extends StatelessWidget {
     this.title = 'Pumpkin Porridge Dessert',
     this.imageUrl = 'https://images.unsplash.com/photo-1509440159596-dec2190391d2?q=80&w=800',
   });
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: ArtisanalTheme.background,
       body: CustomScrollView(
@@ -67,7 +69,7 @@ class RecipeDetailScreen extends StatelessWidget {
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[200], child: const Icon(Icons.broken_image)),
                                   ),
-                                  title: 'Autumn Menu \'24',
+                                  title: l10n.autumnMenu24,
                                 ),
                               ),
                             ],
@@ -85,19 +87,19 @@ class RecipeDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildTornTabs(),
+                _buildTornTabs(context),
                 const SizedBox(height: 48),
-                _buildPostItComponent('Pumpkin Puree Base', [
-                  _ingredientRow('Kabocha Squash', '500g'),
-                  _ingredientRow('Whole Milk', '200g'),
-                  _ingredientRow('Heavy Cream', '150g'),
-                  _ingredientRow('Brown Sugar', '60g'),
+                _buildPostItComponent(l10n, l10n.pumpkinPureeBaseTitle, [
+                  _ingredientRow(l10n.ingredientKabochaSquash, '500g'),
+                  _ingredientRow(l10n.ingredientWholeMilk, '200g'),
+                  _ingredientRow(l10n.ingredientHeavyCream, '150g'),
+                  _ingredientRow(l10n.ingredientBrownSugar, '60g'),
                 ]),
                 const SizedBox(height: 32),
-                _buildPostItComponent('Mini Rice Balls', [
-                  _ingredientRow('Glutinous Rice Flour', '100g'),
-                  _ingredientRow('Hot Water', '80g'),
-                  _ingredientRow('Sugar', '10g'),
+                _buildPostItComponent(l10n, l10n.miniRiceBallsTitle, [
+                  _ingredientRow(l10n.ingredientGlutinousFlour, '100g'),
+                  _ingredientRow(l10n.ingredientWarmWater, '80g'),
+                  _ingredientRow(l10n.ingredientSugar, '10g'),
                 ], rotation: 0.02),
                 const SizedBox(height: 60),
                 Center(
@@ -109,7 +111,7 @@ class RecipeDetailScreen extends StatelessWidget {
                       );
                     },
                     icon: const Icon(Icons.menu_book),
-                    label: const Text('Open Journal Summary'),
+                    label: Text(l10n.openJournalSummary),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ArtisanalTheme.primary,
                       foregroundColor: Colors.white,
@@ -127,13 +129,14 @@ class RecipeDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTornTabs() {
-    final tabs = ['All', 'Pumpkin Puree', 'Mini Rice Balls', 'Seed Tuile'];
+  Widget _buildTornTabs(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final tabs = [l10n.all, l10n.pumpkinPuree, l10n.miniRiceBalls, l10n.seedTuile];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         children: tabs.map((tab) {
-          final isSelected = tab == 'All';
+          final isSelected = tab == l10n.all;
           return Container(
             margin: const EdgeInsets.only(right: 12),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -158,7 +161,7 @@ class RecipeDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPostItComponent(String title, List<Widget> ingredients, {double rotation = -0.02}) {
+  Widget _buildPostItComponent(AppLocalizations l10n, String title, List<Widget> ingredients, {double rotation = -0.02}) {
     return Transform.rotate(
       angle: rotation,
       child: Container(
@@ -180,7 +183,7 @@ class RecipeDetailScreen extends StatelessWidget {
             const SizedBox(height: 24),
             ...ingredients,
             const SizedBox(height: 24),
-            _buildActionHint('Jump to Procedure'),
+            _buildActionHint(l10n.jumpToProcedure),
           ],
         ),
       ),

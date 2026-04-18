@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/artisanal_theme.dart';
+import '../l10n/app_localizations.dart';
 
 class SummaryNoteScreen extends StatelessWidget {
   const SummaryNoteScreen({super.key});
@@ -39,6 +40,7 @@ class SummaryNoteScreen extends StatelessWidget {
 class _JournalPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFFDFBF7),
@@ -89,14 +91,14 @@ class _JournalPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                'Nov 12, 2023',
+                                l10n.summaryDate,
                                 style: ArtisanalTheme.hand(
                                   fontSize: 20,
                                   color: Colors.black.withValues(alpha: 0.45),
                                 ),
                               ),
                               Text(
-                                'V 2.1',
+                                l10n.summaryVersion,
                                 style: ArtisanalTheme.hand(
                                   fontSize: 18,
                                   color: Colors.black.withValues(alpha: 0.45),
@@ -180,7 +182,7 @@ class _JournalPage extends StatelessWidget {
                                 child: Transform.rotate(
                                   angle: -0.04,
                                   child: Text(
-                                    '* final plating idea',
+                                    '* ${AppLocalizations.of(context).finalPlatingIdea}',
                                     style: ArtisanalTheme.hand(
                                       fontSize: 20,
                                       color: _SummaryNoteScreen._ink.withValues(alpha: 0.65),
@@ -196,73 +198,65 @@ class _JournalPage extends StatelessWidget {
 
                         // Recipe components
                         _RecipeSection(
+                          l10n: l10n,
                           number: '1.',
-                          name: 'Pumpkin Cream',
-                          ingredients: const [
-                            ('Roasted Pumpkin', '250g'),
-                            ('Heavy Cream', '150g'),
-                            ('Brown Sugar', '35g'),
-                            ('Cinnamon', '1 pinch'),
+                          name: l10n.pumpkinCreamTitle,
+                          ingredients: [
+                            (l10n.ingredientRoastedPumpkin, '250g'),
+                            (l10n.ingredientHeavyCream, '150g'),
+                            (l10n.ingredientBrownSugar, '35g'),
+                            (l10n.ingredientCinnamon, '1 pinch'),
                           ],
-                          method:
-                              'Roast pumpkin at 180C until completely soft. Puree while hot.\n'
-                              'In a cold bowl, whip heavy cream with sugar and cinnamon until soft peaks form.\n'
-                              'Gently fold puree into the cream.',
-                          redNote: '*Do not overmix, keep it airy!',
-                          methodContinue: '\nChill for 2 hours before piping.',
+                          method: l10n.methodPumpkinCream,
+                          redNote: l10n.noteOvermix,
+                          methodContinue: '\n${l10n.methodChill}',
                         ),
 
                         const SizedBox(height: 48),
 
                         _RecipeSection(
+                          l10n: l10n,
                           number: '2.',
-                          name: 'Mini Rice Ball (Mochi)',
-                          ingredients: const [
-                            ('Glutinous Rice Flour', '100g'),
-                            ('Warm Water', '~80ml'),
-                            ('Sugar', '10g'),
+                          name: l10n.mochiTitle,
+                          ingredients: [
+                            (l10n.ingredientGlutinousFlour, '100g'),
+                            (l10n.ingredientWarmWater, '~80ml'),
+                            (l10n.ingredientSugar, '10g'),
                           ],
-                          method:
-                              'Mix flour and sugar. Slowly add warm water until dough comes together.\n'
-                              'Knead until smooth. Roll into tiny spheres (approx 5g each).\n'
-                              'Boil until they float, then plunge immediately into ice water.',
+                          method: l10n.methodMochi,
                         ),
 
                         const SizedBox(height: 48),
 
                         _RecipeSection(
+                          l10n: l10n,
                           number: '3.',
-                          name: 'Pumpkin Seed Tuile',
-                          ingredients: const [
-                            ('Butter (melted)', '40g'),
-                            ('Icing Sugar', '40g'),
-                            ('Egg White', '40g'),
-                            ('Flour', '30g'),
-                            ('Pumpkin Seeds', '50g'),
+                          name: l10n.seedTuileTitle,
+                          ingredients: [
+                            (l10n.ingredientButterMelted, '40g'),
+                            (l10n.ingredientIcingSugar, '40g'),
+                            (l10n.ingredientEggWhite, '40g'),
+                            (l10n.ingredientFlour, '30g'),
+                            (l10n.ingredientPumpkinSeeds, '50g'),
                           ],
-                          method:
-                              'Whisk egg whites and icing sugar. Stir in flour, then melted butter.\n'
-                              'Fold in lightly toasted pumpkin seeds. Let rest for 30 mins.\n'
-                              'Spread thinly on silpat. Bake at 160C for 8-10 mins until golden.',
-                          redNote: '*Must shape immediately while hot!',
+                          method: l10n.methodSeedTuile,
+                          redNote: l10n.noteShapeHot,
                         ),
 
                         const SizedBox(height: 48),
 
                         _RecipeSection(
+                          l10n: l10n,
                           number: '4.',
-                          name: 'Rice Crumble',
-                          ingredients: const [
-                            ('Rice Flour', '50g'),
-                            ('Almond Flour', '50g'),
-                            ('Cold Butter', '50g'),
-                            ('Demerara Sugar', '40g'),
-                            ('Salt', '1 pinch'),
+                          name: l10n.riceCrumbleTitle,
+                          ingredients: [
+                            (l10n.ingredientRiceFlour, '50g'),
+                            (l10n.ingredientAlmondFlour, '50g'),
+                            (l10n.ingredientColdButter, '50g'),
+                            (l10n.ingredientDemeraraSugar, '40g'),
+                            (l10n.ingredientSalt, '1 pinch'),
                           ],
-                          method:
-                              'Combine all dry ingredients. Cut in cold butter until coarse crumbs form.\n'
-                              'Spread on a baking sheet. Bake at 170C for 15 mins, tossing halfway.\n'
-                              'Cool completely for crunch.',
+                          method: l10n.methodRiceCrumble,
                         ),
                       ],
                     ),
@@ -284,6 +278,7 @@ class _SummaryNoteScreen {
 }
 
 class _RecipeSection extends StatelessWidget {
+  final AppLocalizations l10n;
   final String number;
   final String name;
   final List<(String, String)> ingredients;
@@ -292,6 +287,7 @@ class _RecipeSection extends StatelessWidget {
   final String? methodContinue;
 
   const _RecipeSection({
+    required this.l10n,
     required this.number,
     required this.name,
     required this.ingredients,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/artisanal_theme.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/polaroid_card.dart';
 import '../widgets/torn_edge_clipper.dart';
 import 'recipe_detail_screen.dart';
@@ -9,6 +10,8 @@ class RecipeArchiveScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
@@ -24,14 +27,14 @@ class RecipeArchiveScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'R&D Archive',
+                      l10n.rndArchive,
                       style: ArtisanalTheme.hand(
                         fontSize: 20,
                         color: ArtisanalTheme.primary.withValues(alpha: 0.8),
                       ),
                     ),
                     Text(
-                      'My Recipes',
+                      l10n.myRecipes,
                       style: ArtisanalTheme.lightTheme.textTheme.displayMedium,
                     ),
                   ],
@@ -91,32 +94,32 @@ class RecipeArchiveScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final recipes = [
                   {
-                    'title': 'Spelt & Honey Sourdough',
-                    'desc': '80% Hydration, 12hr cold bulk ferment',
+                    'title': l10n.speltHoneySourdough,
+                    'desc': l10n.speltHoneyDesc,
                     'yield': '2 Loaves',
                     'time': '18 Hours',
                     'temp': '68°F',
                     'img': 'https://images.unsplash.com/photo-1509440159596-dec2190391d2?q=80&w=400'
                   },
                   {
-                    'title': 'Classic French Baguette',
-                    'desc': 'Poolish based, steam injected bake',
+                    'title': l10n.classicFrenchBaguette,
+                    'desc': l10n.classicFrenchBaguetteDesc,
                     'yield': '4 Sticks',
                     'time': '5 Hours',
                     'temp': '74°F',
                     'img': 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?q=80&w=400'
                   },
                   {
-                    'title': 'Rosemary Olive Oil Cake',
-                    'desc': 'Sicilian cold-pressed oil, flaky sea salt',
+                    'title': l10n.rosemaryOliveOilCake,
+                    'desc': l10n.rosemaryOliveOilCakeDesc,
                     'yield': '10" Pan',
                     'time': '1.5 Hours',
                     'temp': '65°F',
                     'img': 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?q=80&w=400'
                   },
                   {
-                    'title': 'Brown Butter Cookies',
-                    'desc': '70% Dark chocolate, toasted hazelnuts',
+                    'title': l10n.brownButterCookies,
+                    'desc': l10n.brownButterCookiesDesc,
                     'yield': '24 Pieces',
                     'time': '45 Minutes',
                     'temp': '78°F',
@@ -210,9 +213,9 @@ class RecipeArchiveScreen extends StatelessWidget {
                               const SizedBox(height: 12),
                               Row(
                                 children: [
-                                  _buildInfoItem(Icons.layers, recipe['yield']!),
+                                  _buildInfoItem(Icons.layers, '${l10n.yieldLabel}: ${recipe['yield']!}'),
                                   const SizedBox(width: 16),
-                                  _buildInfoItem(Icons.schedule, recipe['time']!),
+                                  _buildInfoItem(Icons.schedule, '${l10n.timeLabel}: ${recipe['time']!}'),
                                 ],
                               ),
                             ],

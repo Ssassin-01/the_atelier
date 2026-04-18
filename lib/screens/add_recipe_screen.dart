@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/artisanal_theme.dart';
 import '../widgets/sketch_area.dart';
 
@@ -9,6 +10,8 @@ class AddRecipeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),
       appBar: AppBar(
@@ -25,7 +28,7 @@ class AddRecipeScreen extends StatelessWidget {
           },
         ),
         title: Text(
-          'The Atelier Notebook',
+          l10n.atelierNotebook,
           style: ArtisanalTheme.lightTheme.textTheme.headlineMedium,
         ),
         actions: [
@@ -43,7 +46,7 @@ class AddRecipeScreen extends StatelessWidget {
             // Header
             TextField(
               decoration: InputDecoration(
-                hintText: 'Enter Recipe Name...',
+                hintText: l10n.recipeNameHint,
                 hintStyle: GoogleFonts.notoSerif(
                   fontSize: 40,
                   fontStyle: FontStyle.italic,
@@ -64,7 +67,7 @@ class AddRecipeScreen extends StatelessWidget {
                 const SizedBox(width: 8),
                 _buildTag('Fall Menu'),
                 const SizedBox(width: 8),
-                _buildAddTag(),
+                _buildAddTag(context),
               ],
             ),
             const SizedBox(height: 48),
@@ -80,7 +83,7 @@ class AddRecipeScreen extends StatelessWidget {
             TextButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.add, size: 18),
-              label: Text('Add Ingredient', style: ArtisanalTheme.lightTheme.textTheme.labelLarge),
+              label: Text(l10n.addIngredient, style: ArtisanalTheme.lightTheme.textTheme.labelLarge),
               style: TextButton.styleFrom(foregroundColor: ArtisanalTheme.outline),
             ),
             const SizedBox(height: 48),
@@ -88,7 +91,7 @@ class AddRecipeScreen extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'Free-form Sketch Area',
+                  l10n.freeformSketch,
                   style: ArtisanalTheme.lightTheme.textTheme.labelLarge?.copyWith(
                     fontSize: 10,
                     color: ArtisanalTheme.outline.withValues(alpha: 0.5),
@@ -148,7 +151,8 @@ class AddRecipeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAddTag() {
+  Widget _buildAddTag(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
@@ -160,7 +164,7 @@ class AddRecipeScreen extends StatelessWidget {
         children: [
           const Icon(Icons.add, size: 14, color: ArtisanalTheme.outline),
           const SizedBox(width: 4),
-          Text('Add Tag', style: ArtisanalTheme.lightTheme.textTheme.labelLarge),
+          Text(l10n.addTag, style: ArtisanalTheme.lightTheme.textTheme.labelLarge),
         ],
       ),
     );
