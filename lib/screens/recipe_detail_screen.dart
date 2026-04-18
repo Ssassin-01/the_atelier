@@ -11,10 +11,7 @@ import 'summary_note_screen.dart';
 class RecipeDetailScreen extends StatelessWidget {
   final Recipe recipe;
 
-  const RecipeDetailScreen({
-    super.key,
-    required this.recipe,
-  });
+  const RecipeDetailScreen({super.key, required this.recipe});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +32,13 @@ class RecipeDetailScreen extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
-              IconButton(onPressed: () {}, icon: const Icon(Icons.share_outlined, color: ArtisanalTheme.primary)),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.share_outlined,
+                  color: ArtisanalTheme.primary,
+                ),
+              ),
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: SingleChildScrollView(
@@ -49,9 +52,8 @@ class RecipeDetailScreen extends StatelessWidget {
                       child: Text(
                         recipe.name,
                         textAlign: TextAlign.center,
-                        style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(
-                          fontSize: 34,
-                        ),
+                        style: ArtisanalTheme.lightTheme.textTheme.displayMedium
+                            ?.copyWith(fontSize: 34),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -79,7 +81,7 @@ class RecipeDetailScreen extends StatelessWidget {
               ),
             ),
           ),
-          
+
           SliverToBoxAdapter(
             child: Container(
               decoration: const BoxDecoration(
@@ -114,7 +116,7 @@ class RecipeDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   Column(
                     children: [
                       const SizedBox(height: 16),
@@ -127,12 +129,15 @@ class RecipeDetailScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      
+
                       Center(
                         child: TextButton.icon(
                           onPressed: () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const SummaryNoteScreen()),
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  SummaryNoteScreen(recipe: recipe),
+                            ),
                           ),
                           icon: const Icon(Icons.menu_book, size: 20),
                           label: Text(
@@ -141,19 +146,25 @@ class RecipeDetailScreen extends StatelessWidget {
                           ),
                           style: TextButton.styleFrom(
                             foregroundColor: ArtisanalTheme.ink,
-                            backgroundColor: ArtisanalTheme.secondary.withValues(alpha: 0.05),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            backgroundColor: ArtisanalTheme.secondary
+                                .withValues(alpha: 0.05),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 60),
-                      
+
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 0),
                         child: Column(
                           children: [
-                            ...recipe.components.map((comp) => AnimatedRecipePostIt(component: comp)),
+                            ...recipe.components.map(
+                              (comp) => AnimatedRecipePostIt(component: comp),
+                            ),
                           ],
                         ),
                       ),
@@ -179,7 +190,8 @@ class AnimatedRecipePostIt extends StatefulWidget {
   State<AnimatedRecipePostIt> createState() => _AnimatedRecipePostItState();
 }
 
-class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with SingleTickerProviderStateMixin {
+class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   bool _isFront = true;
 
@@ -187,7 +199,9 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
   void initState() {
     super.initState();
     _controller = AnimationController(
-        duration: const Duration(milliseconds: 850), vsync: this);
+      duration: const Duration(milliseconds: 850),
+      vsync: this,
+    );
   }
 
   @override
@@ -220,7 +234,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 80.0),
       child: GestureDetector(
@@ -241,26 +255,32 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
                     ..setEntry(3, 2, 0.0008)
                     ..rotateY(angle),
                   alignment: Alignment.center,
-                  child: angle < math.pi / 2 
-                    ? _postItWrapper(_buildIngredientsContent(), widget.component.imageUrl) 
-                    : Transform(
-                        transform: Matrix4.identity()..rotateY(math.pi),
-                        alignment: Alignment.center,
-                        child: _postItWrapper(_buildMethodsContent(l10n), widget.component.imageUrl),
-                      ),
+                  child: angle < math.pi / 2
+                      ? _postItWrapper(
+                          _buildIngredientsContent(),
+                          widget.component.imageUrl,
+                        )
+                      : Transform(
+                          transform: Matrix4.identity()..rotateY(math.pi),
+                          alignment: Alignment.center,
+                          child: _postItWrapper(
+                            _buildMethodsContent(l10n),
+                            widget.component.imageUrl,
+                          ),
+                        ),
                 );
               },
             ),
-            
+
             // Tab Indicators
             Positioned(
               top: 25,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                   _simpleTab(l10n.tabIngredients, _controller.value < 0.5),
-                   const SizedBox(width: 20),
-                   _simpleTab(l10n.tabMethods, _controller.value >= 0.5),
+                  _simpleTab(l10n.tabIngredients, _controller.value < 0.5),
+                  const SizedBox(width: 20),
+                  _simpleTab(l10n.tabMethods, _controller.value >= 0.5),
                 ],
               ),
             ),
@@ -270,13 +290,13 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
               animation: _controller,
               builder: (context, child) {
                 // Sticker tilts slightly as the paper flips
-                final tension = math.sin(_controller.value * math.pi) * 0.04; 
+                final tension = math.sin(_controller.value * math.pi) * 0.04;
                 return Positioned(
                   top: -15,
                   child: WashiTape(
-                    width: 90, 
+                    width: 90,
                     rotation: 0.012 + tension, // Add dynamic tilt
-                    opacity: 0.85, 
+                    opacity: 0.85,
                   ),
                 );
               },
@@ -303,10 +323,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
       ),
       child: AspectRatio(
         aspectRatio: 1,
-        child: ArtisanalImage(
-          imagePath: imagePath,
-          fit: BoxFit.cover,
-        ),
+        child: ArtisanalImage(imagePath: imagePath, fit: BoxFit.cover),
       ),
     );
   }
@@ -321,30 +338,41 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
           width: 180,
           child: Text(
             widget.component.title,
-            style: ArtisanalTheme.hand(fontSize: 26, color: ArtisanalTheme.ink).copyWith(
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.underline,
-            ),
+            style: ArtisanalTheme.hand(fontSize: 26, color: ArtisanalTheme.ink)
+                .copyWith(
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(height: 20),
-        ...widget.component.ingredients.map((ing) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Text(ing.name, style: ArtisanalTheme.hand(fontSize: 19, height: 1.25)),
-              ),
-              const SizedBox(width: 8),
-              Text('${ing.amount}${ing.unit}', 
-                   style: ArtisanalTheme.hand(fontSize: 19, color: ArtisanalTheme.secondary)),
-            ],
+        ...widget.component.ingredients.map(
+          (ing) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    ing.name,
+                    style: ArtisanalTheme.hand(fontSize: 19, height: 1.25),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${ing.amount}${ing.unit}',
+                  style: ArtisanalTheme.hand(
+                    fontSize: 19,
+                    color: ArtisanalTheme.secondary,
+                  ),
+                ),
+              ],
+            ),
           ),
-        )),
+        ),
         const SizedBox(height: 16),
         Align(
           alignment: Alignment.bottomRight,
@@ -353,8 +381,15 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Slide or tap to flip', style: ArtisanalTheme.hand(fontSize: 14)),
-                const Icon(Icons.arrow_forward, size: 14, color: ArtisanalTheme.secondary),
+                Text(
+                  'Slide or tap to flip',
+                  style: ArtisanalTheme.hand(fontSize: 14),
+                ),
+                const Icon(
+                  Icons.arrow_forward,
+                  size: 14,
+                  color: ArtisanalTheme.secondary,
+                ),
               ],
             ),
           ),
@@ -373,28 +408,42 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
           width: 180,
           child: Text(
             'Method: ${widget.component.title}',
-            style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.primary).copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: ArtisanalTheme.hand(
+              fontSize: 22,
+              color: ArtisanalTheme.primary,
+            ).copyWith(fontWeight: FontWeight.bold),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(height: 20),
-        ...widget.component.steps.asMap().entries.map((e) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('${e.key + 1}. ', 
-                   style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.primary)),
-              Expanded(
-                child: Text(e.value.description, 
-                            style: ArtisanalTheme.hand(fontSize: 18, height: 1.35)),
+        ...widget.component.steps
+            .asMap()
+            .entries
+            .map(
+              (e) => Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${e.key + 1}. ',
+                      style: ArtisanalTheme.hand(
+                        fontSize: 18,
+                        color: ArtisanalTheme.primary,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        e.value.description,
+                        style: ArtisanalTheme.hand(fontSize: 18, height: 1.35),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        )).toList(),
+            )
+            .toList(),
         const SizedBox(height: 16),
         Align(
           alignment: Alignment.bottomLeft,
@@ -403,8 +452,15 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.arrow_back, size: 14, color: ArtisanalTheme.secondary),
-                Text('Back to ingredients', style: ArtisanalTheme.hand(fontSize: 14)),
+                const Icon(
+                  Icons.arrow_back,
+                  size: 14,
+                  color: ArtisanalTheme.secondary,
+                ),
+                Text(
+                  'Back to ingredients',
+                  style: ArtisanalTheme.hand(fontSize: 14),
+                ),
               ],
             ),
           ),
@@ -418,16 +474,20 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with Single
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(
-          color: active ? ArtisanalTheme.primary : Colors.transparent, 
-          width: 2.5
-        )),
+        border: Border(
+          bottom: BorderSide(
+            color: active ? ArtisanalTheme.primary : Colors.transparent,
+            width: 2.5,
+          ),
+        ),
       ),
       child: Text(
         label,
         style: ArtisanalTheme.hand(
           fontSize: 16,
-          color: active ? ArtisanalTheme.primary : ArtisanalTheme.secondary.withValues(alpha: 0.5),
+          color: active
+              ? ArtisanalTheme.primary
+              : ArtisanalTheme.secondary.withValues(alpha: 0.5),
         ),
       ),
     );
