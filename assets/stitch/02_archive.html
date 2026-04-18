@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Atelier - Recipe Archive</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Manrope:wght@400;500;600;700&amp;family=Nanum+Pen+Script&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#4A3B32",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#FAF8F5",
+                        "surface-container-low": "#FAF8F5",
+                        "on-tertiary-container": "#FAF8F5",
+                        "on-tertiary-fixed-variant": "#4A3B32",
+                        "primary": "#4A3B32",
+                        "inverse-on-surface": "#FAF8F5",
+                        "on-secondary-fixed-variant": "#4A3B32",
+                        "primary-fixed": "#FAF8F5",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#4A3B32",
+                        "surface-variant": "#FAF8F5",
+                        "tertiary": "#4A3B32",
+                        "background": "#FAF8F5",
+                        "secondary-fixed-dim": "#FAF8F5",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#4A3B32",
+                        "on-tertiary-fixed": "#4A3B32",
+                        "on-secondary-fixed": "#4A3B32",
+                        "surface-container-high": "#FAF8F5",
+                        "outline": "#4A3B32",
+                        "on-primary-container": "#FAF8F5",
+                        "secondary-fixed": "#FAF8F5",
+                        "primary-fixed-dim": "#FAF8F5",
+                        "tertiary-container": "#4A3B32",
+                        "surface-bright": "#FAF8F5",
+                        "error-container": "#ffdad6",
+                        "surface": "#FAF8F5",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#4A3B32",
+                        "surface-dim": "#FAF8F5",
+                        "outline-variant": "#4A3B32",
+                        "tertiary-fixed": "#FAF8F5",
+                        "tertiary-fixed-dim": "#FAF8F5",
+                        "inverse-primary": "#FAF8F5",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#4A3B32",
+                        "secondary-container": "#FAF8F5",
+                        "on-secondary-container": "#4A3B32",
+                        "error": "#ba1a1a",
+                        "on-background": "#4A3B32",
+                        "on-primary-fixed-variant": "#4A3B32",
+                        "surface-tint": "#4A3B32",
+                        "on-primary-fixed": "#4A3B32",
+                        "surface-container-highest": "#FAF8F5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "serif": ["Noto Serif"],
+                        "hand": ["Nanum Pen Script", "cursive"],
+                        "body": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Manrope", sans-serif;
+            background-color: #FAF8F5;
+            background-image: none;
+        }
+        .font-serif {
+            font-family: "Noto Serif", serif
+        }
+        .font-hand {
+            font-family: "Nanum Pen Script", cursive;
+            font-size: 1.25rem
+        }
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+            color: #4A3B32
+        }
+        .sketch-icon {
+            font-variation-settings: "wght" 300
+        }
+        .polaroid {
+            padding: 8px 8px 20px 8px;
+            background: white;
+            border: 1px solid #4A3B3215;
+            box-shadow: none;
+            position: relative
+        }
+        .washi-tape {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translatex(-50%) rotate(-2deg);
+            width: 40px;
+            height: 15px;
+            background: #E5E1DA; /* Solid color tape */
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"15\"><path d=\"M0,2 L2,0 L38,2 L40,0 L39,15 L37,13 L3,15 L0,13 Z\" fill=\"black\"/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"15\"><path d=\"M0,2 L2,0 L38,2 L40,0 L39,15 L37,13 L3,15 L0,13 Z\" fill=\"black\"/></svg>");
+        }
+        .flat-card {
+            border-radius: 24px;
+            background-color: #ffffff;
+            border: 1px solid rgba(74, 59, 50, 0.1);
+        }
+        .torn-edge {
+            clip-path: polygon(0% 0%, 100% 0%, 100% 98%, 98% 100%, 95% 98%, 92% 100%, 88% 97%, 85% 100%, 80% 98%, 75% 100%, 70% 98%, 65% 100%, 60% 97%, 55% 100%, 50% 98%, 45% 100%, 40% 98%, 35% 100%, 30% 97%, 25% 100%, 20% 98%, 15% 100%, 10% 98%, 5% 100%, 2% 98%, 0% 100%)
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none
+        }
+    </style>
+</head>
+<body class="bg-[#FAF8F5] text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#FAF8F5] flex justify-between items-center px-6 h-16 border-b border-[#4A3B32]/10">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-70 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined !text-[#4A3B32] font-bold sketch-icon">menu</span>
+</button>
+<h1 class="font-serif italic text-primary text-2xl tracking-tight">My Atelier</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:opacity-70 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined !text-[#4A3B32] font-bold sketch-icon">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-[#4A3B32]/10">
+<img alt="Baker's profile photo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtSDm_Mq79HVNHM_FmFkCw0ws0N9pyeLUA5gsFKctOL9dfhUL5p9Cr1lgKFple6JpiTMw-PBE5qOf0OjWmKiY6iQpNG0zLfYJDzRMvQz7-Gc01AQQmX7bM96haFlRpKtgzrHqylEs9PMaaxmH1I4YejEBWQseiWcLGXIlRu7Q8p3N5WZsE3DGs7lEEvlLbCtXwj8P_96HpCczFDN4LB7ZwJGQpBVfvgvz2R-yDtPF1WSAJZFfeCNVbl5epRRAJSmP5txrkGVFaY70"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto relative">
+<!-- Editorial Header -->
+<div class="flex items-end justify-between mb-8">
+<div>
+<span class="text-primary font-hand tracking-widest text-lg opacity-80">R&amp;D Archive</span>
+<h2 class="font-serif text-4xl text-on-surface -mt-1">My Recipes</h2>
+</div>
+<div class="flex bg-[#FAF8F5] border border-[#4A3B32]/10 p-1 rounded-full">
+<button class="p-2 bg-white rounded-full border border-[#4A3B32]/10">
+<span class="material-symbols-outlined !text-[20px] !text-[#4A3B32] sketch-icon">view_agenda</span>
+</button>
+<button class="p-2 opacity-40 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-[20px] !text-[#4A3B32] sketch-icon">grid_view</span>
+</button>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="flex gap-3 overflow-x-auto pb-6 -mx-6 px-6 no-scrollbar">
+<button class="flex-shrink-0 px-5 py-1.5 rounded-full bg-primary text-white text-sm font-medium font-hand text-lg">
+                #Vegan
+            </button>
+<button class="flex-shrink-0 px-5 py-1.5 rounded-full bg-white border border-[#4A3B32]/10 text-on-surface text-sm font-medium hover:bg-[#F2F0ED] transition-colors font-hand text-lg">
+                #LargeBatch
+            </button>
+<button class="flex-shrink-0 px-5 py-1.5 rounded-full bg-white border border-[#4A3B32]/10 text-on-surface text-sm font-medium hover:bg-[#F2F0ED] transition-colors font-hand text-lg">
+                #SlowFerment
+            </button>
+<button class="flex-shrink-0 px-5 py-1.5 rounded-full bg-white border border-[#4A3B32]/10 text-on-surface text-sm font-medium hover:bg-[#F2F0ED] transition-colors font-hand text-lg">
+                #Sourdough
+            </button>
+</div>
+<div class="h-px bg-[#4A3B32] opacity-10 mb-8"></div>
+<!-- Recipe List -->
+<div class="space-y-6">
+<!-- Card 1 -->
+<article class="relative flex gap-4 p-5 flat-card torn-edge transition-all hover:bg-[#FDFDFB]">
+<div class="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 polaroid">
+<div class="washi-tape"></div>
+<img alt="Top down view of artisanal whole wheat sourdough bread loaf" class="w-full h-full object-cover grayscale-[0.1]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4N3-ENyoXaCt-D-vZEB8npml3VjPqhZw5Pzo29Z_U-pCUUk4mqgD7qNS0Q3C24IYVVP5mB-R8sWyV0xKcbOd9lMPXbDAaBQpv-3OlV0JxFYJo69i45bsvy_a2FnEobgkiEN17tXccsU9W511RZMeJm4tRlIl5zGDynB9Z4dsssm7dKWMGEQ1PvZkIXaZ0mCE58wsFm6-qsJQPm_HxAXRVVgdh-HkhaZ2JLwlCTXIGkcJIuEp_WulfBq4lzZtV_CFWbJ0XtyCpe4c"/>
+</div>
+<div class="flex flex-col justify-between py-1 flex-grow">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-serif text-xl text-[#4A3B32] leading-tight">Spelt &amp; Honey Sourdough</h3>
+<div class="flex items-center gap-1 px-2 py-0.5 border border-[#4A3B32]/10 rounded bg-[#FAF8F5] text-[10px] text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[12px] sketch-icon">cloud</span>
+<span class="font-hand text-[13px]">68°F</span>
+</div>
+</div>
+<p class="text-[#4A3B32]/70 font-hand text-lg mt-1 line-clamp-1">80% Hydration, 12hr cold bulk ferment</p>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex items-center gap-1.5 text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[16px] sketch-icon">layers</span>
+<span class="font-hand text-sm tracking-wide">Yield: 2 Loaves</span>
+</div>
+<div class="flex items-center gap-1.5 text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[16px] sketch-icon">schedule</span>
+<span class="font-hand text-sm tracking-wide">18 Hours</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="relative flex gap-4 p-5 flat-card torn-edge transition-all hover:bg-[#FDFDFB]">
+<div class="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 polaroid">
+<div class="washi-tape" style="transform: translateX(-50%) rotate(3deg);"></div>
+<img alt="Macro photo of rustic baguette" class="w-full h-full object-cover grayscale-[0.1]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzupx90INJjN48zVywnoIxPLc0hH6rr9g4uw4MNHVAJ-_SV8P2CYhqX4zxnHz_Z30KTTNnxEQlCiOsNopaEpCAa9RNQfLb45AK3zP9d6-tQiHy9csk_yjdoEQF0p_NLw6XzV7RTHQQCKyrxRriCZWZneLbg2vaUk_bGVgYDzmig3DlSgQEE6tvlTrD6bT3c0MX9UrQXi2j3afDDR7KcpEo-LNIXyB8pEBaMLEIbmDQzIRT81YE78JLd9q4tP_Ai9NNqmGzVG3fjR0"/>
+</div>
+<div class="flex flex-col justify-between py-1 flex-grow">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-serif text-xl text-[#4A3B32] leading-tight">Classic French Baguette</h3>
+<div class="flex items-center gap-1 px-2 py-0.5 border border-[#4A3B32]/10 rounded bg-[#FAF8F5] text-[10px] text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[12px] sketch-icon">sunny</span>
+<span class="font-hand text-[13px]">74°F</span>
+</div>
+</div>
+<p class="text-[#4A3B32]/70 font-hand text-lg mt-1 line-clamp-1">Poolish based, steam injected bake</p>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex items-center gap-1.5 text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[16px] sketch-icon">layers</span>
+<span class="font-hand text-sm tracking-wide">Yield: 4 Sticks</span>
+</div>
+<div class="flex items-center gap-1.5 text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[16px] sketch-icon">schedule</span>
+<span class="font-hand text-sm tracking-wide">5 Hours</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="relative flex gap-4 p-5 flat-card torn-edge transition-all hover:bg-[#FDFDFB]">
+<div class="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 polaroid">
+<div class="washi-tape" style="top: 5px; right: -5px; transform: rotate(45deg); left: auto; width: 30px;"></div>
+<img alt="Close up of olive oil cake" class="w-full h-full object-cover grayscale-[0.1]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAmACka-9TmWempQbOMDt-_aipB__ZWVrvxt_wo3VBxQKjk0dB6AOxwbcK3yP25-RJN8nFP3sJBBKQXVZMQmlL5A35LOiOigo9l-cpQJwGn7Sk1VKvixHhicxjUhsXS7tQJXO0TgOajFl6OnbGW1_Wi-OpaGqiTeRmPguFSqjXvmiQsHziA6ecNnClW0SRxazY0ejSu3Ebm3_lRml-HipMqAjLWLjKt5JJe4aCr-lDrI70yhbFm0NmhKbkK0cP8KOd8pBtsbxi1oU"/>
+</div>
+<div class="flex flex-col justify-between py-1 flex-grow">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-serif text-xl text-[#4A3B32] leading-tight">Rosemary Olive Oil Cake</h3>
+<div class="flex items-center gap-1 px-2 py-0.5 border border-[#4A3B32]/10 rounded bg-[#FAF8F5] text-[10px] text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[12px] sketch-icon">rainy</span>
+<span class="font-hand text-[13px]">65°F</span>
+</div>
+</div>
+<p class="text-[#4A3B32]/70 font-hand text-lg mt-1 line-clamp-1">Sicilian cold-pressed oil, flaky sea salt</p>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex items-center gap-1.5 text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[16px] sketch-icon">layers</span>
+<span class="font-hand text-sm tracking-wide">Yield: 10" Pan</span>
+</div>
+<div class="flex items-center gap-1.5 text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[16px] sketch-icon">schedule</span>
+<span class="font-hand text-sm tracking-wide">1.5 Hours</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="relative flex gap-4 p-5 flat-card torn-edge transition-all hover:bg-[#FDFDFB]">
+<div class="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 polaroid">
+<div class="washi-tape" style="left: 10px; top: -5px; transform: rotate(-15deg);"></div>
+<img alt="Pile of dark chocolate chip cookies" class="w-full h-full object-cover grayscale-[0.1]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAlpRUbkPHGIyGaoyDSxXQEtcgmIKe0uPE4oe67oGemI-Rx3jIDH05Oamu90O1SV3q1dRbPHqhl7t6YcZdGoJcS6OcIEa580XuhCE2s5CdZINApayO2ekw8Oc-f8HKXogu28TgO4cYjQY9EuV3VXyFR5xx5pueIbztpEgC5mgEPnF6amhzzFWxYzHvWHh4398dBGPcDtRFuedRu9S1NQiwXI4XyJlO8UovA_sHSx7OEv6qDytlmJzS7JeI87EDfJIOBW0yyM9m46Y"/>
+</div>
+<div class="flex flex-col justify-between py-1 flex-grow">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-serif text-xl text-[#4A3B32] leading-tight">Brown Butter Cookies</h3>
+<div class="flex items-center gap-1 px-2 py-0.5 border border-[#4A3B32]/10 rounded bg-[#FAF8F5] text-[10px] text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[12px] sketch-icon">sunny</span>
+<span class="font-hand text-[13px]">78°F</span>
+</div>
+</div>
+<p class="text-[#4A3B32]/70 font-hand text-lg mt-1 line-clamp-1">70% Dark chocolate, toasted hazelnuts</p>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex items-center gap-1.5 text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[16px] sketch-icon">layers</span>
+<span class="font-hand text-sm tracking-wide">Yield: 24 Pieces</span>
+</div>
+<div class="flex items-center gap-1.5 text-[#4A3B32]">
+<span class="material-symbols-outlined !text-[16px] sketch-icon">schedule</span>
+<span class="font-hand text-sm tracking-wide">45 Minutes</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#FAF8F5] z-50 rounded-t-3xl border-t border-[#4A3B32]/10">
+<div class="flex flex-col items-center justify-center opacity-40 px-5 py-2 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined mb-1 !text-[#4A3B32] sketch-icon">home</span>
+<span class="font-hand text-sm tracking-wide uppercase text-[#4A3B32]">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-white border border-[#4A3B32]/10 rounded-xl px-5 py-2">
+<span class="material-symbols-outlined mb-1 !text-[#4A3B32] sketch-icon">menu_book</span>
+<span class="font-hand text-sm tracking-wide uppercase text-[#4A3B32]">Recipes</span>
+</div>
+<div class="flex flex-col items-center justify-center opacity-40 px-5 py-2 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined mb-1 !text-[#4A3B32] sketch-icon">edit_note</span>
+<span class="font-hand text-sm tracking-wide uppercase text-[#4A3B32]">Sketch</span>
+</div>
+<div class="flex flex-col items-center justify-center opacity-40 px-5 py-2 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined mb-1 !text-[#4A3B32] sketch-icon">payments</span>
+<span class="font-hand text-sm tracking-wide uppercase text-[#4A3B32]">Business</span>
+</div>
+</nav>
+<!-- Floating Action Button -->
+<button class="fixed right-6 bottom-28 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center hover:scale-105 transition-transform">
+<span class="material-symbols-outlined !text-white sketch-icon" style="font-variation-settings: 'FILL' 0, 'wght' 300;">add</span>
+</button>
+</body></html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Atelier - Artisan's Journal</title>
+<!-- Google Fonts: Noto Serif for headlines, Manrope for body, and Reenie Beanie/Caveat for handwriting -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Manrope:wght@300;400;600;800&amp;family=Caveat:wght@400;600&amp;family=Reenie+Beanie&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols (using outlined style but we'll stylize them to look more etched) -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+          tailwind.config = {
+            darkMode: "class",
+            theme: {
+              extend: {
+                "colors": {
+                    "on-secondary-fixed-variant": "#53443a",
+                    "on-tertiary": "#ffffff",
+                    "surface-bright": "#FDFDFD",
+                    "secondary-container": "#f6ded1",
+                    "surface-dim": "#dbdad7",
+                    "outline": "#84746b",
+                    "inverse-primary": "#fab890",
+                    "on-tertiary-container": "#fff9f2",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed-dim": "#e7c268",
+                    "primary-container": "#9c6644",
+                    "on-tertiary-fixed": "#251a00",
+                    "surface-tint": "#855232",
+                    "on-secondary-container": "#726157",
+                    "tertiary": "#715600",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#fff8f5",
+                    "on-background": "#1b1c1a",
+                    "on-secondary-fixed": "#251911",
+                    "on-secondary": "#ffffff",
+                    "surface-container-highest": "#e4e2df",
+                    "on-error-container": "#93000a",
+                    "surface": "#FDFDFD",
+                    "secondary": "#6c5b51",
+                    "primary": "#804e2e",
+                    "outline-variant": "#d6c3b9",
+                    "primary-fixed-dim": "#fab890",
+                    "inverse-surface": "#30312f",
+                    "tertiary-fixed": "#ffdf96",
+                    "on-surface": "#1b1c1a",
+                    "secondary-fixed": "#f6ded1",
+                    "surface-variant": "#e4e2df",
+                    "on-primary-fixed-variant": "#693b1d",
+                    "inverse-on-surface": "#f2f0ed",
+                    "primary-fixed": "#ffdbc8",
+                    "surface-container": "#efeeeb",
+                    "surface-container-low": "#f5f3f0",
+                    "on-tertiary-fixed-variant": "#5a4400",
+                    "secondary-fixed-dim": "#d9c2b6",
+                    "surface-container-high": "#eae8e5",
+                    "on-surface-variant": "#52443c",
+                    "background": "#FDFDFD",
+                    "tertiary-container": "#8c6f1d",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#321300",
+                    "on-error": "#ffffff",
+                    "error-container": "#ffdad6"
+                },
+                "borderRadius": {
+                    "DEFAULT": "0.5rem",
+                    "lg": "1rem",
+                    "xl": "1.5rem",
+                    "full": "9999px"
+                },
+                "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"],
+                    "hand": ["Caveat"],
+                    "note": ["Reenie Beanie"]
+                }
+              },
+            },
+          }
+        </script>
+<style>        body {
+            font-family: "Manrope", sans-serif;
+            background-color: #faf8f5;
+            color: #2D241E;
+        }
+        .font-serif {
+            font-family: "Noto Serif", serif;
+        }
+        .font-hand {
+            font-family: "Caveat", cursive;
+            color: #5D4037;
+        }
+        .font-note {
+            font-family: "Reenie Beanie", cursive;
+            color: #4E342E;
+            font-size: 1.4rem;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+        }
+        .polaroid {
+            background: white;
+            padding: 12px 12px 60px 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            position: relative;
+        }
+        .washi-tape {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translatex(-50%) rotate(-2deg);
+            width: 80px;
+            height: 25px;
+            background: rgba(186, 171, 150, 0.4);
+            backdrop-filter: blur(1px);
+            z-index: 10;
+            mask-image: url("data:image/svg+xml;utf8,<svg 0="" 100="" 25="" viewbox="0" xmlns="http://www.w3.org/2000/svg"><path d="M0" fill="black"></path></svg>");
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg 0="" 100="" 25="" viewbox="0" xmlns="http://www.w3.org/2000/svg"><path d="M0" fill="black"></path></svg>");
+        }
+        .etched-icon {
+            filter: contrast(1.1);
+            opacity: 0.9;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        header {
+            background-color: #faf8f5;
+        }
+        .recipe-card-texture {
+            background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuCD94KFof7NBVAQAwFrvYQKzY0BOUM2c_F2PE8p-p5K4l-jqkNagUx8PoF4WiOrL_oAMgWdJTsFKDyiTsK4NcHbayqEUnWZH3ykZk61FyE1DmLp9ebPuDiuu_zKXzDg6-fv1VivkkxPtMMChTPEhzrgCNG_EZH94Hg6HyiB3II1W-0bRO7HXg8OJ3Wq4VXmA9dBvXQ9eqSwKrs5hUstltwOqXel2dZtSnMitSX4XDX-6E_xwGuu-7ai1wlq5U_EQFh--y-fJz57MAA);
+            background-blend-mode: multiply;
+            opacity: 0.95;
+        }
+    </style>
+</head>
+<body class="text-on-surface antialiased pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#faf8f5]/95 backdrop-blur-sm border-b border-stone-200/50">
+<div class="flex justify-between items-center px-6 h-16 w-full max-w-screen-xl mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-stone-100 ring-1 ring-stone-300 rotate-[-2deg] shadow-sm">
+<img alt="Baker Profile" class="w-full h-full object-cover grayscale-[0.2] sepia-[0.1]" data-alt="Close-up portrait of a professional baker" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpDkT-uF1wOdJDr6OKlzcDtiHc2i1odN7juPdlXRHYk_R4qr7N0V-dvEQnZDP0HkE0QpFGHYb7hEaCOYO1GGB8au056deydRNNJYR0KIEc0ehH7gvGqvK7bqkMs9qE0DrZzQYpJvePmPo7D8aIODVCtq4ZlOMu6Ryj0XSyWdWzmtwGOwIxpfQxE05RHn1aOL3uWOG24YbwnyN_UCubgsoNYa-oK8mDXMCYMF1X6QgQuy8TlSgC2p-9VEPJtXHojkCDJ2qNYzuyyCM"/>
+</div>
+<span class="font-serif italic text-2xl text-stone-800 tracking-tight">The Atelier</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-stone-200/30 transition-colors">
+<span class="material-symbols-outlined etched-icon text-stone-900" data-icon="notifications" style="color: #4A3B32;">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-screen-xl mx-auto space-y-12">
+<!-- Hero Greeting -->
+<section class="max-w-2xl relative">
+<div class="absolute -top-6 -left-2 font-hand text-2xl text-primary/80 rotate-[-4deg]">Journal No. 42</div>
+<h1 class="font-serif text-5xl text-stone-900 leading-[1.1] tracking-tight">
+            Find your perfect recipe
+        </h1>
+<p class="mt-2 font-hand text-3xl text-primary-container leading-none">
+            What are we baking today?
+        </p>
+</section>
+<!-- Search Bar (Styled like a handwritten entry line) -->
+<section class="relative">
+<div class="flex items-center bg-white/40 border-b-2 border-dotted border-stone-400/50 px-2 py-3 focus-within:border-primary/50 transition-all">
+<span class="material-symbols-outlined text-stone-500 mr-3 etched-icon" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-stone-800 placeholder:text-stone-400 font-hand text-2xl" placeholder="Search doughs, techniques..." type="text"/>
+<button class="ml-2 flex items-center justify-center text-stone-400 hover:text-primary">
+<span class="material-symbols-outlined etched-icon" data-icon="auto_stories">auto_stories</span>
+</button>
+</div>
+</section>
+<!-- Carousel (Recent R&D - Polaroid style) -->
+<section>
+<div class="flex items-end justify-between mb-8">
+<h2 class="font-serif text-2xl text-stone-900">Recent R&amp;D</h2>
+<button class="font-hand text-xl text-primary flex items-center gap-1 hover:underline">
+                View Lab <span class="material-symbols-outlined text-base" data-icon="arrow_right_alt">arrow_right_alt</span>
+</button>
+</div>
+<div class="flex overflow-x-auto gap-10 hide-scrollbar pb-10 pt-4 -mx-6 px-6">
+<!-- Card 1 -->
+<div class="flex-none w-64 polaroid rotate-[-1deg] hover:rotate-0 transition-transform duration-500">
+<div class="washi-tape"></div>
+<div class="aspect-square w-full overflow-hidden bg-stone-100 mb-4">
+<img alt="Croissant" class="w-full h-full object-cover sepia-[0.15] contrast-[1.05]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG5M59sR2QxHWViT_9RVsqgbzw_7BfgNtrYGuON6_zweFBgT1AzYPVFht6qIdk4PC54stQ3xBGhXYfFCrUlFXvnpybhPEGoWdPD00_MCysuKubKLiTmAUEd4NaOL3KUfXKIDUQJ_EUvtVHuCSI40AAOlf-_Kuiqp_lA2iw8W3UtU8nVAHwW_-wR_OEK3rxoiI7bn3THOYYFV8x3E-lu4Jwiar3Py58sXYeCob9wQs-9_RMnVq_g316uyd60Mw17dzXyBfOZTuj2o8"/>
+</div>
+<div class="space-y-1">
+<h3 class="font-note text-stone-900 leading-tight">Honey-Butter Croissant</h3>
+<p class="text-[10px] uppercase tracking-tighter text-stone-400 font-body">Feb 14 • Lamination Test</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex-none w-64 polaroid rotate-[2deg] hover:rotate-0 transition-transform duration-500">
+<div class="washi-tape opacity-60 bg-primary/20"></div>
+<div class="aspect-square w-full overflow-hidden bg-stone-100 mb-4">
+<img alt="Madeleine" class="w-full h-full object-cover sepia-[0.15] contrast-[1.05]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDllbnw96jDsqz1WAohJ2Wxkup4u5imOZIkhoNNlggGow_gHpdpVpoXrzdwiOXnoDLyC7EOPfaMxHa1QrZgR_2unUrUvIlFcqPL6ePL0vyQZ-bFJ6RcVf-1qWCkL24BF2x_qQejDLUlg1A9Q-3SuOSlhIMGyURdR826Lyb5o942-FWQfktbHsotLLd3EikMVCT_rXuVLRdul6BP0RAxCcUKWS6ppM4TtI4nRLVU3RRpImOeyeLNyBjDigLIQn4jU666fZeBrIMV-6M"/>
+</div>
+<div class="space-y-1">
+<h3 class="font-note text-stone-900 leading-tight">Lavender Madeleine</h3>
+<p class="text-[10px] uppercase tracking-tighter text-stone-400 font-body">Feb 12 • Floral Infusion</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="flex-none w-64 polaroid rotate-[-2deg] hover:rotate-0 transition-transform duration-500">
+<div class="washi-tape opacity-40 bg-stone-800/20"></div>
+<div class="aspect-square w-full overflow-hidden bg-stone-100 mb-4">
+<img alt="Sourdough" class="w-full h-full object-cover sepia-[0.15] contrast-[1.05]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyx-s-5_bMiOPXczyE5MBVC8AeMUPDCSmSBsl2K9e40nluqNHFKYm2_c7fdArOEZ4is6cr5vXFQSNUWLAyhobGVDxolrj3nDxjaDJr2cUCa17itH1Jb_pAuVQShztKqA8Nf6I4E0JI8dS2AOBLhT9UDtITOKFRHqHKPTySAxPzGp9kaZZ_OLLiAqxW6xfaCLfG0ZeYnCutd8sy-Hsv7URYYJ1fWYJuL5DyNmOWvJItYmAS23DQdftWtxpTNl53ZYUp5wNFXgLGCvs"/>
+</div>
+<div class="space-y-1">
+<h3 class="font-note text-stone-900 leading-tight">Heritage Sourdough</h3>
+<p class="text-[10px] uppercase tracking-tighter text-stone-400 font-body">Feb 10 • 80% Hydration</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Category Grid (Vintage recipe cards style) -->
+<section class="pb-16">
+<h2 class="font-serif text-2xl text-stone-900 mb-8">Collections</h2>
+<div class="grid grid-cols-2 gap-6"><!-- Vol I -->
+<div class="aspect-[4/3] bg-white border border-stone-200 shadow-sm rounded-lg p-4 relative group hover:bg-stone-50 transition-all">
+<div class="absolute top-0 right-0 p-2 opacity-90 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-4xl font-light" data-icon="bakery_dining" style="color: #4A3B32;">bakery_dining</span>
+</div>
+<div class="h-full flex flex-col justify-end">
+<span class="font-serif italic text-stone-500 text-xs mb-1 uppercase tracking-widest">Vol. I</span>
+<span class="font-hand text-3xl text-stone-900">Breads</span>
+</div>
+</div>
+<!-- Vol II -->
+<div class="aspect-[4/3] bg-white border border-stone-200 shadow-sm rounded-lg p-4 relative group hover:bg-stone-50 transition-all">
+<div class="absolute top-0 right-0 p-2 opacity-90 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-4xl font-light" data-icon="cake" style="color: #4A3B32;">cake</span>
+</div>
+<div class="h-full flex flex-col justify-end">
+<span class="font-serif italic text-stone-500 text-xs mb-1 uppercase tracking-widest">Vol. II</span>
+<span class="font-hand text-3xl text-stone-900">Cakes</span>
+</div>
+</div>
+<!-- Vol III -->
+<div class="aspect-[4/3] bg-white border border-stone-200 shadow-sm rounded-lg p-4 relative group hover:bg-stone-50 transition-all">
+<div class="absolute top-0 right-0 p-2 opacity-90 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-4xl font-light" data-icon="cookie" style="color: #4A3B32;">cookie</span>
+</div>
+<div class="h-full flex flex-col justify-end">
+<span class="font-serif italic text-stone-500 text-xs mb-1 uppercase tracking-widest">Vol. III</span>
+<span class="font-hand text-3xl text-stone-900">Cookies</span>
+</div>
+</div>
+<!-- Vol IV -->
+<div class="aspect-[4/3] bg-white border border-stone-200 shadow-sm rounded-lg p-4 relative group hover:bg-stone-50 transition-all">
+<div class="absolute top-0 right-0 p-2 opacity-90 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-4xl font-light" data-icon="pie_chart" style="color: #4A3B32;">pie_chart</span>
+</div>
+<div class="h-full flex flex-col justify-end">
+<span class="font-serif italic text-stone-500 text-xs mb-1 uppercase tracking-widest">Vol. IV</span>
+<span class="font-hand text-3xl text-stone-900">Tarts</span>
+</div>
+</div></div>
+</section>
+</main>
+<!-- FAB (Stylized as a wax seal or ink stamp) -->
+<button class="fixed bottom-28 right-6 w-16 h-16 rounded-full bg-primary text-white shadow-xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95 z-50 ring-4 ring-[#FDFDFD]">
+<span class="material-symbols-outlined text-3xl font-light" data-icon="edit">edit</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full bg-[#faf8f5]/95 backdrop-blur-xl border-t border-stone-200 z-50">
+<div class="flex justify-around items-center px-4 pb-8 pt-4">
+<div class="flex flex-col items-center justify-center text-primary transition-all">
+<span class="material-symbols-outlined text-[28px] etched-icon" data-icon="home">home</span>
+<span class="font-hand text-lg -mt-1">Atelier</span>
+</div>
+<div class="flex flex-col items-center justify-center hover:text-stone-700 text-stone-500">
+<span class="material-symbols-outlined text-[28px] etched-icon" data-icon="draw">draw</span>
+<span class="font-hand text-lg -mt-1">R&amp;D</span>
+</div>
+<div class="flex flex-col items-center justify-center hover:text-stone-700 text-stone-500">
+<span class="material-symbols-outlined text-[28px] etched-icon" data-icon="menu_book">menu_book</span>
+<span class="font-hand text-lg -mt-1">Vault</span>
+</div>
+<div class="flex flex-col items-center justify-center hover:text-stone-700 text-stone-500">
+<span class="material-symbols-outlined text-[28px] etched-icon" data-icon="settings">settings</span>
+<span class="font-hand text-lg -mt-1">Settings</span>
+</div>
+</div>
+</nav>
+</body></html>

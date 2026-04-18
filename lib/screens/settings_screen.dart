@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:my_atelier/theme/app_theme.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import '../theme/artisanal_theme.dart';
+import '../widgets/custom_clippers.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -9,76 +8,74 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: ArtisanalTheme.background,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-                  _buildProfileSection(),
-                  const SizedBox(height: 32),
-                  _buildSectionHeader('기본 설정'),
-                  const SizedBox(height: 16),
-                  _buildSettingsCard([
-                    _buildSettingsItem(Symbols.language, '언어 설정', '한국어'),
-                    _buildSettingsDivider(),
-                    _buildSettingsItem(Symbols.dark_mode, '테마 모드', '라이트 모드'),
-                  ]),
-                  const SizedBox(height: 32),
-                  _buildSectionHeader('비즈니스 및 작업'),
-                  const SizedBox(height: 16),
-                  _buildSettingsCard([
-                    _buildSettingsItem(Symbols.payments, '통화 설정', 'KRW (₩)'),
-                    _buildSettingsDivider(),
-                    _buildSettingsItem(Symbols.straighten, '측정 단위', 'Metric (g, kg, L)'),
-                  ]),
-                  const SizedBox(height: 32),
-                  _buildSectionHeader('데이터 및 보안'),
-                  const SizedBox(height: 16),
-                  _buildSettingsCard([
-                    _buildSettingsItem(Symbols.cloud_sync, '클라우드 동기화', '활성화됨'),
-                    _buildSettingsDivider(),
-                    _buildSettingsItem(Symbols.download, '데이터 내보내기', 'PDF / CSV'),
-                    _buildSettingsDivider(),
-                    _buildSettingsItem(Symbols.delete_forever, '캐시 삭제', '42.5 MB', isDestructive: true),
-                  ]),
-                  const SizedBox(height: 32),
-                  _buildSectionHeader('정보'),
-                  const SizedBox(height: 16),
-                  _buildSettingsCard([
-                    _buildSettingsItem(Symbols.info, '앱 버전', 'v1.2.4'),
-                    _buildSettingsDivider(),
-                    _buildSettingsItem(Symbols.description, '이용 약관', ''),
-                    _buildSettingsDivider(),
-                    _buildSettingsItem(Symbols.policy, '개인정보 처리방침', ''),
-                  ]),
-                  const SizedBox(height: 48),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: AppColors.error.withValues(alpha: 0.5)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                      child: Text(
-                        '로그아웃',
-                        style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.error,
+          SliverAppBar(
+            backgroundColor: ArtisanalTheme.background,
+            floating: true,
+            leading: const Icon(Icons.menu, color: ArtisanalTheme.ink),
+            title: Text(
+              'Atelier Profile',
+              style: ArtisanalTheme.hand(fontSize: 28, color: ArtisanalTheme.ink)
+                  .copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.5),
+            ),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.settings, color: ArtisanalTheme.ink, size: 26),
+              ),
+            ],
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                _buildProfileHeader(),
+                const SizedBox(height: 32),
+                _buildSettingsGroup('Data & Business', [
+                  _settingsItem(Icons.receipt_long, 'Ingredient Price DB'),
+                  _settingsItem(Icons.backup, 'Cloud Backup & Sync'),
+                  _settingsItem(Icons.menu_book, 'Export All Recipes'),
+                ]),
+                const SizedBox(height: 28),
+                _buildSettingsGroup('Preferences', [
+                  _settingsItem(Icons.notifications_active, 'Timer & Notifications'),
+                  _settingsItem(Icons.lightbulb_outline, 'Display & Theme'),
+                  _settingsItem(Icons.straighten, 'Units', trailer: 'Metric'),
+                ]),
+                const SizedBox(height: 28),
+                _buildSettingsGroup('Information', [
+                  _settingsItem(Icons.contact_support, 'Help & Support'),
+                  _settingsItem(Icons.local_police, 'Terms & Privacy'),
+                  _settingsItemStatic(Icons.info_outline, 'App Version', value: 'v1.0.0'),
+                ]),
+                const SizedBox(height: 48),
+                Center(
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Transform.rotate(
+                      angle: -0.035,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xFFB33939), width: 2.5),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '[ LOG OUT ]',
+                          style: ArtisanalTheme.hand(
+                            fontSize: 26,
+                            color: const Color(0xFFB33939),
+                          ).copyWith(fontWeight: FontWeight.bold, letterSpacing: 2),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 120),
-                ],
-              ),
+                ),
+                const SizedBox(height: 120),
+              ]),
             ),
           ),
         ],
@@ -86,147 +83,272 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar() {
-    return SliverAppBar(
-      floating: true,
-      backgroundColor: AppColors.background.withValues(alpha: 0.8),
-      elevation: 0,
-      centerTitle: false,
-      title: Text(
-        '설정',
-        style: GoogleFonts.notoSerif(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: AppColors.onSurface,
+  Widget _buildProfileHeader() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(2, 4),
+          ),
+        ],
+      ),
+      child: ClipPath(
+        clipper: ScallopedClipper(),
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 44),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Profile photo: white-bordered square frame + tape
+              Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.topCenter,
+                children: [
+                  // White frame (polaroid-ish but square)
+                  Transform.rotate(
+                    angle: 0.017,
+                    child: Container(
+                      width: 120,
+                      height: 130,
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.12),
+                            blurRadius: 8,
+                            offset: const Offset(2, 4),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: Image.network(
+                        'https://images.unsplash.com/photo-1583394838336-acd977730f8a?q=80&w=400',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.person, size: 48, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Tape across top
+                  Positioned(
+                    top: -12,
+                    child: Transform.rotate(
+                      angle: -0.05,
+                      child: Container(
+                        width: 90,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEEE8D5).withValues(alpha: 0.75),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              // Name, email, badge
+              Text(
+                'Atelier Studio',
+                style: ArtisanalTheme.hand(fontSize: 34, color: ArtisanalTheme.ink)
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'chef@atelier.com',
+                style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.ink),
+              ),
+              const SizedBox(height: 16),
+              // PRO PLAN stamp
+              Transform.rotate(
+                angle: -0.035,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFFC69C6D), width: 2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'PRO PLAN',
+                    style: ArtisanalTheme.hand(
+                      fontSize: 16,
+                      color: const Color(0xFFC69C6D),
+                    ).copyWith(fontWeight: FontWeight.bold, letterSpacing: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Edit button below
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: ArtisanalTheme.ink, width: 2),
+                ),
+                child: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.edit, size: 24, color: ArtisanalTheme.ink),
+                  padding: const EdgeInsets.all(10),
+                  constraints: const BoxConstraints(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildProfileSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+  Widget _buildSettingsGroup(String title, List<Widget> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.ink)
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 2),
+              Container(height: 2, color: ArtisanalTheme.ink.withValues(alpha: 0.2), width: 120),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 2),
-              image: const DecorationImage(
-                image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuAtSDm_Mq79HVNHM_FmFkCw0ws0N9pyeLUA5gsFKctOL9dfhUL5p9Cr1lgKFple6JpiTMw-PBE5qOf0OjWmKiY6iQpNG0zLfYJDzRMvQz7-Gc01AQQmX7bM96haFlRpKtgzrHqylEs9PMaaxmH1I4YejEBWQseiWcLGXIlRu7Q8p3N5WZsE3DGs7lEEvlLbCtXwj8P_96HpCczFDN4LB7ZwJGQpBVfvgvz2R-yDtPF1WSAJZFfeCNVbl5epRRAJSmP5txrkGVFaY70'),
-                fit: BoxFit.cover,
+        ),
+        ClipPath(
+          clipper: ScallopedClipper(),
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.only(bottom: 20),
+            child: Column(
+              children: items,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _settingsItem(IconData icon, String label, {String? trailer}) {
+    return Column(
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {},
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Row(
+                children: [
+                  Icon(icon, color: ArtisanalTheme.ink, size: 24),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: ArtisanalTheme.hand(fontSize: 20, color: ArtisanalTheme.ink)
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  if (trailer != null) ...[
+                    Text(
+                      trailer,
+                      style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.secondary),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Text(
+                    '-->',
+                    style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink),
+                  ),
+                ],
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '김아틀리에',
-                  style: GoogleFonts.notoSerif(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  'atelier.kim@myatelier.com',
-                  style: GoogleFonts.manrope(
-                    fontSize: 13,
-                    color: Colors.white.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Symbols.edit, color: Colors.white, size: 20),
-          ),
-        ],
-      ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: DashedDivider(),
+        ),
+      ],
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: GoogleFonts.manrope(
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 1,
-        color: AppColors.primary,
-      ),
-    );
-  }
-
-  Widget _buildSettingsCard(List<Widget> children) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.outlineVariant.withValues(alpha: 0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(children: children),
-    );
-  }
-
-  Widget _buildSettingsItem(IconData icon, String title, String trailingText, {bool isDestructive = false}) {
+  Widget _settingsItemStatic(IconData icon, String label, {String? value}) {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         children: [
-          Icon(icon, color: isDestructive ? AppColors.error : AppColors.outline, size: 22),
-          const SizedBox(width: 16),
+          Icon(icon, color: ArtisanalTheme.ink, size: 24),
+          const SizedBox(width: 20),
           Expanded(
             child: Text(
-              title,
-              style: GoogleFonts.manrope(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: isDestructive ? AppColors.error : AppColors.onSurface,
-              ),
+              label,
+              style: ArtisanalTheme.hand(fontSize: 20, color: ArtisanalTheme.ink),
             ),
           ),
-          if (trailingText.isNotEmpty)
-            Text(
-              trailingText,
-              style: GoogleFonts.manrope(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary.withValues(alpha: 0.6),
+          if (value != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+              child: Text(
+                value,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 14,
+                  color: ArtisanalTheme.ink,
+                  letterSpacing: 2,
+                ),
               ),
             ),
-          const SizedBox(width: 8),
-          Icon(Symbols.chevron_right, color: AppColors.outlineVariant, size: 20),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSettingsDivider() {
-    return Divider(height: 1, color: AppColors.outlineVariant.withValues(alpha: 0.05), indent: 58);
+class DashedDivider extends StatelessWidget {
+  const DashedDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 1,
+      child: CustomPaint(painter: _DashedLinePainter()),
+    );
   }
+}
+
+class _DashedLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = ArtisanalTheme.ink.withValues(alpha: 0.2)
+      ..strokeWidth = 1;
+    double x = 0;
+    while (x < size.width) {
+      canvas.drawLine(Offset(x, 0), Offset(x + 4, 0), paint);
+      x += 8;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
