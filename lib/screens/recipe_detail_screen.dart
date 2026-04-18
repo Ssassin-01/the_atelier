@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/polaroid_card.dart';
-
+import '../widgets/artisanal_image.dart';
+import '../models/recipe.dart';
+import '../models/component.dart';
 import 'summary_note_screen.dart';
 
 class RecipeDetailScreen extends StatelessWidget {
-  final String title;
-  final String imageUrl;
+  final Recipe recipe;
 
   const RecipeDetailScreen({
     super.key,
-    this.title = 'Pumpkin Porridge Dessert',
-    this.imageUrl = 'https://images.unsplash.com/photo-1509440159596-dec2190391d2?q=80&w=800',
+    required this.recipe,
   });
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -23,104 +25,76 @@ class RecipeDetailScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 600,
+            expandedHeight: 650,
             floating: false,
             pinned: true,
             backgroundColor: ArtisanalTheme.background,
-            actions: [
-              IconButton(onPressed: () {}, icon: const Icon(Icons.search, color: ArtisanalTheme.primary)),
-            ],
             flexibleSpace: FlexibleSpaceBar(
-              background: LayoutBuilder(
-                builder: (context, constraints) {
-                  final availableHeight = constraints.maxHeight;
-                  return SingleChildScrollView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: availableHeight),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 60),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40),
-                            child: Text(
-                              title,
-                              textAlign: TextAlign.center,
-                              style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(
-                                fontSize: availableHeight < 500 ? 32 : 40,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Stack(
-                            alignment: Alignment.topCenter,
-                            clipBehavior: Clip.none,
-                            children: [
-                              const WashiTape(width: 100, rotation: -0.05),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 10),
-                                child: PolaroidCard(
-                                  width: availableHeight < 500 ? 220 : 280,
-                                  image: Image.network(
-                                    imageUrl, 
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[200], child: const Icon(Icons.broken_image)),
-                                  ),
-                                  title: l10n.autumnMenu24,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                        ],
+              background: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 80),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: Text(
+                        recipe.name,
+                        textAlign: TextAlign.center,
+                        style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(
+                          fontSize: 34,
+                        ),
                       ),
                     ),
-                  );
-                }
+                    const SizedBox(height: 24),
+                    Stack(
+                      alignment: Alignment.topCenter,
+                      clipBehavior: Clip.none,
+                      children: [
+                        const WashiTape(width: 100, rotation: -0.05),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: PolaroidCard(
+                            width: 280,
+                            image: ArtisanalImage(
+                              imagePath: recipe.mainImageUrl,
+                              fit: BoxFit.cover,
+                            ),
+                            title: l10n.autumnMenu24,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 100),
+                  ],
+                ),
               ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+            padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 40.0),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildTornTabs(context),
-                const SizedBox(height: 48),
-                _buildPostItComponent(l10n, l10n.pumpkinPureeBaseTitle, [
-                  _ingredientRow(l10n.ingredientKabochaSquash, '500g'),
-                  _ingredientRow(l10n.ingredientWholeMilk, '200g'),
-                  _ingredientRow(l10n.ingredientHeavyCream, '150g'),
-                  _ingredientRow(l10n.ingredientBrownSugar, '60g'),
-                ]),
-                const SizedBox(height: 32),
-                _buildPostItComponent(l10n, l10n.miniRiceBallsTitle, [
-                  _ingredientRow(l10n.ingredientGlutinousFlour, '100g'),
-                  _ingredientRow(l10n.ingredientWarmWater, '80g'),
-                  _ingredientRow(l10n.ingredientSugar, '10g'),
-                ], rotation: 0.02),
-                const SizedBox(height: 60),
                 Center(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SummaryNoteScreen()),
-                      );
-                    },
-                    icon: const Icon(Icons.menu_book),
-                    label: Text(l10n.openJournalSummary),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ArtisanalTheme.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      textStyle: ArtisanalTheme.hand(fontSize: 20),
+                  child: TextButton.icon(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SummaryNoteScreen()),
+                    ),
+                    icon: const Icon(Icons.menu_book, size: 20),
+                    label: Text(
+                      'Open Journal Summary',
+                      style: ArtisanalTheme.hand(fontSize: 18),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: ArtisanalTheme.ink,
+                      backgroundColor: ArtisanalTheme.secondary.withValues(alpha: 0.05),
                     ),
                   ),
                 ),
-                const SizedBox(height: 120),
+                const SizedBox(height: 60),
+                ...recipe.components.map((comp) => AnimatedRecipePostIt(component: comp)),
+                const SizedBox(height: 100),
               ]),
             ),
           ),
@@ -128,89 +102,246 @@ class RecipeDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildTornTabs(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final tabs = [l10n.all, l10n.pumpkinPuree, l10n.miniRiceBalls, l10n.seedTuile];
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: tabs.map((tab) {
-          final isSelected = tab == l10n.all;
-          return Container(
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            decoration: BoxDecoration(
-              color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.background,
-              border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.3)),
-              boxShadow: [
-                if (isSelected) BoxShadow(color: ArtisanalTheme.primary.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))
-              ],
-            ),
-            child: Text(
-              tab.toUpperCase(),
-              style: ArtisanalTheme.lightTheme.textTheme.labelLarge?.copyWith(
-                color: isSelected ? Colors.white : ArtisanalTheme.primary,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
+class AnimatedRecipePostIt extends StatefulWidget {
+  final RecipeComponent component;
+
+  const AnimatedRecipePostIt({super.key, required this.component});
+
+  @override
+  State<AnimatedRecipePostIt> createState() => _AnimatedRecipePostItState();
+}
+
+class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _isFront = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 800), vsync: this);
   }
 
-  Widget _buildPostItComponent(AppLocalizations l10n, String title, List<Widget> ingredients, {double rotation = -0.02}) {
-    return Transform.rotate(
-      angle: rotation,
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFDFBF7),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15, offset: const Offset(2, 4))],
-          border: Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.05)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onHorizontalDragUpdate(DragUpdateDetails details) {
+    // Relative drag to control rotation
+    double delta = details.primaryDelta! / 300.0;
+    _controller.value -= delta;
+  }
+
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    if (_controller.value > 0.5 || details.primaryVelocity! < -300) {
+      _controller.forward().then((_) => setState(() => _isFront = false));
+    } else {
+      _controller.reverse().then((_) => setState(() => _isFront = true));
+    }
+  }
+
+  void _onTap() {
+    if (_isFront) {
+      _controller.forward().then((_) => setState(() => _isFront = false));
+    } else {
+      _controller.reverse().then((_) => setState(() => _isFront = true));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 80.0),
+      child: GestureDetector(
+        onTap: _onTap,
+        onHorizontalDragUpdate: _onHorizontalDragUpdate,
+        onHorizontalDragEnd: _onHorizontalDragEnd,
+        child: Stack(
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.none,
           children: [
-            Text(
-              title,
-              style: ArtisanalTheme.hand(fontSize: 28, color: ArtisanalTheme.ink).copyWith(fontWeight: FontWeight.bold),
+            // INTERACTIVE FLIP BUILDER
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                final angle = _controller.value * math.pi;
+                return Transform(
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.0008) // Perspective
+                    ..rotateY(angle), // Balanced center rotation
+                  alignment: Alignment.center, // GO BACK TO CENTER SO IT STAYS VISIBLE
+                  child: angle < math.pi / 2 
+                    ? _postItWrapper(_buildIngredientsContent()) // Front face
+                    : Transform(
+                        transform: Matrix4.identity()..rotateY(math.pi), // Face user
+                        alignment: Alignment.center,
+                        child: _postItWrapper(_buildMethodsContent(l10n)),
+                      ),
+                );
+              },
             ),
-            const SizedBox(height: 8),
-            Container(height: 2, color: ArtisanalTheme.ink.withValues(alpha: 0.1), width: 100),
-            const SizedBox(height: 24),
-            ...ingredients,
-            const SizedBox(height: 24),
-            _buildActionHint(l10n.jumpToProcedure),
+            
+            // Fixed Indicators
+            Positioned(
+              top: 25,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                   _simpleTab(l10n.tabIngredients, _controller.value < 0.5),
+                   const SizedBox(width: 20),
+                   _simpleTab(l10n.tabMethods, _controller.value >= 0.5),
+                ],
+              ),
+            ),
+
+            // Tape on top
+            Positioned(
+              top: -15,
+              child: const WashiTape(
+                width: 90, 
+                rotation: 0.012,
+                opacity: 0.85, 
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _ingredientRow(String name, String amount) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(name, style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.ink)),
-          Text(amount, style: ArtisanalTheme.hand(fontSize: 20, color: ArtisanalTheme.ink)),
-        ],
+  Widget _buildIngredientsContent() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 20),
+        Text(
+          widget.component.title,
+          style: ArtisanalTheme.hand(fontSize: 26, color: ArtisanalTheme.ink).copyWith(
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+        const SizedBox(height: 20),
+        ...widget.component.ingredients.map((ing) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Text(ing.name, style: ArtisanalTheme.hand(fontSize: 19, height: 1.25)),
+              ),
+              const SizedBox(width: 8),
+              Text('${ing.amount}${ing.unit}', 
+                   style: ArtisanalTheme.hand(fontSize: 19, color: ArtisanalTheme.secondary)),
+            ],
+          ),
+        )),
+        const SizedBox(height: 32),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Opacity(
+            opacity: 0.3,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Slide or tap to flip', style: ArtisanalTheme.hand(fontSize: 14)),
+                const Icon(Icons.arrow_forward, size: 14, color: ArtisanalTheme.secondary),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMethodsContent(AppLocalizations l10n) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 20),
+        Text(
+          'Method: ${widget.component.title}',
+          style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.primary).copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 20),
+        ...widget.component.steps.asMap().entries.map((e) => Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${e.key + 1}. ', 
+                   style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.primary)),
+              Expanded(
+                child: Text(e.value.description, 
+                            style: ArtisanalTheme.hand(fontSize: 18, height: 1.35)),
+              ),
+            ],
+          ),
+        )).toList(),
+        const SizedBox(height: 32),
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: Opacity(
+            opacity: 0.3,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.arrow_back, size: 14, color: ArtisanalTheme.secondary),
+                Text('Back to ingredients', style: ArtisanalTheme.hand(fontSize: 14)),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _simpleTab(String label, bool active) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(
+          color: active ? ArtisanalTheme.primary : Colors.transparent, 
+          width: 2.5
+        )),
+      ),
+      child: Text(
+        label,
+        style: ArtisanalTheme.hand(
+          fontSize: 16,
+          color: active ? ArtisanalTheme.primary : ArtisanalTheme.secondary.withValues(alpha: 0.5),
+        ),
       ),
     );
   }
 
-  Widget _buildActionHint(String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.arrow_downward, size: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.5)),
-        const SizedBox(width: 8),
-        Text(text, style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.5))),
-      ],
+  Widget _postItWrapper(Widget child) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 32),
+      padding: const EdgeInsets.fromLTRB(28, 56, 28, 28),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF9E7),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 15,
+            offset: const Offset(6, 6),
+          ),
+        ],
+      ),
+      child: child,
     );
   }
 }

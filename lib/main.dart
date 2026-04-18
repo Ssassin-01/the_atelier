@@ -31,11 +31,10 @@ void main() async {
   // Open boxes
   final recipeBox = await Hive.openBox<Recipe>('recipes');
   
-  // Populate with mock data if empty
-  if (recipeBox.isEmpty) {
-    for (var recipe in getMockRecipes()) {
-      await recipeBox.put(recipe.id, recipe);
-    }
+  // Clear and Populate with latest mock data for development visibility
+  await recipeBox.clear();
+  for (var recipe in getMockRecipes()) {
+    await recipeBox.put(recipe.id, recipe);
   }
   
   runApp(
@@ -109,18 +108,19 @@ class _MainScaffoldState extends State<MainScaffold> {
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
-        color: ArtisanalTheme.background.withValues(alpha: 0.9),
+        color: ArtisanalTheme.background.withValues(alpha: 0.95),
         elevation: 10,
+        padding: EdgeInsets.zero, // Remove internal padding to maximize hit area
         child: SizedBox(
-          height: 64,
+          height: 80,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.stretch, // Make children fill full height
             children: [
-              _buildNavItem(0, Icons.storefront_outlined, Icons.storefront, l10n.dashboard),
-              _buildNavItem(1, Icons.menu_book_outlined, Icons.menu_book, l10n.journal),
-              const SizedBox(width: 48), // Space for FAB
-              _buildNavItem(3, Icons.payments_outlined, Icons.payments, l10n.pantry),
-              _buildNavItem(4, Icons.person_outline, Icons.person, l10n.profile),
+              Expanded(child: _buildNavItem(0, Icons.storefront_outlined, Icons.storefront, l10n.dashboard)),
+              Expanded(child: _buildNavItem(1, Icons.menu_book_outlined, Icons.menu_book, l10n.journal)),
+              const SizedBox(width: 80), // Larger space for the draw FAB
+              Expanded(child: _buildNavItem(3, Icons.payments_outlined, Icons.payments, l10n.pantry)),
+              Expanded(child: _buildNavItem(4, Icons.person_outline, Icons.person, l10n.profile)),
             ],
           ),
         ),
@@ -132,7 +132,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         child: FloatingActionButton(
           onPressed: () => _onItemTapped(2),
           backgroundColor: _selectedIndex == 2 ? ArtisanalTheme.ink : ArtisanalTheme.primary,
-          elevation: 4,
+          elevation: 6,
           shape: const CircleBorder(side: BorderSide(color: Colors.white, width: 4)),
           child: const Icon(Icons.draw, color: Colors.white, size: 32),
         ),
@@ -142,24 +142,36 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
     final isSelected = _selectedIndex == index;
-    return GestureDetector(
-      onTap: () => _onItemTapped(index),
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isSelected ? activeIcon : icon,
-            color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.secondary.withValues(alpha: 0.5),
-          ),
-          Text(
-            label,
-            style: ArtisanalTheme.hand(
-              fontSize: 12,
-              color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.secondary.withValues(alpha: 0.5),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _onItemTapped(index),
+        splashColor: ArtisanalTheme.primary.withValues(alpha: 0.1),
+        highlightColor: Colors.transparent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedScale(
+              scale: isSelected ? 1.2 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                isSelected ? activeIcon : icon,
+                color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                size: 26,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: ArtisanalTheme.hand(
+                fontSize: 13,
+                color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.secondary.withValues(alpha: 0.6),
+              ).copyWith(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/polaroid_card.dart';
+import '../widgets/artisanal_image.dart';
+import '../services/recipe_service.dart';
 import 'recipe_detail_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final recipes = ref.watch(recipeListProvider);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -47,149 +51,85 @@ class DashboardScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      l10n.whatAreWeBaking,
-                      style: ArtisanalTheme.hand(
-                        fontSize: 32,
-                        color: ArtisanalTheme.primaryContainer,
+                      l10n.artisanalKitchenDesc,
+                      style: ArtisanalTheme.lightTheme.textTheme.bodyMedium?.copyWith(
+                        color: ArtisanalTheme.secondary,
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 48),
+            const SizedBox(height: 40),
             // Search Bar
             Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: ArtisanalTheme.outline.withValues(alpha: 0.3),
-                    width: 2,
-                    style: BorderStyle.solid, // Should be dotted if possible, but solid for simplicity now
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha((0.05 * 255).toInt()),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.search, color: ArtisanalTheme.secondary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: l10n.searchHint,
-                        hintStyle: ArtisanalTheme.hand(
-                          fontSize: 24,
-                          color: ArtisanalTheme.outline.withAlpha((0.5 * 255).toInt()),
-                        ),
-                        border: InputBorder.none,
-                      ),
-                      style: ArtisanalTheme.hand(fontSize: 24, color: ArtisanalTheme.ink),
-                    ),
-                  ),
-                  const Icon(Icons.auto_stories, color: ArtisanalTheme.outline),
                 ],
+              ),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: l10n.searchRecipes,
+                  border: InputBorder.none,
+                  icon: const Icon(Icons.search, color: ArtisanalTheme.secondary),
+                ),
               ),
             ),
             const SizedBox(height: 48),
-            // Recent R&D
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  l10n.recentRnD,
-                  style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 24),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      l10n.viewLab,
-                      style: ArtisanalTheme.hand(fontSize: 20, color: ArtisanalTheme.primary),
-                    ),
-                    const Icon(Icons.arrow_right_alt, color: ArtisanalTheme.primary, size: 20),
-                  ],
-                ),
-              ],
+            // Recently Baked Section
+            Text(
+              l10n.recentlyBaked,
+              style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 24),
             ),
             const SizedBox(height: 24),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              clipBehavior: Clip.none,
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RecipeDetailScreen(
-                            title: 'Honey-Butter Croissant',
-                            imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=400&auto=format&fit=crop',
+            SizedBox(
+              height: 420,
+              child: recipes.isEmpty 
+                ? Center(child: Text(l10n.emptyState, style: ArtisanalTheme.hand(fontSize: 20)))
+                : ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: recipes.length > 5 ? 5 : recipes.length,
+                    itemBuilder: (context, index) {
+                      final recipe = recipes[index];
+                      // Alternate rotations and tape colors for variety
+                      final rotation = (index % 2 == 0) ? 0.04 : -0.05;
+                      final tapeColor = (index % 2 == 0) 
+                          ? ArtisanalTheme.primary.withAlpha((0.15 * 255).toInt())
+                          : Colors.black.withAlpha((0.05 * 255).toInt());
+
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 32.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RecipeDetailScreen(recipe: recipe),
+                              ),
+                            );
+                          },
+                          child: PolaroidCard(
+                            rotation: rotation,
+                            tapeColor: tapeColor,
+                            title: recipe.name,
+                            subtitle: recipe.description,
+                            image: ArtisanalImage(
+                              imagePath: recipe.mainImageUrl,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       );
                     },
-                    child: PolaroidCard(
-                      rotation: -0.03,
-                      title: 'Honey-Butter Croissant',
-                      subtitle: 'Feb 14 Lamination Test',
-                      image: Image.network(
-                        'https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=600',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[200], child: const Icon(Icons.broken_image)),
-                      ),
-                    ),
                   ),
-                  const SizedBox(width: 40),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RecipeDetailScreen(
-                            title: l10n.lavenderMadeleine,
-                            imageUrl: 'https://images.unsplash.com/photo-1549419163-9426f4974f76?q=80&w=400&auto=format&fit=crop',
-                          ),
-                        ),
-                      );
-                    },
-                    child: PolaroidCard(
-                      rotation: 0.04,
-                      tapeColor: ArtisanalTheme.primary.withAlpha((0.2 * 255).toInt()),
-                      title: l10n.lavenderMadeleine,
-                      subtitle: l10n.lavenderMadeleineDesc,
-                      image: Image.network(
-                        'https://lh3.googleusercontent.com/aida-public/AB6AXuDllbnw96jDsqz1WAohJ2Wxkup4u5imOZIkhoNNlggGow_gHpdpVpoXrzdwiOXnoDLyC7EOPfaMxHa1QrZgR_2unUrUvIlFcqPL6ePL0vyQZ-bFJ6RcVf-1qWCkL24BF2x_qQejDLUlg1A9Q-3SuOSlhIMGyURdR826Lyb5o942-FWQfktbHsotLLd3EikMVCT_rXuVLRdul6BP0RAxCcUKWS6ppM4TtI4nRLVU3RRpImOeyeLNyBjDigLIQn4jU666fZeBrIMV-6M',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RecipeDetailScreen(
-                            title: l10n.heritageSourdough,
-                            imageUrl: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?q=80&w=400&auto=format&fit=crop',
-                          ),
-                        ),
-                      );
-                    },
-                    child: PolaroidCard(
-                      rotation: -0.05,
-                      tapeColor: Colors.black12,
-                      title: l10n.heritageSourdough,
-                      subtitle: l10n.heritageSourdoughDesc,
-                      image: Image.network(
-                        'https://lh3.googleusercontent.com/aida-public/AB6AXuDyx-s-5_bMiOPXczyE5MBVC8AeMUPDCSmSBsl2K9e40nluqNHFKYm2_c7fdArOEZ4is6cr5vXFQSNUWLAyhobGVDxolrj3nDxjaDJr2cUCa17itH1Jb_pAuVQShztKqA8Nf6I4E0JI8dS2AOBLhT9UDtITOKFRHqHKPTySAxPzGp9kaZZ_OLLiAqxW6xfaCLfG0ZeYnCutd8sy-Hsv7URYYJ1fWYJuL5DyNmOWvJItYmAS23DQdftWtxpTNl53ZYUp5wNFXgLGCvs',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
             const SizedBox(height: 48),
             // Collections
@@ -198,83 +138,60 @@ class DashboardScreen extends StatelessWidget {
               style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 24),
             ),
             const SizedBox(height: 24),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 24,
-              crossAxisSpacing: 24,
-              childAspectRatio: 4 / 3,
-              children: [
-                CollectionCard(volume: '${l10n.volume} I', title: l10n.breads, icon: Icons.bakery_dining),
-                CollectionCard(volume: '${l10n.volume} II', title: l10n.cakes, icon: Icons.cake),
-                CollectionCard(volume: '${l10n.volume} III', title: l10n.cookies, icon: Icons.cookie),
-                CollectionCard(volume: '${l10n.volume} IV', title: l10n.tarts, icon: Icons.pie_chart),
-              ],
-            ),
+            _buildCollectionsGrid(l10n),
             const SizedBox(height: 80),
           ],
         ),
       ),
     );
   }
-}
 
-class CollectionCard extends StatelessWidget {
-  final String volume;
-  final String title;
-  final IconData icon;
+  Widget _buildCollectionsGrid(AppLocalizations l10n) {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      mainAxisSpacing: 16,
+      crossAxisSpacing: 16,
+      childAspectRatio: 1.5,
+      children: [
+        _collectionCard(l10n.collectionSourdough, 'assets/images/sourdough.png', Colors.orange[100]!),
+        _collectionCard(l10n.collectionDesserts, 'assets/images/pumpkin_dessert.png', Colors.pink[50]!),
+        _collectionCard(l10n.collectionPastry, 'assets/images/madeleine.png', Colors.purple[50]!),
+        _collectionCard(l10n.collectionCookies, 'assets/images/cookies.png', Colors.amber[50]!),
+      ],
+    );
+  }
 
-  const CollectionCard({
-    super.key,
-    required this.volume,
-    required this.title,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _collectionCard(String title, String imagePath, Color bgColor) {
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
           Positioned(
-            top: 0,
-            right: 0,
-            child: Icon(icon, color: ArtisanalTheme.ink.withValues(alpha: 0.8), size: 36),
+            right: -20,
+            bottom: -10,
+            child: Opacity(
+              opacity: 0.6,
+              child: ArtisanalImage(
+                imagePath: imagePath,
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  volume,
-                  style: ArtisanalTheme.lightTheme.textTheme.labelLarge?.copyWith(
-                    fontSize: 10,
-                    letterSpacing: 2.0,
-                    color: Colors.black38,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                Text(
-                  title,
-                  style: ArtisanalTheme.hand(fontSize: 28, color: ArtisanalTheme.onSurface),
-                ),
-              ],
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              title,
+              style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.ink).copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],

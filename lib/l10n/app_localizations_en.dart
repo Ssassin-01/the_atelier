@@ -342,4 +342,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get miniRiceBallsTitle => 'Mini Rice Balls';
+
+  @override
+  String get tagVegan => '#Vegan';
+
+  @override
+  String get tagLargeBatch => '#LargeBatch';
+
+  @override
+  String get tagSlowFerment => '#SlowFerment';
+
+  @override
+  String get tagSourdough => '#Sourdough';
+
+  @override
+  String get recipeSourdoughDesc =>
+      'A classic artisan bread with 80% hydration and cold fermentation.';
+
+  @override
+  String get recipeBaguetteDesc =>
+      'Traditional French baguette using a poolish starter.';
+
+  @override
+  String get recipeCakeDesc =>
+      'Moist and aromatic cake with fresh rosemary and premium olive oil.';
+
+  @override
+  String get recipeCookieDesc =>
+      'Rich brown butter cookies with dark chocolate chunks.';
+
+  @override
+  String get artisanalKitchenDesc =>
+      'Explore the nuances of sourdough, pastry, and more.';
+
+  @override
+  String get searchRecipes => 'Search for a recipe...';
+
+  @override
+  String get recentlyBaked => 'Recently Baked';
+
+  @override
+  String get emptyState => 'No recipes found. Start baking!';
+
+  @override
+  String get collectionSourdough => 'Sourdough';
+
+  @override
+  String get collectionDesserts => 'Desserts';
+
+  @override
+  String get collectionPastry => 'Pastry';
+
+  @override
+  String get collectionCookies => 'Cookies';
+
+  @override
+  String get tabIngredients => 'Ingredients';
+
+  @override
+  String get tabMethods => 'Methods';
 }

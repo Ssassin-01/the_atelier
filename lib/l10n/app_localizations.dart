@@ -757,6 +757,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mini Rice Balls'**
   String get miniRiceBallsTitle;
+
+  /// No description provided for @tagVegan.
+  ///
+  /// In en, this message translates to:
+  /// **'#Vegan'**
+  String get tagVegan;
+
+  /// No description provided for @tagLargeBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'#LargeBatch'**
+  String get tagLargeBatch;
+
+  /// No description provided for @tagSlowFerment.
+  ///
+  /// In en, this message translates to:
+  /// **'#SlowFerment'**
+  String get tagSlowFerment;
+
+  /// No description provided for @tagSourdough.
+  ///
+  /// In en, this message translates to:
+  /// **'#Sourdough'**
+  String get tagSourdough;
+
+  /// No description provided for @recipeSourdoughDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A classic artisan bread with 80% hydration and cold fermentation.'**
+  String get recipeSourdoughDesc;
+
+  /// No description provided for @recipeBaguetteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditional French baguette using a poolish starter.'**
+  String get recipeBaguetteDesc;
+
+  /// No description provided for @recipeCakeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Moist and aromatic cake with fresh rosemary and premium olive oil.'**
+  String get recipeCakeDesc;
+
+  /// No description provided for @recipeCookieDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Rich brown butter cookies with dark chocolate chunks.'**
+  String get recipeCookieDesc;
+
+  /// No description provided for @artisanalKitchenDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore the nuances of sourdough, pastry, and more.'**
+  String get artisanalKitchenDesc;
+
+  /// No description provided for @searchRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a recipe...'**
+  String get searchRecipes;
+
+  /// No description provided for @recentlyBaked.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently Baked'**
+  String get recentlyBaked;
+
+  /// No description provided for @emptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'No recipes found. Start baking!'**
+  String get emptyState;
+
+  /// No description provided for @collectionSourdough.
+  ///
+  /// In en, this message translates to:
+  /// **'Sourdough'**
+  String get collectionSourdough;
+
+  /// No description provided for @collectionDesserts.
+  ///
+  /// In en, this message translates to:
+  /// **'Desserts'**
+  String get collectionDesserts;
+
+  /// No description provided for @collectionPastry.
+  ///
+  /// In en, this message translates to:
+  /// **'Pastry'**
+  String get collectionPastry;
+
+  /// No description provided for @collectionCookies.
+  ///
+  /// In en, this message translates to:
+  /// **'Cookies'**
+  String get collectionCookies;
+
+  /// No description provided for @tabIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get tabIngredients;
+
+  /// No description provided for @tabMethods.
+  ///
+  /// In en, this message translates to:
+  /// **'Methods'**
+  String get tabMethods;
 }
 
 class _AppLocalizationsDelegate

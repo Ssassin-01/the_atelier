@@ -98,6 +98,8 @@ class PolaroidCard extends StatelessWidget {
                 Text(
                   title,
                   style: ArtisanalTheme.note(fontSize: 24, color: Colors.black87),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 4),
@@ -108,6 +110,8 @@ class PolaroidCard extends StatelessWidget {
                       letterSpacing: -0.5,
                       color: Colors.black38,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ],

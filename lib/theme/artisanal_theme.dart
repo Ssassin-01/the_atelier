@@ -66,11 +66,12 @@ class ArtisanalTheme {
   }
 
   // Handwritten helper methods
-  static TextStyle hand({double fontSize = 24, Color color = primary}) {
+  static TextStyle hand({double fontSize = 24, Color color = primary, double? height}) {
     return GoogleFonts.caveat(
       fontSize: fontSize,
       fontWeight: FontWeight.w500,
       color: color,
+      height: height,
     );
   }
 

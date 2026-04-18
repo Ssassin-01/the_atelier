@@ -341,4 +341,58 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get miniRiceBallsTitle => '미니 경단';
+
+  @override
+  String get tagVegan => '#비건';
+
+  @override
+  String get tagLargeBatch => '#대량생산';
+
+  @override
+  String get tagSlowFerment => '#장기숙성';
+
+  @override
+  String get tagSourdough => '#사워도우';
+
+  @override
+  String get recipeSourdoughDesc => '가수율 80%와 장기 저온 숙성을 거친 클래식 아티잔 브레드입니다.';
+
+  @override
+  String get recipeBaguetteDesc => '풀리쉬 반죽을 사용한 전통적인 프랑스식 바게트입니다.';
+
+  @override
+  String get recipeCakeDesc => '신선한 로즈마리와 프리미엄 올리브 오일의 풍미가 가득한 촉촉한 케이크입니다.';
+
+  @override
+  String get recipeCookieDesc => '다크 초콜릿칩과 풍미 깊은 갈색 버터가 어우러진 쿠키입니다.';
+
+  @override
+  String get artisanalKitchenDesc => '사워도우부터 페이스트리까지, 베이킹의 정수를 탐구합니다.';
+
+  @override
+  String get searchRecipes => '레시피를 검색하세요...';
+
+  @override
+  String get recentlyBaked => '최근 구운 빵';
+
+  @override
+  String get emptyState => '기록된 레시피가 없습니다. 첫 연구를 시작해보세요!';
+
+  @override
+  String get collectionSourdough => '사워도우';
+
+  @override
+  String get collectionDesserts => '디저트';
+
+  @override
+  String get collectionPastry => '페이스트리';
+
+  @override
+  String get collectionCookies => '쿠키';
+
+  @override
+  String get tabIngredients => '재료 정보';
+
+  @override
+  String get tabMethods => '조리 방법';
 }

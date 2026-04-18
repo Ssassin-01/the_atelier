@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/artisanal_image.dart';
 
 class SummaryNoteScreen extends StatelessWidget {
   const SummaryNoteScreen({super.key});
 
-  // The ink color used throughout
   static const Color _ink = Color(0xFF4A3B32);
-  static const Color _redInk = Color(0xFFA03030);
-  static const Color _lineColor = Color(0xFFE5E0D8);
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +23,13 @@ class SummaryNoteScreen extends StatelessWidget {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 48),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 700),
-              child: _JournalPage(),
-            ),
+          child: Column(
+            children: [
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 700),
+                child: _JournalPage(),
+              ),
+            ],
           ),
         ),
       ),
@@ -52,312 +52,276 @@ class _JournalPage extends StatelessWidget {
           ),
         ],
       ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Left leather binding
-            Container(
-              width: 32,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [Color(0xFFDAD6CF), Color(0xFFE8E4DC)],
-                ),
-                border: Border(
-                  right: BorderSide(color: Colors.black.withValues(alpha: 0.08), width: 1),
-                ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Left leather binding
+          Container(
+            width: 32,
+            height: 1800, // Long enough for content
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [Color(0xFFDAD6CF), Color(0xFFE8E4DC)],
+              ),
+              border: Border(
+                right: BorderSide(color: Colors.black.withValues(alpha: 0.08), width: 1),
               ),
             ),
-            // Page content
-            Expanded(
-              child: Stack(
-                children: [
-                  // Ruled lines as background
-                  Positioned.fill(
-                    child: CustomPaint(painter: _RuledLinePainter()),
-                  ),
-                  // Content
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(40, 48, 40, 80),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Date & version top-right
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                l10n.summaryDate,
-                                style: ArtisanalTheme.hand(
-                                  fontSize: 20,
-                                  color: Colors.black.withValues(alpha: 0.45),
-                                ),
-                              ),
-                              Text(
-                                l10n.summaryVersion,
-                                style: ArtisanalTheme.hand(
-                                  fontSize: 18,
-                                  color: Colors.black.withValues(alpha: 0.45),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        // Title - big handwriting, center, rotated
-                        Center(
-                          child: Transform.rotate(
-                            angle: -0.018,
-                            child: Text(
-                              'Pumpkin Porridge Dessert',
-                              textAlign: TextAlign.center,
+          ),
+          // Page content
+          Expanded(
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: CustomPaint(painter: _RuledLinePainter()),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(40, 48, 40, 80),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Date & Version
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              l10n.summaryDate,
                               style: ArtisanalTheme.hand(
-                                fontSize: 58,
-                                color: _SummaryNoteScreen._ink,
-                              ).copyWith(
-                                fontWeight: FontWeight.bold,
-                                height: 1.1,
+                                fontSize: 20,
+                                color: Colors.black.withValues(alpha: 0.45),
                               ),
+                            ),
+                            Text(
+                              l10n.summaryVersion,
+                              style: ArtisanalTheme.hand(
+                                fontSize: 18,
+                                color: Colors.black.withValues(alpha: 0.45),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Title
+                      Center(
+                        child: Transform.rotate(
+                          angle: -0.018,
+                          child: Text(
+                            'Pumpkin Porridge Dessert',
+                            textAlign: TextAlign.center,
+                            style: ArtisanalTheme.hand(
+                              fontSize: 52,
+                              color: const Color(0xFF4A3B32),
+                            ).copyWith(
+                              fontWeight: FontWeight.bold,
+                              height: 1.1,
                             ),
                           ),
                         ),
-
-                        const SizedBox(height: 4),
-
-                        // Underline below title
-                        Center(
-                          child: Container(
-                            height: 1.5,
-                            width: 220,
-                            color: _SummaryNoteScreen._ink.withValues(alpha: 0.25),
-                          ),
-                        ),
-
-                        const SizedBox(height: 36),
-
-                        // Hero image
-                        Center(
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Transform.rotate(
-                                angle: 0.017,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.15),
-                                        blurRadius: 16,
-                                        offset: const Offset(0, 6),
-                                      ),
-                                    ],
-                                    border: Border.all(color: Colors.white, width: 8),
-                                  ),
-                                  child: SizedBox(
-                                    width: 420,
-                                    child: AspectRatio(
-                                      aspectRatio: 4 / 3,
-                                      child: Image.network(
-                                        'https://images.unsplash.com/photo-1541014741259-df549fa9ba6f?q=80&w=800',
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => Container(
-                                          color: const Color(0xFFEAE6DF),
-                                          child: const Icon(Icons.image, size: 48, color: Color(0xFFB0A9A0)),
-                                        ),
-                                      ),
+                      ),
+                      const SizedBox(height: 36),
+                      // Hero Image
+                      Center(
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Transform.rotate(
+                              angle: 0.017,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.15),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 6),
+                                    ),
+                                  ],
+                                  border: Border.all(color: Colors.white, width: 8),
+                                ),
+                                child: const SizedBox(
+                                  width: 420,
+                                  child: AspectRatio(
+                                    aspectRatio: 4 / 3,
+                                    child: ArtisanalImage(
+                                      imagePath: 'assets/images/pumpkin_dessert.png',
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
                               ),
-                              Positioned(
-                                bottom: -28,
-                                right: 0,
-                                child: Transform.rotate(
-                                  angle: -0.04,
-                                  child: Text(
-                                    '* ${AppLocalizations.of(context).finalPlatingIdea}',
-                                    style: ArtisanalTheme.hand(
-                                      fontSize: 20,
-                                      color: _SummaryNoteScreen._ink.withValues(alpha: 0.65),
-                                    ),
+                            ),
+                            Positioned(
+                              bottom: -28,
+                              right: 0,
+                              child: Transform.rotate(
+                                angle: -0.04,
+                                child: Text(
+                                  '* final plating idea',
+                                  style: ArtisanalTheme.hand(
+                                    fontSize: 20,
+                                    color: const Color(0xFF4A3B32).withValues(alpha: 0.65),
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 64),
-
-                        // Recipe components
-                        _RecipeSection(
-                          l10n: l10n,
-                          number: '1.',
-                          name: l10n.pumpkinCreamTitle,
-                          ingredients: [
-                            (l10n.ingredientRoastedPumpkin, '250g'),
-                            (l10n.ingredientHeavyCream, '150g'),
-                            (l10n.ingredientBrownSugar, '35g'),
-                            (l10n.ingredientCinnamon, '1 pinch'),
+                            ),
                           ],
-                          method: l10n.methodPumpkinCream,
-                          redNote: l10n.noteOvermix,
-                          methodContinue: '\n${l10n.methodChill}',
                         ),
-
-                        const SizedBox(height: 48),
-
-                        _RecipeSection(
-                          l10n: l10n,
-                          number: '2.',
-                          name: l10n.mochiTitle,
-                          ingredients: [
-                            (l10n.ingredientGlutinousFlour, '100g'),
-                            (l10n.ingredientWarmWater, '~80ml'),
-                            (l10n.ingredientSugar, '10g'),
-                          ],
-                          method: l10n.methodMochi,
-                        ),
-
-                        const SizedBox(height: 48),
-
-                        _RecipeSection(
-                          l10n: l10n,
-                          number: '3.',
-                          name: l10n.seedTuileTitle,
-                          ingredients: [
-                            (l10n.ingredientButterMelted, '40g'),
-                            (l10n.ingredientIcingSugar, '40g'),
-                            (l10n.ingredientEggWhite, '40g'),
-                            (l10n.ingredientFlour, '30g'),
-                            (l10n.ingredientPumpkinSeeds, '50g'),
-                          ],
-                          method: l10n.methodSeedTuile,
-                          redNote: l10n.noteShapeHot,
-                        ),
-
-                        const SizedBox(height: 48),
-
-                        _RecipeSection(
-                          l10n: l10n,
-                          number: '4.',
-                          name: l10n.riceCrumbleTitle,
-                          ingredients: [
-                            (l10n.ingredientRiceFlour, '50g'),
-                            (l10n.ingredientAlmondFlour, '50g'),
-                            (l10n.ingredientColdButter, '50g'),
-                            (l10n.ingredientDemeraraSugar, '40g'),
-                            (l10n.ingredientSalt, '1 pinch'),
-                          ],
-                          method: l10n.methodRiceCrumble,
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 80),
+                      // Sections
+                      _RecipeSection(
+                        title: 'A. Pumpkin Cream',
+                        ingredients: [
+                          ('Frozen Kabocha', '300g'),
+                          ('Milk', '90g'),
+                          ('Heavy Cream', '60g'),
+                          ('Egg Yolks', '22g'),
+                          ('Sugar', '15g'),
+                          ('Sheet Gelatin', '2g'),
+                        ],
+                        steps: [
+                          'Steam kabocha (170°C for 20m) & puree.',
+                          'Heat milk and cream together.',
+                          'Whisk yolks, sugar, salt. Heat mix to 82°C.',
+                          'Emulsify with gelatin and fold in puree.',
+                        ],
+                      ),
+                      const SizedBox(height: 48),
+                      _RecipeSection(
+                        title: 'B. Mini Rice Balls',
+                        ingredients: [
+                          ('Glutinous Rice Flour', '50g'),
+                          ('Hot Water', '32g'),
+                          ('Sugar', '4g'),
+                        ],
+                        steps: [
+                          'Mix dry ingredients. Add hot water for dough.',
+                          'Shape into 4g spheres. Boil until they float.',
+                          'Chill immediately in ice water.',
+                        ],
+                      ),
+                      const SizedBox(height: 48),
+                      _RecipeSection(
+                        title: 'C. Pumpkin Seed Tuile',
+                        ingredients: [
+                          ('Pumpkin Seeds', '50g'),
+                          ('Butter', '35g'),
+                          ('Icing Sugar', '35g'),
+                          ('Rice Flour', '15g'),
+                          ('Egg White', '30g'),
+                        ],
+                        steps: [
+                          'Chop seeds. Mix butter and icing sugar.',
+                          'Add egg white and flour. Fold in seeds.',
+                          'Rest 20m. Bake at 180°C for 8-11m.',
+                        ],
+                      ),
+                      const SizedBox(height: 48),
+                      _RecipeSection(
+                        title: 'D. Soybean Rice Crumble',
+                        ingredients: [
+                          ('Rice Flour', '35g'),
+                          ('Soybean Powder', '20g'),
+                          ('Almond Flour', '15g'),
+                          ('Butter', '32g'),
+                        ],
+                        steps: [
+                          'Sift powders. Rub in cold cubed butter.',
+                          'Freeze briefly. Bake at 160°C for 12-15m.',
+                          'Cool and crumble by hand.',
+                        ],
+                      ),
+                      const SizedBox(height: 48),
+                      _RecipeSection(
+                        title: 'E. Rice Ice Cream',
+                        ingredients: [
+                          ('Glutinous Rice', '50g'),
+                          ('Milk', '350g'),
+                          ('Heavy Cream', '84g'),
+                          ('Glucose/Sugar', '60g'),
+                          ('Roasted Rice', '7g'),
+                        ],
+                        steps: [
+                          'Simmer rice and milk. Add cream.',
+                          'Heat to 82°C and blend until smooth.',
+                          'Fold in roasted rice and churn.',
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-// Ignore lint: this is an alias to keep the code concise inside the nested class
-// ignore: camel_case_types
-class _SummaryNoteScreen {
-  static const Color _ink = Color(0xFF4A3B32);
-}
-
 class _RecipeSection extends StatelessWidget {
-  final AppLocalizations l10n;
-  final String number;
-  final String name;
+  final String title;
   final List<(String, String)> ingredients;
-  final String method;
-  final String? redNote;
-  final String? methodContinue;
+  final List<String> steps;
 
   const _RecipeSection({
-    required this.l10n,
-    required this.number,
-    required this.name,
+    required this.title,
     required this.ingredients,
-    required this.method,
-    this.redNote,
-    this.methodContinue,
+    required this.steps,
   });
 
   @override
   Widget build(BuildContext context) {
+    const ink = Color(0xFF4A3B32);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Title
         Text(
-          '$number $name',
+          title,
           style: ArtisanalTheme.hand(
-            fontSize: 38,
-            color: SummaryNoteScreen._ink,
-          ).copyWith(fontWeight: FontWeight.bold),
+            fontSize: 28,
+            color: ink,
+          ).copyWith(fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
         ),
-
         const SizedBox(height: 16),
-
-        // Ingredients list (Top)
+        // Ingredients List (Vertical)
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final (item, qty) in ingredients)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item,
-                        style: ArtisanalTheme.hand(fontSize: 21, color: SummaryNoteScreen._ink),
-                      ),
-                    ),
-                    Text(
-                      qty,
-                      style: ArtisanalTheme.hand(fontSize: 21, color: SummaryNoteScreen._ink),
-                    ),
-                  ],
-                ),
-              ),
-          ],
+          children: ingredients.map((ing) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 1),
+            child: Text(
+              '• ${ing.$1}: ${ing.$2}',
+              style: ArtisanalTheme.hand(fontSize: 19, color: ink.withValues(alpha: 0.85)),
+            ),
+          )).toList(),
         ),
-
-        const SizedBox(height: 12),
-
-        // Method text (Bottom)
-        RichText(
-          text: TextSpan(
-            style: ArtisanalTheme.hand(fontSize: 21, color: SummaryNoteScreen._ink).copyWith(height: 1.55),
-            children: [
-              TextSpan(text: method),
-              if (redNote != null)
-                TextSpan(
-                  text: ' $redNote',
-                  style: ArtisanalTheme.hand(fontSize: 21, color: SummaryNoteScreen._redInk).copyWith(
-                    fontWeight: FontWeight.bold,
-                    height: 1.55,
+        const SizedBox(height: 16),
+        // Steps List (Below Ingredients)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: steps.asMap().entries.map((entry) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${entry.key + 1}. ',
+                  style: ArtisanalTheme.hand(fontSize: 18, color: ink.withValues(alpha: 0.6)),
+                ),
+                Expanded(
+                  child: Text(
+                    entry.value,
+                    style: ArtisanalTheme.hand(fontSize: 18, color: ink),
                   ),
                 ),
-              if (methodContinue != null)
-                TextSpan(text: methodContinue),
-            ],
-          ),
+              ],
+            ),
+          )).toList(),
         ),
       ],
     );
@@ -368,13 +332,12 @@ class _RuledLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = SummaryNoteScreen._lineColor
+      ..color = const Color(0xFFE5E0D8)
       ..strokeWidth = 1.0;
 
-    double y = 33.0;
-    while (y < size.height) {
+    const double lineSpacing = 30.0;
+    for (double y = 140; y < size.height; y += lineSpacing) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-      y += 33.0;
     }
   }
 
