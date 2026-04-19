@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
@@ -31,10 +32,11 @@ void main() async {
   // Open boxes
   final recipeBox = await Hive.openBox<Recipe>('recipes');
   
-  // Clear and Populate with latest mock data for development visibility
-  await recipeBox.clear();
-  for (var recipe in getMockRecipes()) {
-    await recipeBox.put(recipe.id, recipe);
+  // Populate with mock data only if the box is empty (first run)
+  if (recipeBox.isEmpty) {
+    for (var recipe in getMockRecipes()) {
+      await recipeBox.put(recipe.id, recipe);
+    }
   }
   
   runApp(
@@ -92,7 +94,6 @@ class _MainScaffoldState extends State<MainScaffold> {
     final List<Widget> screens = [
       const DashboardScreen(),
       const RecipeArchiveScreen(),
-      AddRecipeScreen(onBack: () => _onItemTapped(0)),
       const BusinessLedgerScreen(),
       const SettingsScreen(),
     ];
@@ -119,23 +120,41 @@ class _MainScaffoldState extends State<MainScaffold> {
               Expanded(child: _buildNavItem(0, Icons.storefront_outlined, Icons.storefront, l10n.dashboard)),
               Expanded(child: _buildNavItem(1, Icons.menu_book_outlined, Icons.menu_book, l10n.journal)),
               const SizedBox(width: 80), // Larger space for the draw FAB
-              Expanded(child: _buildNavItem(3, Icons.payments_outlined, Icons.payments, l10n.pantry)),
-              Expanded(child: _buildNavItem(4, Icons.person_outline, Icons.person, l10n.profile)),
+              Expanded(child: _buildNavItem(2, Icons.payments_outlined, Icons.payments, l10n.pantry)),
+              Expanded(child: _buildNavItem(3, Icons.person_outline, Icons.person, l10n.profile)),
             ],
           ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: SizedBox(
-        height: 72,
-        width: 72,
-        child: FloatingActionButton(
-          onPressed: () => _onItemTapped(2),
-          backgroundColor: _selectedIndex == 2 ? ArtisanalTheme.ink : ArtisanalTheme.primary,
-          elevation: 6,
-          shape: const CircleBorder(side: BorderSide(color: Colors.white, width: 4)),
-          child: const Icon(Icons.draw, color: Colors.white, size: 32),
-        ),
+      floatingActionButton: Consumer(
+        builder: (context, ref, child) {
+          return SizedBox(
+            height: 72,
+            width: 72,
+            child: FloatingActionButton(
+              onPressed: () {
+                _triggerFeedback();
+                // Ensure fresh state for new recipe
+                ref.invalidate(recipeDraftProvider);
+                
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddRecipeScreen(
+                      onBack: () => Navigator.pop(context),
+                    ),
+                  ),
+                );
+              },
+              backgroundColor: ArtisanalTheme.primary,
+              elevation: 6,
+              shape: const CircleBorder(
+                  side: BorderSide(color: Colors.white, width: 4)),
+              child: const Icon(Icons.draw, color: Colors.white, size: 32),
+            ),
+          );
+        },
       ),
     );
   }
@@ -174,5 +193,9 @@ class _MainScaffoldState extends State<MainScaffold> {
         ),
       ),
     );
+  }
+
+  void _triggerFeedback() {
+    HapticFeedback.lightImpact();
   }
 }

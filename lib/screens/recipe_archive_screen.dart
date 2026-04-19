@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../services/recipe_service.dart';
 import '../widgets/artisanal_image.dart';
 import '../widgets/polaroid_card.dart';
+import '../widgets/crumple_effect.dart';
 import 'recipe_detail_screen.dart';
+import 'summary_note_screen.dart';
 
 class RecipeArchiveScreen extends ConsumerStatefulWidget {
   const RecipeArchiveScreen({super.key});
@@ -196,7 +199,7 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                       const EdgeInsets.fromLTRB(28, 20, 28, 120),
                   sliver: SliverList.separated(
                     itemCount: filtered.length,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (context, index) =>
                         const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       final recipe = filtered[index];
@@ -209,6 +212,7 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                                 RecipeDetailScreen(recipe: recipe),
                           ),
                         ),
+                        onDelete: () => ref.read(recipeListProvider.notifier).removeRecipe(recipe.id),
                       );
                     },
                   ),
@@ -310,116 +314,179 @@ class _CategoryChip extends StatelessWidget {
 }
 
 // ── Recipe Index Card ──────────────────────────────────────────────────────
-class _RecipeIndexCard extends StatelessWidget {
+class _RecipeIndexCard extends StatefulWidget {
   final dynamic recipe;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
-  const _RecipeIndexCard({required this.recipe, required this.onTap});
+  const _RecipeIndexCard({
+    required this.recipe,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  @override
+  State<_RecipeIndexCard> createState() => _RecipeIndexCardState();
+}
+
+class _RecipeIndexCardState extends State<_RecipeIndexCard> with SingleTickerProviderStateMixin {
+  late AnimationController _crumpleController;
+
+  @override
+  void initState() {
+    super.initState();
+    _crumpleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+  }
+
+  @override
+  void dispose() {
+    _crumpleController.dispose();
+    super.dispose();
+  }
+
+  void _triggerFeedback() {
+    HapticFeedback.mediumImpact();
+  }
+
+  Future<void> _confirmDelete() async {
+    _triggerFeedback();
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFFDFBF7),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text("DELETE ENTRY?", style: ArtisanalTheme.hand(fontSize: 22, fontWeight: FontWeight.bold)),
+        content: Text("This will permanently remove this recipe from your collection.", style: ArtisanalTheme.hand(fontSize: 18)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("CANCEL", style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("REMOVE", style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _crumpleController.forward();
+      widget.onDelete();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final date = recipe.createdAt as DateTime;
+    final date = widget.recipe.createdAt as DateTime;
     final dateStr =
         '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
 
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // ── Thumbnail with washi tape ──────────────────────────────────
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
-                  ),
-                  child: ArtisanalImage(
-                    imagePath: recipe.mainImageUrl,
-                    width: 110,
-                    height: 120,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                // Mini washi tape detail at the top edge of the image
-                const Positioned(
-                  top: -6,
-                  left: 20,
-                  child: WashiTape(
-                      width: 56, height: 13, rotation: -0.04, opacity: 0.75),
-                ),
-              ],
-            ),
-
-            // ── Content ────────────────────────────────────────────────────
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      recipe.name,
-                      style: ArtisanalTheme.hand(
-                        fontSize: 22,
-                        color: ArtisanalTheme.ink,
-                      ).copyWith(fontWeight: FontWeight.bold),
+      onTap: widget.onTap,
+      onLongPress: _confirmDelete,
+      child: CrumpleEffect(
+        controller: _crumpleController,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // ── Thumbnail with washi tape ──────────────────────────────────
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
                     ),
-                    const SizedBox(height: 4),
-                    if (recipe.description != null &&
-                        (recipe.description as String).isNotEmpty)
+                    child: ArtisanalImage(
+                      imagePath: widget.recipe.mainImageUrl,
+                      width: 110,
+                      height: 120,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  // Mini washi tape detail at the top edge of the image
+                  const Positioned(
+                    top: -6,
+                    left: 20,
+                    child: WashiTape(
+                        width: 56, height: 13, rotation: -0.04, opacity: 0.75),
+                  ),
+                ],
+              ),
+  
+              // ── Content ────────────────────────────────────────────────────
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        recipe.description,
+                        widget.recipe.name,
                         style: ArtisanalTheme.hand(
-                          fontSize: 16,
-                          color:
-                              ArtisanalTheme.ink.withValues(alpha: 0.55),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                          fontSize: 22,
+                          color: ArtisanalTheme.ink,
+                        ).copyWith(fontWeight: FontWeight.bold),
                       ),
-                    const SizedBox(height: 12),
-                    // Meta row
-                    // Meta row - Using Wrap instead of Row to handle overflow gracefully
-                    Wrap(
-                      spacing: 14, // horizontal space between items
-                      runSpacing: 4, // vertical space if wrapped
-                      children: [
-                        _MetaItem(
-                            icon: Icons.calendar_today_outlined,
-                            label: dateStr),
-                        _MetaItem(
-                            icon: Icons.layers_outlined,
-                            label:
-                                '${recipe.components.length} components'),
-                      ],
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      if (widget.recipe.description != null &&
+                          (widget.recipe.description as String).isNotEmpty)
+                        Text(
+                          widget.recipe.description,
+                          style: ArtisanalTheme.hand(
+                            fontSize: 16,
+                            color:
+                                ArtisanalTheme.ink.withValues(alpha: 0.55),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      const SizedBox(height: 12),
+                      // Meta row
+                      Wrap(
+                        spacing: 14,
+                        runSpacing: 4,
+                        children: [
+                          _MetaItem(
+                              icon: Icons.calendar_today_outlined,
+                              label: dateStr),
+                          _MetaItem(
+                              icon: Icons.layers_outlined,
+                              label:
+                                  '${widget.recipe.components.length} components'),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-
-            // ── Arrow ──────────────────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Icon(Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: ArtisanalTheme.outline.withValues(alpha: 0.6)),
-            ),
-          ],
+  
+              // ── Arrow ──────────────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Icon(Icons.arrow_forward_ios_rounded,
+                    size: 14,
+                    color: ArtisanalTheme.outline.withValues(alpha: 0.6)),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,28 +1,125 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math' as math;
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/polaroid_card.dart';
 import '../widgets/artisanal_image.dart';
+import '../widgets/crumple_effect.dart';
 import '../models/recipe.dart';
 import '../models/component.dart';
+import '../services/recipe_service.dart';
 import 'summary_note_screen.dart';
+import 'add_recipe_screen.dart';
 
-class RecipeDetailScreen extends StatelessWidget {
+class RecipeDetailScreen extends ConsumerStatefulWidget {
   final Recipe recipe;
 
   const RecipeDetailScreen({super.key, required this.recipe});
 
   @override
+  ConsumerState<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
+}
+
+class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _crumpleController;
+
+  @override
+  void initState() {
+    super.initState();
+    _crumpleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+  }
+
+  @override
+  void dispose() {
+    _crumpleController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _confirmDelete() async {
+    HapticFeedback.mediumImpact();
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFFDFBF7),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text("DISCARD ENTRY?", style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
+        content: Text("Are you sure you want to remove this recipe from your collection?", style: ArtisanalTheme.hand(fontSize: 18)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("CANCEL", style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("DISCARD", style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _crumpleController.forward();
+      if (mounted) {
+        await ref.read(recipeListProvider.notifier).removeRecipe(widget.recipe.id);
+        if (mounted) Navigator.pop(context);
+      }
+    }
+  }
+
+  void _onEdit() {
+    // Map existing recipe to draft
+    final draft = RecipeDraft(
+      name: widget.recipe.name,
+      mainImagePath: widget.recipe.mainImageUrl,
+      components: widget.recipe.components.map((c) => RecipeComponentDraft(
+        id: DateTime.now().toString(),
+        title: c.title,
+        imagePath: c.imageUrl,
+        ingredients: c.ingredients.map((i) => IngredientEntry(
+          id: DateTime.now().toString(),
+          name: i.name,
+          weight: double.tryParse(i.amount) ?? 0.0,
+        )).toList(),
+        steps: c.steps.map((s) => RecipeStepDraft(
+          id: DateTime.now().toString(),
+          content: s.description,
+        )).toList(),
+      )).toList(),
+    );
+
+    // Seed the provider
+    ref.read(recipeDraftProvider.notifier).state = draft;
+
+    // Navigate to AddRecipeScreen in edit mode
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddRecipeScreen(
+          editingRecipeId: widget.recipe.id,
+          onBack: () => Navigator.pop(context),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final recipes = ref.watch(recipeListProvider);
+    final recipe = recipes.firstWhere((r) => r.id == widget.recipe.id, orElse: () => widget.recipe);
 
     return Scaffold(
       backgroundColor: ArtisanalTheme.background,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 650,
+            expandedHeight: 540,
             floating: false,
             pinned: true,
             backgroundColor: ArtisanalTheme.background,
@@ -32,13 +129,15 @@ class RecipeDetailScreen extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
             ),
             actions: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.share_outlined,
-                  color: ArtisanalTheme.primary,
-                ),
+              TextButton(
+                onPressed: _onEdit,
+                child: Text("EDIT", style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontSize: 16, fontWeight: FontWeight.bold)),
               ),
+              IconButton(
+                onPressed: _confirmDelete,
+                icon: Icon(Icons.delete_outline, color: ArtisanalTheme.redInk.withValues(alpha: 0.7)),
+              ),
+              const SizedBox(width: 8),
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: SingleChildScrollView(
@@ -46,7 +145,7 @@ class RecipeDetailScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 80),
+                    const SizedBox(height: 40),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
@@ -56,7 +155,7 @@ class RecipeDetailScreen extends StatelessWidget {
                             ?.copyWith(fontSize: 34),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
                     Stack(
                       alignment: Alignment.topCenter,
                       clipBehavior: Clip.none,
@@ -83,95 +182,98 @@ class RecipeDetailScreen extends StatelessWidget {
           ),
 
           SliverToBoxAdapter(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFFBF9F6),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(36),
-                  topRight: Radius.circular(36),
+            child: CrumpleEffect(
+              controller: _crumpleController,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFBF9F6),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(36),
+                    topRight: Radius.circular(36),
+                  ),
                 ),
-              ),
-              child: Stack(
-                alignment: Alignment.topCenter,
-                children: [
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(36),
-                          topRight: Radius.circular(36),
-                        ),
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withValues(alpha: 0.04),
-                            Colors.transparent,
-                          ],
+                child: Stack(
+                  alignment: Alignment.topCenter,
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(36),
+                            topRight: Radius.circular(36),
+                          ),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black.withValues(alpha: 0.04),
+                              Colors.transparent,
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-
-                  Column(
-                    children: [
-                      const SizedBox(height: 16),
-                      Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: ArtisanalTheme.ink.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-
-                      Center(
-                        child: TextButton.icon(
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  SummaryNoteScreen(recipe: recipe),
-                            ),
-                          ),
-                          icon: const Icon(Icons.menu_book, size: 20),
-                          label: Text(
-                            'Open Journal Summary',
-                            style: ArtisanalTheme.hand(fontSize: 18),
-                          ),
-                          style: TextButton.styleFrom(
-                            foregroundColor: ArtisanalTheme.ink,
-                            backgroundColor: ArtisanalTheme.secondary
-                                .withValues(alpha: 0.05),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
+  
+                    Column(
+                      children: [
+                        const SizedBox(height: 16),
+                        Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                      ),
-
-                      const SizedBox(height: 60),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 0),
-                        child: Column(
-                          children: [
-                            ...recipe.components.map(
-                              (comp) => AnimatedRecipePostIt(component: comp),
+                        const SizedBox(height: 30),
+  
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    SummaryNoteScreen(recipe: recipe),
+                              ),
                             ),
-                          ],
+                            icon: const Icon(Icons.menu_book, size: 20),
+                            label: Text(
+                              'Open Journal Summary',
+                              style: ArtisanalTheme.hand(fontSize: 18),
+                            ),
+                            style: TextButton.styleFrom(
+                              foregroundColor: ArtisanalTheme.ink,
+                              backgroundColor: ArtisanalTheme.secondary
+                                  .withValues(alpha: 0.05),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 100),
-                    ],
-                  ),
-                ],
+  
+                        const SizedBox(height: 60),
+  
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 0),
+                          child: Column(
+                            children: [
+                              ...recipe.components.map(
+                                (comp) => AnimatedRecipePostIt(component: comp),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 100),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

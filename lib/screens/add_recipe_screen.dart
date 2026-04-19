@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +12,7 @@ import '../models/recipe.dart' as model;
 import '../models/component.dart' as model;
 import '../models/ingredient.dart' as model;
 import '../models/step.dart' as model;
+import '../widgets/artisanal_image.dart';
 import '../services/recipe_service.dart';
 
 // ── Data Models ─────────────────────────────────────────────────────────────
@@ -75,20 +76,68 @@ class RecipeDraft {
   ];
 
   double get totalWeight => components.fold(0.0, (sum, c) => sum + c.totalWeight);
+
+  static RecipeDraft fromModel(model.Recipe recipe) {
+    return RecipeDraft(
+      name: recipe.name,
+      mainImagePath: recipe.mainImageUrl,
+      components: recipe.components.map((c) => RecipeComponentDraft(
+        id: DateTime.now().millisecondsSinceEpoch.toString() + c.title,
+        title: c.title,
+        imagePath: c.imageUrl,
+        ingredients: c.ingredients.map((i) => IngredientEntry(
+          id: DateTime.now().millisecondsSinceEpoch.toString() + i.name,
+          name: i.name,
+          weight: double.tryParse(i.amount) ?? 0,
+          isFlour: i.name.toLowerCase().contains('flour'), // Heuristic or we could use another field
+        )).toList(),
+        steps: c.steps.map((s) => RecipeStepDraft(
+          id: DateTime.now().millisecondsSinceEpoch.toString() + s.description.substring(0, math.min(5, s.description.length)),
+          content: s.description,
+        )).toList(),
+      )).toList(),
+    );
+  }
 }
 
 final recipeDraftProvider = StateProvider.autoDispose<RecipeDraft>((ref) => RecipeDraft());
 
-class AddRecipeScreen extends ConsumerWidget {
+class AddRecipeScreen extends ConsumerStatefulWidget {
   final VoidCallback? onBack;
-  const AddRecipeScreen({super.key, this.onBack});
+  final String? editingRecipeId;
+  const AddRecipeScreen({super.key, this.onBack, this.editingRecipeId});
 
+  @override
+  ConsumerState<AddRecipeScreen> createState() => _AddRecipeScreenState();
+}
+
+class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   void _triggerFeedback() {
     HapticFeedback.lightImpact();
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    if (widget.editingRecipeId != null) {
+      // Defer state update to next frame to avoid build-phase exceptions
+      Future.microtask(() {
+        final recipes = ref.read(recipeListProvider);
+        final existing = recipes.where((r) => r.id == widget.editingRecipeId).firstOrNull;
+        if (existing != null) {
+          ref.read(recipeDraftProvider.notifier).state = RecipeDraft.fromModel(existing);
+        }
+      });
+    } else {
+      // CLEAR DRAFT for new recipe to avoid bug where last edited recipe remains
+      Future.microtask(() {
+        ref.invalidate(recipeDraftProvider);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final draft = ref.watch(recipeDraftProvider);
     final notifier = ref.read(recipeDraftProvider.notifier);
@@ -104,8 +153,8 @@ class AddRecipeScreen extends ConsumerWidget {
             leading: IconButton(
               icon: const Icon(Icons.close, color: ArtisanalTheme.ink),
               onPressed: () {
-                if (onBack != null) {
-                  onBack!();
+                if (widget.onBack != null) {
+                  widget.onBack!();
                 } else {
                   Navigator.pop(context);
                 }
@@ -165,10 +214,13 @@ class AddRecipeScreen extends ConsumerWidget {
                 const SizedBox(height: 32),
                 
                 TextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   onChanged: (val) {
                     _triggerFeedback();
                     notifier.update((s) => RecipeDraft(name: val, mainImagePath: s.mainImagePath, components: s.components));
                   },
+                  controller: TextEditingController(text: draft.name)..selection = TextSelection.collapsed(offset: draft.name.length),
                   decoration: InputDecoration(
                     hintText: l10n.recipeNameHint,
                     hintStyle: GoogleFonts.notoSerif(
@@ -246,7 +298,7 @@ class AddRecipeScreen extends ConsumerWidget {
     if (draft.name.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Please name your masterpiece first!", style: ArtisanalTheme.hand()),
+          content: Text("Please name your masterpiece first!", style: ArtisanalTheme.hand(color: Colors.white)),
           backgroundColor: ArtisanalTheme.redInk,
         ),
       );
@@ -258,7 +310,7 @@ class AddRecipeScreen extends ConsumerWidget {
 
     // Map Draft to model
     final newRecipe = model.Recipe(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: widget.editingRecipeId ?? DateTime.now().millisecondsSinceEpoch.toString(),
       name: draft.name,
       mainImageUrl: draft.mainImagePath,
       createdAt: DateTime.now(),
@@ -276,18 +328,17 @@ class AddRecipeScreen extends ConsumerWidget {
       )).toList(),
     );
 
-    await ref.read(recipeListProvider.notifier).addRecipe(newRecipe);
+    if (widget.editingRecipeId != null) {
+      await ref.read(recipeListProvider.notifier).updateRecipe(newRecipe);
+    } else {
+      await ref.read(recipeListProvider.notifier).addRecipe(newRecipe);
+    }
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Recipe saved to Journal!", style: ArtisanalTheme.hand(color: Colors.white)),
-          backgroundColor: ArtisanalTheme.primary,
-        ),
-      );
+      // SnackBar removed as per user request
       
-      if (onBack != null) {
-        onBack!();
+      if (widget.onBack != null) {
+        widget.onBack!();
       } else {
         Navigator.pop(context);
       }
@@ -323,7 +374,7 @@ class AddRecipeScreen extends ConsumerWidget {
                   child: Stack(
                     children: [
                       Positioned.fill(
-                        child: path == null
+                        child: (path == null || path == 'placeholder')
                             ? Container(
                                 color: const Color(0xFFF2EFED),
                                 child: Column(
@@ -342,14 +393,14 @@ class AddRecipeScreen extends ConsumerWidget {
                                   ],
                                 ),
                               )
-                            : Image.file(
-                                File(path),
+                            : ArtisanalImage(
+                                imagePath: path,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                               ),
                       ),
-                      // Action Overlay when empty
-                      if (path == null)
+                      // Action Overlay when empty (or placeholder)
+                      if (path == null || path == 'placeholder')
                         Align(
                           alignment: Alignment.bottomCenter,
                           child: Padding(
@@ -375,11 +426,20 @@ class AddRecipeScreen extends ConsumerWidget {
                             ),
                           ),
                         ),
-                      if (path != null)
+                      if (path != null && path != 'placeholder')
                          Positioned(
                            top: 4,
                            right: 4,
-                           child: _mediaActionBtn(Icons.close, () => onSelected(null), isSmall: true),
+                           child: _mediaActionBtn(
+                             Icons.close,
+                             () async {
+                               final confirmed = await _confirmDeleteMedia(context);
+                               if (confirmed == true) {
+                                 onSelected(null);
+                               }
+                             },
+                             isSmall: true,
+                           ),
                          ),
                     ],
                   ),
@@ -398,16 +458,46 @@ class AddRecipeScreen extends ConsumerWidget {
     );
   }
 
+  Future<bool?> _confirmDeleteMedia(BuildContext context) {
+    _triggerFeedback();
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFFDFBF7),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text("REMOVE MEDIA?", style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
+        content: Text("Are you sure you want to remove this image from the recipe?", style: ArtisanalTheme.hand(fontSize: 18)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("KEEP IT", style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("REMOVE", style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _mediaActionBtn(IconData icon, VoidCallback onTap, {bool isSmall = false}) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        _triggerFeedback();
+        onTap();
+      },
+      behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: EdgeInsets.all(isSmall ? 4 : 8),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.6),
-          shape: BoxShape.circle,
+        padding: const EdgeInsets.all(12), // Larger hit area
+        child: Container(
+          padding: EdgeInsets.all(isSmall ? 4 : 8),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.6),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: Colors.white, size: isSmall ? 14 : 20),
         ),
-        child: Icon(icon, color: Colors.white, size: isSmall ? 14 : 20),
       ),
     );
   }
@@ -441,6 +531,8 @@ class AddRecipeScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    enableSuggestions: false,
+                    autocorrect: false,
                     onChanged: (val) {
                       _triggerFeedback();
                       component.title = val;
@@ -465,14 +557,27 @@ class AddRecipeScreen extends ConsumerWidget {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.add_photo_alternate_outlined, size: 20, color: component.imagePath == null ? ArtisanalTheme.outline : ArtisanalTheme.primary),
-                  onPressed: () {
-                    _triggerFeedback();
-                    notifier.update((s) {
-                      component.imagePath = component.imagePath == null ? 'placeholder' : null;
-                      return RecipeDraft(name: s.name, mainImagePath: s.mainImagePath, components: s.components);
-                    });
-                  },
+                  icon: Icon(
+                    Icons.add_photo_alternate_outlined, 
+                    size: 20, 
+                    color: component.imagePath == null 
+                        ? ArtisanalTheme.outline 
+                        : (component.imagePath == 'placeholder' 
+                            ? ArtisanalTheme.primary 
+                            : ArtisanalTheme.outline.withValues(alpha: 0.3)), // Faded when locked
+                  ),
+                  onPressed: (component.imagePath != null && component.imagePath != 'placeholder')
+                      ? null // LOCKED when actual image exists
+                      : () {
+                          _triggerFeedback();
+                          notifier.update((s) {
+                            component.imagePath = component.imagePath == null ? 'placeholder' : null;
+                            return RecipeDraft(
+                                name: s.name,
+                                mainImagePath: s.mainImagePath,
+                                components: s.components);
+                          });
+                        },
                 ),
                 if (index > 0)
                   IconButton(
@@ -636,6 +741,8 @@ class AddRecipeScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   onChanged: (val) {
                     _triggerFeedback();
                     entry.name = val;
@@ -673,6 +780,8 @@ class AddRecipeScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.right,
                   onChanged: (val) {
@@ -685,6 +794,13 @@ class AddRecipeScreen extends ConsumerWidget {
                           components: s.components);
                     });
                   },
+                  controller: TextEditingController(
+                      text: entry.weight == 0 ? '' : entry.weight.toStringAsFixed(0))
+                    ..selection = TextSelection.collapsed(
+                        offset: (entry.weight == 0
+                                ? ''
+                                : entry.weight.toStringAsFixed(0))
+                            .length),
                   style: GoogleFonts.notoSerif(fontSize: 16),
                   decoration: const InputDecoration(
                     hintText: "0",
@@ -769,10 +885,15 @@ class AddRecipeScreen extends ConsumerWidget {
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
+              enableSuggestions: false,
+              autocorrect: false,
               onChanged: (val) {
                  _triggerFeedback();
                  step.content = val;
               },
+              controller: TextEditingController(text: step.content)
+                ..selection =
+                    TextSelection.collapsed(offset: step.content.length),
               maxLines: null,
               style:
                   ArtisanalTheme.hand(fontSize: 17, color: ArtisanalTheme.ink),

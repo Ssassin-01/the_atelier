@@ -44,6 +44,11 @@ class RecipeNotifier extends StateNotifier<List<Recipe>> {
     _loadRecipes();
   }
 
+  Future<void> updateRecipe(Recipe recipe) async {
+    await _service.updateRecipe(recipe);
+    _loadRecipes();
+  }
+
   Future<void> removeRecipe(String id) async {
     await _service.deleteRecipe(id);
     _loadRecipes();

@@ -1,14 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/artisanal_image.dart';
 import '../widgets/masking_tape.dart';
 import '../models/recipe.dart';
+import '../services/recipe_service.dart';
+import '../widgets/crumple_effect.dart';
+import 'add_recipe_screen.dart';
 
-class SummaryNoteScreen extends StatelessWidget {
+class SummaryNoteScreen extends ConsumerStatefulWidget {
   final Recipe? recipe;
 
   const SummaryNoteScreen({super.key, this.recipe});
+
+  @override
+  ConsumerState<SummaryNoteScreen> createState() => _SummaryNoteScreenState();
+}
+
+class _SummaryNoteScreenState extends ConsumerState<SummaryNoteScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _crumpleController;
+
+  @override
+  void initState() {
+    super.initState();
+    _crumpleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+  }
+
+  @override
+  void dispose() {
+    _crumpleController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _confirmDelete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFFDFBF7),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text("ARE YOU SURE?", style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
+        content: Text("Discarding this entry will permanently remove it from your journal.", style: ArtisanalTheme.hand(fontSize: 18)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("CANCEL", style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("DISCARD", style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await _crumpleController.forward();
+      if (mounted && widget.recipe != null) {
+        await ref.read(recipeListProvider.notifier).removeRecipe(widget.recipe!.id);
+        if (mounted) Navigator.pop(context);
+      }
+    }
+  }
+
+  void _onEdit() {
+    if (widget.recipe == null) return;
+    
+    // Map existing recipe to draft
+    final draft = RecipeDraft(
+      name: widget.recipe!.name,
+      mainImagePath: widget.recipe!.mainImageUrl,
+      components: widget.recipe!.components.map((c) => RecipeComponentDraft(
+        id: DateTime.now().toString(),
+        title: c.title,
+        imagePath: c.imageUrl,
+        ingredients: c.ingredients.map((i) => IngredientEntry(
+          id: DateTime.now().toString(),
+          name: i.name,
+          weight: double.tryParse(i.amount) ?? 0.0,
+        )).toList(),
+        steps: c.steps.map((s) => RecipeStepDraft(
+          id: DateTime.now().toString(),
+          content: s.description,
+        )).toList(),
+      )).toList(),
+    );
+
+    // Seed the provider
+    ref.read(recipeDraftProvider.notifier).state = draft;
+
+    // Navigate to AddRecipeScreen in edit mode
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddRecipeScreen(
+          editingRecipeId: widget.recipe!.id,
+          onBack: () => Navigator.pop(context),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +115,19 @@ class SummaryNoteScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back, color: ArtisanalTheme.ink),
         ),
+        actions: [
+          if (widget.recipe != null) ...[
+            TextButton(
+              onPressed: _onEdit,
+              child: Text("EDIT", style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+            IconButton(
+              onPressed: _confirmDelete,
+              icon: Icon(Icons.delete_outline, color: ArtisanalTheme.redInk.withValues(alpha: 0.7)),
+            ),
+            const SizedBox(width: 8),
+          ],
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -29,7 +136,10 @@ class SummaryNoteScreen extends StatelessWidget {
             children: [
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 700),
-                child: _JournalPage(recipe: recipe),
+                child: CrumpleEffect(
+                  controller: _crumpleController,
+                  child: _JournalPage(recipe: widget.recipe),
+                ),
               ),
             ],
           ),
@@ -138,12 +248,21 @@ class _JournalPage extends StatelessWidget {
                       const SizedBox(height: 80),
 
                       // Render Dynamic Components
-                      ...components.map((comp) => _RecipeSection(
-                        title: comp.title,
-                        imagePath: comp.imageUrl,
-                        ingredients: comp.ingredients.map((i) => (i.name, "${i.amount}${i.unit}")).toList(),
-                        steps: comp.steps.map((s) => s.description).toList(),
-                      )),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: components.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          final comp = components[index];
+                          return _RecipeSection(
+                            title: comp.title,
+                            imagePath: comp.imageUrl,
+                            ingredients: comp.ingredients.map((i) => (i.name, "${i.amount}${i.unit}")).toList(),
+                            steps: comp.steps.map((s) => s.description).toList(),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),

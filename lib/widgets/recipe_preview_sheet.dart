@@ -20,7 +20,7 @@ class RecipePreviewSheet extends StatelessWidget {
       child: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 700),
@@ -63,100 +63,101 @@ class _JournalPagePreview extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Left binder detail (Matches SummaryNoteScreen)
-          Container(
-            width: 32,
-            height: 3000, // Sufficiently long
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [Color(0xFFDAD6CF), Color(0xFFE8E4DC)],
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Left binder detail (Matches SummaryNoteScreen)
+            Container(
+              width: 32,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color(0xFFDAD6CF), Color(0xFFE8E4DC)],
+                ),
               ),
             ),
-          ),
-          // Page content
-          Expanded(
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: CustomPaint(painter: _RuledLinePainter()),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(40, 48, 40, 100),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Date Label (Mimics handwritten date)
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Text(
-                          "DRAFT PREVIEW",
-                          style: ArtisanalTheme.hand(
-                            fontSize: 18,
-                            color: Colors.black.withValues(alpha: 0.3),
-                          ).copyWith(letterSpacing: 2),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      // Title
-                      Center(
-                        child: Transform.rotate(
-                          angle: -0.015,
+            // Page content
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: CustomPaint(painter: _RuledLinePainter()),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(40, 48, 40, 48),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Date Label (Mimics handwritten date)
+                        Align(
+                          alignment: Alignment.topRight,
                           child: Text(
-                            title,
-                            textAlign: TextAlign.center,
+                            "DRAFT PREVIEW",
                             style: ArtisanalTheme.hand(
-                              fontSize: 48,
-                              color: ArtisanalTheme.ink,
-                            ).copyWith(fontWeight: FontWeight.bold, height: 1.1),
+                              fontSize: 18,
+                              color: Colors.black.withValues(alpha: 0.3),
+                            ).copyWith(letterSpacing: 2),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 36),
-                      // Main Hero Photo with Polaroid styling
-                      if (draft.mainImagePath != null)
+                        const SizedBox(height: 8),
+                        // Title
                         Center(
                           child: Transform.rotate(
-                            angle: 0.017,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.15),
-                                      blurRadius: 16,
-                                      offset: const Offset(0, 6)),
-                                ],
-                                border: Border.all(color: Colors.white, width: 8),
-                              ),
-                              child: SizedBox(
-                                width: 380,
-                                child: AspectRatio(
-                                  aspectRatio: 4 / 3,
-                                  child: ArtisanalImage(
-                                    imagePath: draft.mainImagePath!,
-                                    fit: BoxFit.cover,
+                            angle: -0.015,
+                            child: Text(
+                              title,
+                              textAlign: TextAlign.center,
+                              style: ArtisanalTheme.hand(
+                                fontSize: 48,
+                                color: ArtisanalTheme.ink,
+                              ).copyWith(fontWeight: FontWeight.bold, height: 1.1),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 36),
+                        // Main Hero Photo with Polaroid styling
+                        if (draft.mainImagePath != null)
+                          Center(
+                            child: Transform.rotate(
+                              angle: 0.017,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.15),
+                                        blurRadius: 16,
+                                        offset: const Offset(0, 6)),
+                                  ],
+                                  border: Border.all(color: Colors.white, width: 8),
+                                ),
+                                child: SizedBox(
+                                  width: 380,
+                                  child: AspectRatio(
+                                    aspectRatio: 4 / 3,
+                                    child: ArtisanalImage(
+                                      imagePath: draft.mainImagePath!,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      const SizedBox(height: 80),
+                        const SizedBox(height: 80),
 
-                      // Draft Components
-                      ...draft.components.map((comp) => _ComponentPreview(component: comp)),
-                    ],
+                        // Draft Components
+                        ...draft.components.map((comp) => _ComponentPreview(component: comp)),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
