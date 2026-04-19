@@ -5,18 +5,20 @@ class MaskingTape extends StatelessWidget {
   final String? label;
   final double width;
   final Color color;
+  final double rotation;
 
   const MaskingTape({
     super.key,
     this.label,
     this.width = 120,
     this.color = const Color(0xFFE2DCC8),
+    this.rotation = -0.05,
   });
 
   @override
   Widget build(BuildContext context) {
     return Transform.rotate(
-      angle: -0.05 + math.Random().nextDouble() * 0.1,
+      angle: rotation,
       child: Container(
         width: width,
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),

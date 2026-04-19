@@ -33,6 +33,7 @@ class _FullScreenSketchEditorState extends State<FullScreenSketchEditor> {
       final paint = Paint()
         ..color = _isEraser ? Colors.white : _currentColor
         ..strokeWidth = _currentWidth
+        ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
         ..blendMode = _isEraser ? BlendMode.clear : BlendMode.srcOver;

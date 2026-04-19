@@ -8,6 +8,11 @@ import '../theme/artisanal_theme.dart';
 import '../widgets/masking_tape.dart';
 import '../widgets/recipe_preview_sheet.dart';
 import 'full_screen_sketch_editor.dart';
+import '../models/recipe.dart' as model;
+import '../models/component.dart' as model;
+import '../models/ingredient.dart' as model;
+import '../models/step.dart' as model;
+import '../services/recipe_service.dart';
 
 // ── Data Models ─────────────────────────────────────────────────────────────
 class IngredientEntry {
@@ -24,27 +29,27 @@ class IngredientEntry {
   });
 }
 
-class RecipeStep {
+class RecipeStepDraft {
   final String id;
   String content;
-  RecipeStep({required this.id, this.content = ''});
+  RecipeStepDraft({required this.id, this.content = ''});
 }
 
-class RecipeComponent {
+class RecipeComponentDraft {
   final String id;
   String title;
   String? imagePath;
   List<IngredientEntry> ingredients;
-  List<RecipeStep> steps;
+  List<RecipeStepDraft> steps;
 
-  RecipeComponent({
+  RecipeComponentDraft({
     required this.id,
     this.title = 'New Component',
     this.imagePath,
     List<IngredientEntry>? ingredients,
-    List<RecipeStep>? steps,
+    List<RecipeStepDraft>? steps,
   }) : ingredients = ingredients ?? [],
-       steps = steps ?? [RecipeStep(id: 's1')];
+       steps = steps ?? [RecipeStepDraft(id: 's1')];
 
   double get totalFlour => ingredients
       .where((e) => e.isFlour)
@@ -56,14 +61,14 @@ class RecipeComponent {
 class RecipeDraft {
   String name;
   String? mainImagePath;
-  List<RecipeComponent> components;
+  List<RecipeComponentDraft> components;
   
   RecipeDraft({
     this.name = '',
     this.mainImagePath,
-    List<RecipeComponent>? components,
+    List<RecipeComponentDraft>? components,
   }) : components = components ?? [
-    RecipeComponent(id: 'c1', title: 'Main Dough', ingredients: [
+    RecipeComponentDraft(id: 'c1', title: 'Main Dough', ingredients: [
       IngredientEntry(id: 'i1', name: 'Bread Flour', weight: 500, isFlour: true),
       IngredientEntry(id: 'i2', name: 'Water', weight: 350),
     ])
@@ -130,7 +135,7 @@ class AddRecipeScreen extends ConsumerWidget {
                 },
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => _saveRecipe(context, ref, draft),
                 child: Text('SAVE', style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.primary)),
               ),
               const SizedBox(width: 16),
@@ -208,8 +213,8 @@ class AddRecipeScreen extends ConsumerWidget {
                     onPressed: () {
                       _triggerFeedback();
                       notifier.update((s) {
-                        final newComps = List<RecipeComponent>.from(s.components)
-                          ..add(RecipeComponent(id: DateTime.now().toString()));
+                        final newComps = List<RecipeComponentDraft>.from(s.components)
+                          ..add(RecipeComponentDraft(id: DateTime.now().toString()));
                         return RecipeDraft(name: s.name, mainImagePath: s.mainImagePath, components: newComps);
                       });
                     },
@@ -235,6 +240,58 @@ class AddRecipeScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _saveRecipe(BuildContext context, WidgetRef ref, RecipeDraft draft) async {
+    if (draft.name.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please name your masterpiece first!", style: ArtisanalTheme.hand()),
+          backgroundColor: ArtisanalTheme.redInk,
+        ),
+      );
+      return;
+    }
+
+    _triggerFeedback();
+    HapticFeedback.heavyImpact();
+
+    // Map Draft to model
+    final newRecipe = model.Recipe(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: draft.name,
+      mainImageUrl: draft.mainImagePath,
+      createdAt: DateTime.now(),
+      components: draft.components.map((c) => model.RecipeComponent(
+        title: c.title,
+        imageUrl: c.imagePath == 'placeholder' ? null : c.imagePath,
+        ingredients: c.ingredients.map((i) => model.Ingredient(
+          name: i.name,
+          amount: i.weight.toString(),
+          unit: 'g',
+        )).toList(),
+        steps: c.steps.map((s) => model.RecipeStep(
+          description: s.content,
+        )).toList(),
+      )).toList(),
+    );
+
+    await ref.read(recipeListProvider.notifier).addRecipe(newRecipe);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Recipe saved to Journal!", style: ArtisanalTheme.hand(color: Colors.white)),
+          backgroundColor: ArtisanalTheme.primary,
+        ),
+      );
+      
+      if (onBack != null) {
+        onBack!();
+      } else {
+        Navigator.pop(context);
+      }
+    }
   }
 
   Widget _buildPhotoSelector(
@@ -356,7 +413,7 @@ class AddRecipeScreen extends ConsumerWidget {
   }
 
   Widget _buildComponentSection(
-      BuildContext context, WidgetRef ref, RecipeComponent component, int index) {
+      BuildContext context, WidgetRef ref, RecipeComponentDraft component, int index) {
     final notifier = ref.read(recipeDraftProvider.notifier);
 
     return Container(
@@ -423,7 +480,7 @@ class AddRecipeScreen extends ConsumerWidget {
                     onPressed: () {
                       _triggerFeedback();
                       notifier.update((s) {
-                        final newComps = List<RecipeComponent>.from(s.components)..removeAt(index);
+                        final newComps = List<RecipeComponentDraft>.from(s.components)..removeAt(index);
                         return RecipeDraft(name: s.name, mainImagePath: s.mainImagePath, components: newComps);
                       });
                     },
@@ -477,7 +534,7 @@ class AddRecipeScreen extends ConsumerWidget {
               onPressed: () {
                 _triggerFeedback();
                 notifier.update((s) {
-                  component.steps.add(RecipeStep(id: DateTime.now().toString()));
+                  component.steps.add(RecipeStepDraft(id: DateTime.now().toString()));
                   return RecipeDraft(name: s.name, mainImagePath: s.mainImagePath, components: s.components);
                 });
               },
@@ -538,7 +595,7 @@ class AddRecipeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildIngredientRow(WidgetRef ref, RecipeComponent component, IngredientEntry entry, int index) {
+  Widget _buildIngredientRow(WidgetRef ref, RecipeComponentDraft component, IngredientEntry entry, int index) {
     final notifier = ref.read(recipeDraftProvider.notifier);
     final totalFlour = component.totalFlour;
     final percentage = (totalFlour > 0) ? (entry.weight / totalFlour) * 100 : 0.0;
@@ -702,7 +759,7 @@ class AddRecipeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStepRow(WidgetRef ref, RecipeComponent component, RecipeStep step, int index) {
+  Widget _buildStepRow(WidgetRef ref, RecipeComponentDraft component, RecipeStepDraft step, int index) {
     final notifier = ref.read(recipeDraftProvider.notifier);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),

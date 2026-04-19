@@ -100,7 +100,6 @@ class _MainScaffoldState extends State<MainScaffold> {
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       extendBody: true,
       body: IndexedStack(
         index: _selectedIndex,
