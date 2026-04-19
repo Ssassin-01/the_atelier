@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'models/pantry_item.dart';
+import 'models/transaction.dart';
 import 'theme/artisanal_theme.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/recipe_archive_screen.dart';
@@ -28,15 +30,95 @@ void main() async {
   Hive.registerAdapter(RecipeComponentAdapter());
   Hive.registerAdapter(IngredientAdapter());
   Hive.registerAdapter(RecipeStepAdapter());
+  Hive.registerAdapter(PantryItemAdapter());
+  Hive.registerAdapter(BusinessTransactionAdapter());
   
   // Open boxes
   final recipeBox = await Hive.openBox<Recipe>('recipes');
+  await Hive.openBox<PantryItem>('pantry');
+  await Hive.openBox<BusinessTransaction>('transactions');
   
   // Populate with mock data only if the box is empty (first run)
   if (recipeBox.isEmpty) {
     for (var recipe in getMockRecipes()) {
       await recipeBox.put(recipe.id, recipe);
     }
+  }
+  
+  final transactionBox = await Hive.openBox<BusinessTransaction>('transactions');
+  if (transactionBox.isEmpty) {
+    await transactionBox.putAll({
+      'tx1': BusinessTransaction(
+        id: 'tx1',
+        date: DateTime.now().subtract(const Duration(days: 1)),
+        type: 'expense',
+        amount: 840.50,
+        category: 'Ingredients',
+        description: 'Artisan Flour Mill - 200kg',
+      ),
+      'tx2': BusinessTransaction(
+        id: 'tx2',
+        date: DateTime.now().subtract(const Duration(days: 3)),
+        type: 'expense',
+        amount: 1120.00,
+        category: 'Ingredients',
+        description: 'Normandy Butter Co. - 50kg',
+      ),
+      'tx3': BusinessTransaction(
+        id: 'tx3',
+        date: DateTime.now().subtract(const Duration(days: 2)),
+        type: 'sale',
+        amount: 2500.00,
+        category: 'Product Sale',
+        description: 'Weekend Market Sales',
+      ),
+    });
+  }
+
+  final pantryBox = await Hive.box<PantryItem>('pantry');
+  if (pantryBox.isEmpty) {
+    await pantryBox.putAll({
+      'p1': PantryItem(
+        id: 'p1',
+        name: 'Organic Spelt Flour',
+        purchasePrice: 45000,
+        purchaseQuantity: 20000,
+        unit: 'g',
+        currentStock: 15000,
+        lastUpdated: DateTime.now(),
+        imageUrl: r'C:\Users\user b\.gemini\antigravity\brain\db180eb2-9cff-4fbc-b8f6-6387589caf05\pantry_flour_1776622828776.png',
+      ),
+      'p2': PantryItem(
+        id: 'p2',
+        name: 'Artisanal Bread Flour',
+        purchasePrice: 38000,
+        purchaseQuantity: 20000,
+        unit: 'g',
+        currentStock: 18000,
+        lastUpdated: DateTime.now(),
+        imageUrl: r'C:\Users\user b\.gemini\antigravity\brain\db180eb2-9cff-4fbc-b8f6-6387589caf05\pantry_flour_1776622828776.png', // Reuse flour image
+      ),
+      'p3': PantryItem(
+        id: 'p3',
+        name: 'Normandy Butter',
+        purchasePrice: 112000,
+        purchaseQuantity: 10000,
+        unit: 'g',
+        currentStock: 5000,
+        lastUpdated: DateTime.now(),
+        imageUrl: r'C:\Users\user b\.gemini\antigravity\brain\db180eb2-9cff-4fbc-b8f6-6387589caf05\pantry_butter_1776622843805.png',
+      ),
+      'p4': PantryItem(
+        id: 'p4',
+        name: 'Farm Fresh Eggs',
+        purchasePrice: 8000,
+        purchaseQuantity: 30,
+        unit: 'pcs',
+        currentStock: 12,
+        lastUpdated: DateTime.now(),
+        imageUrl: r'C:\Users\user b\.gemini\antigravity\brain\db180eb2-9cff-4fbc-b8f6-6387589caf05\pantry_eggs_1776622860038.png',
+      ),
+    });
   }
   
   runApp(

@@ -865,6 +865,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Methods'**
   String get tabMethods;
+
+  /// No description provided for @businessInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Business Insights'**
+  String get businessInsights;
+
+  /// No description provided for @batchProductionCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch Production Cost'**
+  String get batchProductionCost;
+
+  /// No description provided for @suggestedSalePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested Sale Price (3x)'**
+  String get suggestedSalePrice;
+
+  /// No description provided for @estimatedProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated Profit'**
+  String get estimatedProfit;
+
+  /// No description provided for @marginsDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Margins are calculated based on your pantry unit prices. Taxes and utilities not included.'**
+  String get marginsDisclaimer;
+
+  /// No description provided for @logProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Production & Deduct Stock'**
+  String get logProduction;
+
+  /// No description provided for @ingredientsMissingWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Some ingredients are missing from your pantry. Cost data might be incomplete.'**
+  String get ingredientsMissingWarning;
+
+  /// No description provided for @productionLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Production logged! Transaction added and stock updated.'**
+  String get productionLogged;
 }
 
 class _AppLocalizationsDelegate

@@ -72,6 +72,7 @@ class ArtisanalTheme {
     double? height,
     double? letterSpacing,
     FontWeight? fontWeight,
+    FontStyle? fontStyle,
   }) {
     return GoogleFonts.caveat(
       fontSize: fontSize,
@@ -79,6 +80,7 @@ class ArtisanalTheme {
       color: color,
       height: height,
       letterSpacing: letterSpacing,
+      fontStyle: fontStyle,
     );
   }
 

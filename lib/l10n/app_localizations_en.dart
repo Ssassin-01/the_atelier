@@ -401,4 +401,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tabMethods => 'Methods';
+
+  @override
+  String get businessInsights => 'Business Insights';
+
+  @override
+  String get batchProductionCost => 'Batch Production Cost';
+
+  @override
+  String get suggestedSalePrice => 'Suggested Sale Price (3x)';
+
+  @override
+  String get estimatedProfit => 'Estimated Profit';
+
+  @override
+  String get marginsDisclaimer =>
+      'Margins are calculated based on your pantry unit prices. Taxes and utilities not included.';
+
+  @override
+  String get logProduction => 'Log Production & Deduct Stock';
+
+  @override
+  String get ingredientsMissingWarning =>
+      'Some ingredients are missing from your pantry. Cost data might be incomplete.';
+
+  @override
+  String get productionLogged =>
+      'Production logged! Transaction added and stock updated.';
 }

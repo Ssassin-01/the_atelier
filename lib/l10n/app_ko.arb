@@ -126,5 +126,13 @@
   "collectionPastry": "페이스트리",
   "collectionCookies": "쿠키",
   "tabIngredients": "재료 정보",
-  "tabMethods": "조리 방법"
+  "tabMethods": "조리 단계",
+  "businessInsights": "비즈니스 통찰",
+  "batchProductionCost": "배치가 생산 원가",
+  "suggestedSalePrice": "권장 판매가 (3배 수)",
+  "estimatedProfit": "예상 순이익",
+  "marginsDisclaimer": "팬트리 단가 기반으로 계산되었습니다. 가스비/수도세 등은 포함되지 않았습니다.",
+  "logProduction": "생산 기록 및 재고 차감",
+  "ingredientsMissingWarning": "팬트리에 없는 재료가 있어 원가 계산이 부정확할 수 있습니다.",
+  "productionLogged": "생산 기록 완료! 장부 기록 및 재고 차감이 처리되었습니다."
 }

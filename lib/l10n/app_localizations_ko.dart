@@ -394,5 +394,29 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tabIngredients => '재료 정보';
 
   @override
-  String get tabMethods => '조리 방법';
+  String get tabMethods => '조리 단계';
+
+  @override
+  String get businessInsights => '비즈니스 통찰';
+
+  @override
+  String get batchProductionCost => '배치가 생산 원가';
+
+  @override
+  String get suggestedSalePrice => '권장 판매가 (3배 수)';
+
+  @override
+  String get estimatedProfit => '예상 순이익';
+
+  @override
+  String get marginsDisclaimer => '팬트리 단가 기반으로 계산되었습니다. 가스비/수도세 등은 포함되지 않았습니다.';
+
+  @override
+  String get logProduction => '생산 기록 및 재고 차감';
+
+  @override
+  String get ingredientsMissingWarning => '팬트리에 없는 재료가 있어 원가 계산이 부정확할 수 있습니다.';
+
+  @override
+  String get productionLogged => '생산 기록 완료! 장부 기록 및 재고 차감이 처리되었습니다.';
 }

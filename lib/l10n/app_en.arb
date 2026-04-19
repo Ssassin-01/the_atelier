@@ -129,5 +129,13 @@
   "collectionPastry": "Pastry",
   "collectionCookies": "Cookies",
   "tabIngredients": "Ingredients",
-  "tabMethods": "Methods"
+  "tabMethods": "Methods",
+  "businessInsights": "Business Insights",
+  "batchProductionCost": "Batch Production Cost",
+  "suggestedSalePrice": "Suggested Sale Price (3x)",
+  "estimatedProfit": "Estimated Profit",
+  "marginsDisclaimer": "Margins are calculated based on your pantry unit prices. Taxes and utilities not included.",
+  "logProduction": "Log Production & Deduct Stock",
+  "ingredientsMissingWarning": "Some ingredients are missing from your pantry. Cost data might be incomplete.",
+  "productionLogged": "Production logged! Transaction added and stock updated."
 }

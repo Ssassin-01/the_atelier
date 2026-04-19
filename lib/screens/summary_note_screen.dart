@@ -7,7 +7,12 @@ import '../widgets/masking_tape.dart';
 import '../models/recipe.dart';
 import '../models/component.dart';
 import '../services/recipe_service.dart';
+import 'package:intl/intl.dart';
 import '../widgets/crumple_effect.dart';
+import '../providers/recipe_cost_provider.dart';
+import '../providers/pantry_provider.dart';
+import '../providers/transaction_provider.dart';
+import '../widgets/custom_clippers.dart';
 import 'add_recipe_screen.dart';
 
 class SummaryNoteScreen extends ConsumerStatefulWidget {
@@ -143,6 +148,10 @@ class _SummaryNoteScreenState extends ConsumerState<SummaryNoteScreen> with Sing
                   child: _JournalPage(recipe: widget.recipe),
                 ),
               ),
+              if (widget.recipe != null) ...[
+                const SizedBox(height: 32),
+                _BusinessInsightsCard(recipe: widget.recipe!),
+              ],
             ],
           ),
         ),
@@ -421,4 +430,219 @@ class _RuledLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _BusinessInsightsCard extends ConsumerWidget {
+  final Recipe recipe;
+  const _BusinessInsightsCard({required this.recipe});
+
+  Future<void> _logProduction(BuildContext context, WidgetRef ref, double cost) async {
+    final l10n = AppLocalizations.of(context);
+    
+    // 1. Deduct Stock
+    await ref.read(pantryProvider.notifier).deductStockByRecipe(recipe);
+    
+    // 2. Add Transaction
+    await ref.read(transactionProvider.notifier).addProductionRecord(recipe.name, cost);
+    
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.productionLogged),
+          backgroundColor: ArtisanalTheme.primary,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final costData = ref.watch(recipeCostProvider(recipe));
+    final l10n = AppLocalizations.of(context);
+    final currencyFormat = NumberFormat.currency(symbol: '₩', decimalDigits: 0);
+
+    return Column(
+      children: [
+        const MaskingTape(width: 120),
+        Transform.translate(
+          offset: const Offset(0, -5),
+          child: ClipPath(
+            clipper: SerratedClipper(toothWidth: 15, toothHeight: 8, top: false),
+            child: Container(
+              width: double.infinity,
+              constraints: const BoxConstraints(maxWidth: 500),
+              padding: const EdgeInsets.fromLTRB(24, 30, 24, 40),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFDFCFB),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Text(
+                      l10n.businessInsights.toUpperCase(),
+                      style: ArtisanalTheme.hand(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                        color: ArtisanalTheme.ink.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now()),
+                      style: ArtisanalTheme.hand(fontSize: 10, color: ArtisanalTheme.secondary),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: _DottedDivider(),
+                  ),
+                  
+                  if (costData.hasMissingItems)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: ArtisanalTheme.redInk.withValues(alpha: 0.3)),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded, color: ArtisanalTheme.redInk, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              l10n.ingredientsMissingWarning,
+                              style: ArtisanalTheme.hand(
+                                fontSize: 10,
+                                color: ArtisanalTheme.redInk,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  _buildReceiptRow(
+                    l10n.batchProductionCost,
+                    currencyFormat.format(costData.totalCost),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildReceiptRow(
+                    l10n.suggestedSalePrice,
+                    currencyFormat.format(costData.suggestedPrice),
+                    valueColor: ArtisanalTheme.primary,
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: _DottedDivider(),
+                  ),
+                  _buildReceiptRow(
+                    l10n.estimatedProfit,
+                    "+ ${currencyFormat.format(costData.estimatedProfit)}",
+                    isTotal: true,
+                    valueColor: Colors.green.shade700,
+                  ),
+                  const SizedBox(height: 30),
+                  Text(
+                    l10n.marginsDisclaimer,
+                    textAlign: TextAlign.center,
+                    style: ArtisanalTheme.hand(
+                      fontSize: 9,
+                      color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Log Production Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () => _logProduction(context, ref, costData.totalCost),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: ArtisanalTheme.ink.withValues(alpha: 0.2)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      ),
+                      child: Text(
+                        l10n.logProduction,
+                        style: ArtisanalTheme.hand(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: ArtisanalTheme.ink,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReceiptRow(String label, String value, {bool isTotal = false, Color? valueColor}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: ArtisanalTheme.hand(
+            fontSize: isTotal ? 16 : 13,
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+            color: ArtisanalTheme.ink,
+          ),
+        ),
+        Text(
+          value,
+          style: ArtisanalTheme.hand(
+            fontSize: isTotal ? 18 : 14,
+            fontWeight: FontWeight.bold,
+            color: valueColor ?? ArtisanalTheme.ink,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DottedDivider extends StatelessWidget {
+  const _DottedDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final boxWidth = constraints.constrainWidth();
+        const dashWidth = 4.0;
+        const dashSpace = 4.0;
+        final dashCount = (boxWidth / (dashWidth + dashSpace)).floor();
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(dashCount, (_) {
+            return SizedBox(
+              width: dashWidth,
+              height: 1,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: ArtisanalTheme.ink.withValues(alpha: 0.2)),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
 }
