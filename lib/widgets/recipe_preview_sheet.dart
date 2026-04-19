@@ -239,18 +239,34 @@ class _ComponentPreview extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Ingredients
-            ...component.ingredients.map((ing) => Padding(
+            ...() {
+              final totalFlour = component.ingredients
+                  .where((ing) => ing.isFlour)
+                  .fold(0.0, (sum, ing) => sum + ing.weight);
+
+              return component.ingredients.map((ing) {
+                final percentage =
+                    totalFlour > 0 ? (ing.weight / totalFlour) * 100 : 0.0;
+                return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Row(
                     children: [
                       Text('• ${ing.name}',
                           style: ArtisanalTheme.hand(fontSize: 19, color: ink)),
+                      const SizedBox(width: 8),
+                      if (totalFlour > 0)
+                        Text('${percentage.toStringAsFixed(0)}%',
+                            style: ArtisanalTheme.hand(
+                                fontSize: 15,
+                                color: ink.withValues(alpha: 0.4))),
                       const Spacer(),
                       Text("${ing.weight.toStringAsFixed(0)}g",
                           style: ArtisanalTheme.hand(fontSize: 19, color: ink)),
                     ],
                   ),
-                )),
+                );
+              });
+            }(),
             const SizedBox(height: 16),
             // Steps
             ...component.steps.asMap().entries.map((entry) => Padding(

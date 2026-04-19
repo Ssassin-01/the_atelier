@@ -13,9 +13,13 @@ class Ingredient extends HiveObject {
   @HiveField(2)
   String unit;
 
+  @HiveField(3, defaultValue: false)
+  bool isFlour;
+
   Ingredient({
     required this.name,
     required this.amount,
     required this.unit,
+    this.isFlour = false,
   });
 }

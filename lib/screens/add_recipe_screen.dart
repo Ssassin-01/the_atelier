@@ -89,7 +89,7 @@ class RecipeDraft {
           id: DateTime.now().millisecondsSinceEpoch.toString() + i.name,
           name: i.name,
           weight: double.tryParse(i.amount) ?? 0,
-          isFlour: i.name.toLowerCase().contains('flour'), // Heuristic or we could use another field
+          isFlour: i.isFlour, 
         )).toList(),
         steps: c.steps.map((s) => RecipeStepDraft(
           id: DateTime.now().millisecondsSinceEpoch.toString() + s.description.substring(0, math.min(5, s.description.length)),
@@ -321,6 +321,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
           name: i.name,
           amount: i.weight.toString(),
           unit: 'g',
+          isFlour: i.isFlour,
         )).toList(),
         steps: c.steps.map((s) => model.RecipeStep(
           description: s.content,

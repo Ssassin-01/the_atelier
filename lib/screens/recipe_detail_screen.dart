@@ -450,31 +450,61 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
           ),
         ),
         const SizedBox(height: 20),
-        ...widget.component.ingredients.map(
-          (ing) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    ing.name,
-                    style: ArtisanalTheme.hand(fontSize: 19, height: 1.25),
-                  ),
+        ...() {
+          final totalFlour = widget.component.ingredients
+              .where((ing) => ing.isFlour)
+              .fold(0.0, (sum, ing) => sum + (double.tryParse(ing.amount) ?? 0));
+
+          return widget.component.ingredients.map(
+            (ing) {
+              final weight = double.tryParse(ing.amount) ?? 0;
+              final percentage =
+                  totalFlour > 0 ? (weight / totalFlour) * 100 : 0.0;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              ing.name,
+                              style: ArtisanalTheme.hand(
+                                  fontSize: 19, height: 1.25),
+                            ),
+                          ),
+                          if (totalFlour > 0) ...[
+                            const SizedBox(width: 8),
+                            Text(
+                              '${percentage.toStringAsFixed(0)}%',
+                              style: ArtisanalTheme.hand(
+                                fontSize: 15,
+                                color: ArtisanalTheme.secondary
+                                    .withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${ing.amount}${ing.unit}',
+                      style: ArtisanalTheme.hand(
+                        fontSize: 19,
+                        color: ArtisanalTheme.secondary,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  '${ing.amount}${ing.unit}',
-                  style: ArtisanalTheme.hand(
-                    fontSize: 19,
-                    color: ArtisanalTheme.secondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+              );
+            },
+          );
+        }(),
         const SizedBox(height: 16),
         Align(
           alignment: Alignment.bottomRight,

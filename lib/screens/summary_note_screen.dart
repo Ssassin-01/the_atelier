@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/artisanal_image.dart';
 import '../widgets/masking_tape.dart';
 import '../models/recipe.dart';
+import '../models/component.dart';
 import '../services/recipe_service.dart';
 import '../widgets/crumple_effect.dart';
 import 'add_recipe_screen.dart';
@@ -81,6 +82,7 @@ class _SummaryNoteScreenState extends ConsumerState<SummaryNoteScreen> with Sing
           id: DateTime.now().toString(),
           name: i.name,
           weight: double.tryParse(i.amount) ?? 0.0,
+          isFlour: i.isFlour,
         )).toList(),
         steps: c.steps.map((s) => RecipeStepDraft(
           id: DateTime.now().toString(),
@@ -256,10 +258,7 @@ class _JournalPage extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final comp = components[index];
                           return _RecipeSection(
-                            title: comp.title,
-                            imagePath: comp.imageUrl,
-                            ingredients: comp.ingredients.map((i) => (i.name, "${i.amount}${i.unit}")).toList(),
-                            steps: comp.steps.map((s) => s.description).toList(),
+                            component: comp,
                           );
                         },
                       ),
@@ -276,16 +275,10 @@ class _JournalPage extends StatelessWidget {
 }
 
 class _RecipeSection extends StatelessWidget {
-  final String title;
-  final String? imagePath;
-  final List<(String, String)> ingredients;
-  final List<String> steps;
+  final RecipeComponent component;
 
   const _RecipeSection({
-    required this.title,
-    this.imagePath,
-    required this.ingredients,
-    required this.steps,
+    required this.component,
   });
 
   @override
@@ -304,7 +297,7 @@ class _RecipeSection extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
                   Text(
-                    title,
+                    component.title,
                     style: ArtisanalTheme.hand(fontSize: 28, color: ink).copyWith(
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.underline,
@@ -313,7 +306,7 @@ class _RecipeSection extends StatelessWidget {
                 ],
               ),
             ),
-            if (imagePath != null && imagePath!.isNotEmpty) ...[
+            if (component.imageUrl != null && component.imageUrl!.isNotEmpty) ...[
               const SizedBox(width: 16),
               Transform.rotate(
                 angle: 0.05,
@@ -333,7 +326,7 @@ class _RecipeSection extends StatelessWidget {
                         width: 110,
                         child: AspectRatio(
                           aspectRatio: 1,
-                          child: ArtisanalImage(imagePath: imagePath!, fit: BoxFit.cover),
+                          child: ArtisanalImage(imagePath: component.imageUrl!, fit: BoxFit.cover),
                         ),
                       ),
                     ),
@@ -354,25 +347,54 @@ class _RecipeSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Ingredients
-            ...ingredients.map((ing) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Row(
-                children: [
-                  Text('• ${ing.$1}', style: ArtisanalTheme.hand(fontSize: 19, color: ink)),
-                  const Spacer(),
-                  Text(ing.$2, style: ArtisanalTheme.hand(fontSize: 19, color: ink)),
-                ],
-              ),
-            )),
+            ...() {
+              final totalFlour = component.ingredients
+                  .where((i) => i.isFlour)
+                  .fold(0.0, (sum, i) => sum + (double.tryParse(i.amount) ?? 0));
+
+              return component.ingredients.map((ing) {
+                final weight = double.tryParse(ing.amount) ?? 0;
+                final percentage =
+                    totalFlour > 0 ? (weight / totalFlour) * 100 : 0.0;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    children: [
+                      Text('• ${ing.name}',
+                          style: ArtisanalTheme.hand(fontSize: 19, color: ink)),
+                      if (totalFlour > 0) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          '${percentage.toStringAsFixed(0)}%',
+                          style: ArtisanalTheme.hand(
+                            fontSize: 15,
+                            color: ink.withValues(alpha: 0.4),
+                          ),
+                        ),
+                      ],
+                      const Spacer(),
+                      Text('${ing.amount}${ing.unit}',
+                          style: ArtisanalTheme.hand(fontSize: 19, color: ink)),
+                    ],
+                  ),
+                );
+              });
+            }(),
             const SizedBox(height: 16),
             // Steps
-            ...steps.asMap().entries.map((entry) => Padding(
+            ...component.steps.asMap().entries.map((entry) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 3),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('${entry.key + 1}. ', style: ArtisanalTheme.hand(fontSize: 18, color: ink.withValues(alpha: 0.6))),
-                  Expanded(child: Text(entry.value, style: ArtisanalTheme.hand(fontSize: 18, color: ink))),
+                  Expanded(
+                    child: Text(
+                      entry.value.description, 
+                      style: ArtisanalTheme.hand(fontSize: 18, color: ink, height: 1.4)
+                    ),
+                  ),
                 ],
               ),
             )),
