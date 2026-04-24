@@ -574,8 +574,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
                   ],
                 ),
               ),
-            )
-            .toList(),
+            ),
         const SizedBox(height: 16),
         Align(
           alignment: Alignment.bottomLeft,

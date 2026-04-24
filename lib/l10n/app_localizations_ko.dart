@@ -427,6 +427,45 @@ class AppLocalizationsKo extends AppLocalizations {
   String get restockNow => '더 필요한 재료들을 시장에서 구해보세요';
 
   @override
+  String get salesSlip => '매출 전표';
+
+  @override
+  String get addItem => '+ 품목 추가';
+
+  @override
+  String get paid => '결제 완료';
+
+  @override
+  String get totalAmount => '합계 금액';
+
+  @override
+  String get description => '품목';
+
+  @override
+  String get quantity => '수량';
+
+  @override
+  String get price => '금액';
+
+  @override
+  String get salesHistory => '매출 기록 보관함';
+
+  @override
+  String get noSalesRecords => '아직 기록된 매출이 없습니다.';
+
+  @override
+  String get deleteRecord => '이 기록을 파기할까요?';
+
+  @override
+  String get delete => '삭제';
+
+  @override
+  String get cancel => '취소';
+
+  @override
+  String get saleRegistered => '매출 장부에 인을 찍었습니다.';
+
+  @override
   String get newIngredientTitle => '새로운 재료 발견!';
 
   @override
@@ -437,4 +476,206 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get skipForNow => '나중에 하기';
+
+  @override
+  String get totalVaultValue => '총 자산 가치';
+
+  @override
+  String get inventoryStatus => '인벤토리 상태';
+
+  @override
+  String get stable => '안정';
+
+  @override
+  String get urgent => '긴급';
+
+  @override
+  String get lowStock => '재고 부족';
+
+  @override
+  String get missingInfo => '정보 미비';
+
+  @override
+  String get totalEntries => '등록 항목';
+
+  @override
+  String get outOfStock => '품절';
+
+  @override
+  String get updateInfo => '정보 업데이트';
+
+  @override
+  String get pantryLedger => '팬트리 재고 대시보드';
+
+  @override
+  String get saveChanges => '변경사항 저장';
+
+  @override
+  String get updateIngredient => '식재료 정보 수정';
+
+  @override
+  String get ingredientName => '식재료명';
+
+  @override
+  String get totalQuantity => '구매 총 중량';
+
+  @override
+  String get currentStockLabel => '현재 재고량';
+
+  @override
+  String get purchasePriceLabel => '구매 가격';
+
+  @override
+  String get categoryFlour => '밀가루류';
+
+  @override
+  String get categoryDairy => '유제품/유정란';
+
+  @override
+  String get categorySweetener => '당류';
+
+  @override
+  String get categoryLeavening => '균주/팽창제';
+
+  @override
+  String get categoryAddIn => '부재료';
+
+  @override
+  String get categoryOthers => '기타';
+
+  @override
+  String get quote1 => '\"나무 향기와 갓 피어난 발효종 — 장인의 아침은 여기서 시작됩니다.\"';
+
+  @override
+  String get quote2 => '\"모든 빵의 기공은 그 밀이 거쳐온 시간과 여정을 말해줍니다.\"';
+
+  @override
+  String get quote3 => '\"정교함은 필수이나, 마지막을 완성하는 것은 결국 장인의 직관입니다.\"';
+
+  @override
+  String get quote4 => '\"가장 좋은 재료란, 생명의 박동이 여전히 머물러 있는 종류를 뜻합니다.\"';
+
+  @override
+  String get quote5 => '\"따스함, 인내, 그리고 시간 — 이것이야말로 진정한 장인의 도구입니다.\"';
+
+  @override
+  String get mon => '월';
+
+  @override
+  String get tue => '화';
+
+  @override
+  String get wed => '수';
+
+  @override
+  String get thu => '목';
+
+  @override
+  String get fri => '금';
+
+  @override
+  String get sat => '토';
+
+  @override
+  String get sun => '일';
+
+  @override
+  String get mainDough => '본 반죽 (Main)';
+
+  @override
+  String get newComponent => '새로운 컴포넌트';
+
+  @override
+  String get breadFlour => '강력분';
+
+  @override
+  String get water => '물';
+
+  @override
+  String get removeMedia => '이미지 삭제';
+
+  @override
+  String get removeMediaConfirm => '레시피에서 이 이미지를 정말 삭제하시겠습니까?';
+
+  @override
+  String get keepIt => '유지하기';
+
+  @override
+  String get remove => '삭제';
+
+  @override
+  String get newIngredientsFound => '새로운 식재료 감지';
+
+  @override
+  String get addIngredientsToPantry => '이 재료들을 팬트리 장부에 등록하시겠습니까?';
+
+  @override
+  String get registerIntoPantry => '재고 장부에 등록';
+
+  @override
+  String get manageCategories => '카테고리 관리';
+
+  @override
+  String get addCategory => '카테고리 추가';
+
+  @override
+  String get newCategory => '새로운 카테고리';
+
+  @override
+  String get renameCategory => '카테고리 이름 변경';
+
+  @override
+  String get categoryName => '카테고리 이름';
+
+  @override
+  String get newName => '새 이름';
+
+  @override
+  String get close => '닫기';
+
+  @override
+  String get ok => '확인';
+
+  @override
+  String get add => '추가';
+
+  @override
+  String get rename => '이름 변경';
+
+  @override
+  String get addSale => '매출 등록';
+
+  @override
+  String get recentPurchases => '최근 구매 내역';
+
+  @override
+  String get noPurchaseRecords => '구매 내역이 없습니다.';
+
+  @override
+  String get history => '과거 기록 >';
+
+  @override
+  String percentLeft(Object percent) {
+    return '$percent% 남음';
+  }
+
+  @override
+  String get addProductHint => '항목 추가...';
+
+  @override
+  String get productSale => '제품 판매';
+
+  @override
+  String get ingredientPurchase => '식재료 구매';
+
+  @override
+  String boughtDescription(Object name, Object quantity) {
+    return '$name 구매 (${quantity}g)';
+  }
+
+  @override
+  String get nameHint => '이름을 입력하세요...';
+
+  @override
+  String get ingredientNameHint => '예: 유기농 호밀가루';
 }

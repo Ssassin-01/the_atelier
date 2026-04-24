@@ -8,7 +8,6 @@ import '../widgets/artisanal_image.dart';
 import '../widgets/polaroid_card.dart';
 import '../widgets/crumple_effect.dart';
 import 'recipe_detail_screen.dart';
-import 'summary_note_screen.dart';
 
 class RecipeArchiveScreen extends ConsumerStatefulWidget {
   const RecipeArchiveScreen({super.key});

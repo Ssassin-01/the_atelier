@@ -926,6 +926,84 @@ abstract class AppLocalizations {
   /// **'Get more at the market'**
   String get restockNow;
 
+  /// No description provided for @salesSlip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales Slip'**
+  String get salesSlip;
+
+  /// No description provided for @addItem.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Add line item'**
+  String get addItem;
+
+  /// No description provided for @paid.
+  ///
+  /// In en, this message translates to:
+  /// **'PAID'**
+  String get paid;
+
+  /// No description provided for @totalAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'TOTAL AMOUNT'**
+  String get totalAmount;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// No description provided for @quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty'**
+  String get quantity;
+
+  /// No description provided for @price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get price;
+
+  /// No description provided for @salesHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales History'**
+  String get salesHistory;
+
+  /// No description provided for @noSalesRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales recorded yet.'**
+  String get noSalesRecords;
+
+  /// No description provided for @deleteRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this record?'**
+  String get deleteRecord;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @saleRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale registered with a flourish.'**
+  String get saleRegistered;
+
   /// No description provided for @newIngredientTitle.
   ///
   /// In en, this message translates to:
@@ -949,6 +1027,402 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skip for now'**
   String get skipForNow;
+
+  /// No description provided for @totalVaultValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Vault Value'**
+  String get totalVaultValue;
+
+  /// No description provided for @inventoryStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory Status'**
+  String get inventoryStatus;
+
+  /// No description provided for @stable.
+  ///
+  /// In en, this message translates to:
+  /// **'Stable'**
+  String get stable;
+
+  /// No description provided for @urgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent'**
+  String get urgent;
+
+  /// No description provided for @lowStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Low Stock'**
+  String get lowStock;
+
+  /// No description provided for @missingInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing Info'**
+  String get missingInfo;
+
+  /// No description provided for @totalEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Entries'**
+  String get totalEntries;
+
+  /// No description provided for @outOfStock.
+  ///
+  /// In en, this message translates to:
+  /// **'OUT OF STOCK'**
+  String get outOfStock;
+
+  /// No description provided for @updateInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'UPDATE INFO'**
+  String get updateInfo;
+
+  /// No description provided for @pantryLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Pantry Ledger'**
+  String get pantryLedger;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @updateIngredient.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Ingredient'**
+  String get updateIngredient;
+
+  /// No description provided for @ingredientName.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredient Name'**
+  String get ingredientName;
+
+  /// No description provided for @totalQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Quantity'**
+  String get totalQuantity;
+
+  /// No description provided for @currentStockLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Stock'**
+  String get currentStockLabel;
+
+  /// No description provided for @purchasePriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase Price'**
+  String get purchasePriceLabel;
+
+  /// No description provided for @categoryFlour.
+  ///
+  /// In en, this message translates to:
+  /// **'Flour'**
+  String get categoryFlour;
+
+  /// No description provided for @categoryDairy.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy/Eggs'**
+  String get categoryDairy;
+
+  /// No description provided for @categorySweetener.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweetener'**
+  String get categorySweetener;
+
+  /// No description provided for @categoryLeavening.
+  ///
+  /// In en, this message translates to:
+  /// **'Leavening'**
+  String get categoryLeavening;
+
+  /// No description provided for @categoryAddIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Add-in'**
+  String get categoryAddIn;
+
+  /// No description provided for @categoryOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get categoryOthers;
+
+  /// No description provided for @quote1.
+  ///
+  /// In en, this message translates to:
+  /// **'\"The scent of wood and fresh sourdough—a master’s morning.\"'**
+  String get quote1;
+
+  /// No description provided for @quote2.
+  ///
+  /// In en, this message translates to:
+  /// **'\"Every crumb tells the story of the grain’s journey.\"'**
+  String get quote2;
+
+  /// No description provided for @quote3.
+  ///
+  /// In en, this message translates to:
+  /// **'\"Precision is key, but intuition is most important.\"'**
+  String get quote3;
+
+  /// No description provided for @quote4.
+  ///
+  /// In en, this message translates to:
+  /// **'\"The best flour is the one that still feels like life.\"'**
+  String get quote4;
+
+  /// No description provided for @quote5.
+  ///
+  /// In en, this message translates to:
+  /// **'\"Warmth, patience, and time: the true artisan tools.\"'**
+  String get quote5;
+
+  /// No description provided for @mon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get mon;
+
+  /// No description provided for @tue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get tue;
+
+  /// No description provided for @wed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get wed;
+
+  /// No description provided for @thu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get thu;
+
+  /// No description provided for @fri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get fri;
+
+  /// No description provided for @sat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get sat;
+
+  /// No description provided for @sun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get sun;
+
+  /// No description provided for @mainDough.
+  ///
+  /// In en, this message translates to:
+  /// **'Main Dough'**
+  String get mainDough;
+
+  /// No description provided for @newComponent.
+  ///
+  /// In en, this message translates to:
+  /// **'New Component'**
+  String get newComponent;
+
+  /// No description provided for @breadFlour.
+  ///
+  /// In en, this message translates to:
+  /// **'Bread Flour'**
+  String get breadFlour;
+
+  /// No description provided for @water.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get water;
+
+  /// No description provided for @removeMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'REMOVE MEDIA?'**
+  String get removeMedia;
+
+  /// No description provided for @removeMediaConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove this image from the recipe?'**
+  String get removeMediaConfirm;
+
+  /// No description provided for @keepIt.
+  ///
+  /// In en, this message translates to:
+  /// **'KEEP IT'**
+  String get keepIt;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'REMOVE'**
+  String get remove;
+
+  /// No description provided for @newIngredientsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW INGREDIENTS FOUND'**
+  String get newIngredientsFound;
+
+  /// No description provided for @addIngredientsToPantry.
+  ///
+  /// In en, this message translates to:
+  /// **'Would you like to add these to your pantry journal?'**
+  String get addIngredientsToPantry;
+
+  /// No description provided for @registerIntoPantry.
+  ///
+  /// In en, this message translates to:
+  /// **'Register into Pantry'**
+  String get registerIntoPantry;
+
+  /// No description provided for @manageCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Categories'**
+  String get manageCategories;
+
+  /// No description provided for @addCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Category'**
+  String get addCategory;
+
+  /// No description provided for @newCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'New Category'**
+  String get newCategory;
+
+  /// No description provided for @renameCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Category'**
+  String get renameCategory;
+
+  /// No description provided for @categoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Name'**
+  String get categoryName;
+
+  /// No description provided for @newName.
+  ///
+  /// In en, this message translates to:
+  /// **'New Name'**
+  String get newName;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @rename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get rename;
+
+  /// No description provided for @addSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Sale'**
+  String get addSale;
+
+  /// No description provided for @recentPurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Purchases'**
+  String get recentPurchases;
+
+  /// No description provided for @noPurchaseRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchase records'**
+  String get noPurchaseRecords;
+
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History >'**
+  String get history;
+
+  /// No description provided for @percentLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% left'**
+  String percentLeft(Object percent);
+
+  /// No description provided for @addProductHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add product...'**
+  String get addProductHint;
+
+  /// No description provided for @productSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Sale'**
+  String get productSale;
+
+  /// No description provided for @ingredientPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredient Purchase'**
+  String get ingredientPurchase;
+
+  /// No description provided for @boughtDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Bought: {name} ({quantity}g)'**
+  String boughtDescription(Object name, Object quantity);
+
+  /// No description provided for @nameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter name...'**
+  String get nameHint;
+
+  /// No description provided for @ingredientNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Organic Rye Flour'**
+  String get ingredientNameHint;
 }
 
 class _AppLocalizationsDelegate

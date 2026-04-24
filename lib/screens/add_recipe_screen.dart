@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/pantry_categories_provider.dart';
 import '../theme/artisanal_theme.dart';
 import '../widgets/masking_tape.dart';
 import '../widgets/recipe_preview_sheet.dart';
@@ -23,12 +24,14 @@ class IngredientEntry {
   String name;
   double weight;
   bool isFlour;
+  String category;
 
   IngredientEntry({
     required this.id,
     this.name = '',
     this.weight = 0,
     this.isFlour = false,
+    this.category = 'Others',
   });
 }
 
@@ -47,11 +50,12 @@ class RecipeComponentDraft {
 
   RecipeComponentDraft({
     required this.id,
-    this.title = 'New Component',
+    String? title,
     this.imagePath,
     List<IngredientEntry>? ingredients,
     List<RecipeStepDraft>? steps,
-  }) : ingredients = ingredients ?? [],
+  }) : title = title ?? 'New Component',
+       ingredients = ingredients ?? [],
        steps = steps ?? [RecipeStepDraft(id: 's1')];
 
   double get totalFlour => ingredients
@@ -143,6 +147,15 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     final l10n = AppLocalizations.of(context);
     final draft = ref.watch(recipeDraftProvider);
     final notifier = ref.read(recipeDraftProvider.notifier);
+    
+    // Patch default titles if they are the English defaults
+    if (draft.components.length == 1 && draft.components[0].title == 'Main Dough') {
+       draft.components[0].title = l10n.mainDough;
+       if (draft.components[0].ingredients.length == 2 && draft.components[0].ingredients[0].name == 'Bread Flour') {
+         draft.components[0].ingredients[0].name = l10n.breadFlour;
+         draft.components[0].ingredients[1].name = l10n.water;
+       }
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF7),
@@ -308,6 +321,38 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     }
 
     _triggerFeedback();
+    
+    // Check for new ingredients that aren't in the pantry yet
+    final pantryItems = ref.read(pantryProvider);
+    final allIngredientNames = draft.components
+        .expand((c) => c.ingredients)
+        .where((i) => i.name.trim().isNotEmpty)
+        .map((i) => i.name.trim())
+        .toSet()
+        .toList();
+
+    final newIngredientNames = allIngredientNames.where((name) => 
+        !pantryItems.any((p) => p.name.toLowerCase() == name.toLowerCase())).toList();
+
+    if (newIngredientNames.isNotEmpty) {
+      final toRegister = await _showBulkNewIngredientsDialog(context, newIngredientNames);
+      if (toRegister != null) {
+        for (final entry in toRegister) {
+          final newItem = PantryItem(
+            id: DateTime.now().millisecondsSinceEpoch.toString() + entry.name,
+            name: entry.name,
+            purchasePrice: 0,
+            purchaseQuantity: 1000,
+            currentStock: 0,
+            unit: 'g',
+            lastUpdated: DateTime.now(),
+            category: entry.category,
+          );
+          await ref.read(pantryProvider.notifier).addItem(newItem);
+        }
+      }
+    }
+
     HapticFeedback.heavyImpact();
 
     // Map Draft to model
@@ -462,62 +507,136 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   }
 
   Future<bool?> _confirmDeleteMedia(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     _triggerFeedback();
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFFFDFBF7),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("REMOVE MEDIA?", style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
-        content: Text("Are you sure you want to remove this image from the recipe?", style: ArtisanalTheme.hand(fontSize: 18)),
+        title: Text(l10n.removeMedia, style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
+        content: Text(l10n.removeMediaConfirm, style: ArtisanalTheme.hand(fontSize: 18)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text("KEEP IT", style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+            child: Text(l10n.keepIt, style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text("REMOVE", style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
+            child: Text(l10n.remove, style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _showNewIngredientDialog(BuildContext context, WidgetRef ref, String name) async {
+  Future<List<({String name, String category})>?> _showBulkNewIngredientsDialog(
+      BuildContext context, List<String> names) async {
     final l10n = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
+    final Map<String, String> selectedCategories = {
+      for (var name in names) name: 'Others'
+    };
+    final categories = ref.read(pantryCategoriesProvider).where((c) => c != 'All').toList();
+
+    return showDialog<List<({String name, String category})>>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFFFDFBF7),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.newIngredientTitle, style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
-        content: Text(l10n.newIngredientDesc, style: ArtisanalTheme.hand(fontSize: 18)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.skipForNow, style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: const Color(0xFFFDFBF7),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(l10n.newIngredientsFound,
+              style: ArtisanalTheme.hand(
+                  fontSize: 22, fontWeight: FontWeight.bold)),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.addIngredientsToPantry,
+                    style: ArtisanalTheme.hand(fontSize: 16)),
+                const SizedBox(height: 20),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: names.length,
+                    itemBuilder: (context, index) {
+                      final name = names[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name,
+                                style: ArtisanalTheme.hand(
+                                    fontSize: 18, color: ArtisanalTheme.primary)),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 6,
+                              children: categories.map((c) {
+                                final isSelected = selectedCategories[name] == c;
+                                return ChoiceChip(
+                                  label: Text((c == 'Flour' ? l10n.categoryFlour : 
+                                               c == 'Dairy/Eggs' ? l10n.categoryDairy :
+                                               c == 'Sweetener' ? l10n.categorySweetener :
+                                               c == 'Leavening' ? l10n.categoryLeavening :
+                                               c == 'Add-in' ? l10n.categoryAddIn :
+                                               c == 'Others' ? l10n.categoryOthers : c),
+                                      style: ArtisanalTheme.hand(
+                                        fontSize: 11,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : ArtisanalTheme.ink,
+                                      )),
+                                  selected: isSelected,
+                                  onSelected: (selected) {
+                                    setDialogState(() => selectedCategories[name] = c);
+                                  },
+                                  selectedColor: ArtisanalTheme.primary,
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                    side: BorderSide(
+                                      color: isSelected
+                                          ? ArtisanalTheme.primary
+                                          : const Color(0xFFE5E0D8),
+                                    ),
+                                  ),
+                                  showCheckmark: false,
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                );
+                              }).toList(),
+                            ),
+                            if (index < names.length - 1)
+                              const Divider(height: 24, color: Colors.black12),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.addToPantry, style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontWeight: FontWeight.bold, fontSize: 16)),
-          ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, null),
+              child: Text("SKIP",
+                  style: ArtisanalTheme.hand(
+                      color: ArtisanalTheme.secondary, fontSize: 16)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, selectedCategories.entries.map((e) => (name: e.key, category: e.value)).toList()),
+              child: Text(l10n.registerIntoPantry,
+                  style: ArtisanalTheme.hand(
+                      color: ArtisanalTheme.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18)),
+            ),
+          ],
+        ),
       ),
     );
-
-    if (confirmed == true) {
-      final newItem = PantryItem(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: name,
-        purchasePrice: 0,
-        purchaseQuantity: 1000, // Default base
-        currentStock: 0,
-        unit: 'g',
-        lastUpdated: DateTime.now(),
-      );
-      await ref.read(pantryProvider.notifier).addItem(newItem);
-    }
   }
 
   Widget _mediaActionBtn(IconData icon, VoidCallback onTap, {bool isSmall = false}) {
@@ -804,18 +923,13 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       controller: controller,
                       enableSuggestions: false,
                       autocorrect: false,
+                      textInputAction: TextInputAction.next,
                       onChanged: (val) {
                         _triggerFeedback();
                         entry.name = val;
                       },
                       onSubmitted: (val) {
                         onFieldSubmitted();
-                        // Check if it's a new ingredient
-                        final pantryItems = ref.read(pantryProvider);
-                        final exists = pantryItems.any((item) => item.name.toLowerCase() == val.trim().toLowerCase());
-                        if (!exists && val.trim().isNotEmpty) {
-                          _showNewIngredientDialog(context, ref, val.trim());
-                        }
                       },
                       style: ArtisanalTheme.hand(fontSize: 18),
                       decoration: const InputDecoration(

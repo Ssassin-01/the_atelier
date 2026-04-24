@@ -237,7 +237,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 
   Widget _buildAtelierHeader(AppLocalizations l10n, DateTime now) {
-    final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final weekdays = [l10n.mon, l10n.tue, l10n.wed, l10n.thu, l10n.fri, l10n.sat, l10n.sun];
     final dateStr =
         '${weekdays[now.weekday - 1]}, ${now.year}.${now.month.toString().padLeft(2, '0')}.${now.day.toString().padLeft(2, '0')}';
 
@@ -284,11 +284,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 
   Widget _buildDailyMemo() {
-    const notes = [
-      '"Slow fermentation is the secret to a deep, soulful flavour."',
-      '"Every loaf tells a story. Make yours worth reading."',
-      '"The best flour is the one that still feels like life."',
-      '"Warmth, patience, and time: the true artisan tools."',
+    final l10n = AppLocalizations.of(context);
+    final notes = [
+      l10n.quote1,
+      l10n.quote2,
+      l10n.quote3,
+      l10n.quote4,
+      l10n.quote5,
     ];
     final note = notes[DateTime.now().day % notes.length];
 

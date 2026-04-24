@@ -7,9 +7,10 @@ import '../widgets/custom_clippers.dart';
 import '../widgets/polaroid_card.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/pantry_provider.dart';
-import '../models/transaction.dart';
 import '../models/pantry_item.dart';
 import 'pantry_management_screen.dart';
+import 'expense_history_screen.dart';
+import '../widgets/sales_slip_sheet.dart';
 
 class BusinessLedgerScreen extends ConsumerWidget {
   const BusinessLedgerScreen({super.key});
@@ -72,8 +73,8 @@ class BusinessLedgerScreen extends ConsumerWidget {
                     }),
                 const SizedBox(width: 12),
                 _buildQuickAction(
-                    context, ref, "Add Sale", Icons.add_shopping_cart, ArtisanalTheme.primary, () {
-                      _showTransactionDialog(context, ref);
+                    context, ref, l10n.addSale, Icons.add_shopping_cart, ArtisanalTheme.primary, () {
+                      _showSalesSlip(context);
                     }),
                 const SizedBox(width: 12),
                 _buildQuickAction(
@@ -90,94 +91,16 @@ class BusinessLedgerScreen extends ConsumerWidget {
     );
   }
 
-  void _showTransactionDialog(BuildContext context, WidgetRef ref) {
-    final txNotifier = ref.read(transactionProvider.notifier);
-    
-    String description = '';
-    double amount = 0;
-    String type = 'sale'; // Default to sale
-    String category = 'Sales';
-
-    showDialog(
+  void _showSalesSlip(BuildContext context) {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          backgroundColor: ArtisanalTheme.background,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text("Add Transaction", style: ArtisanalTheme.lightTheme.textTheme.displaySmall),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: ChoiceChip(
-                      label: const Text("Sale"),
-                      selected: type == 'sale',
-                      onSelected: (val) => setState(() {
-                        type = 'sale';
-                        category = 'Product Sale';
-                      }),
-                      selectedColor: Colors.green.shade100,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ChoiceChip(
-                      label: const Text("Expense"),
-                      selected: type == 'expense',
-                      onSelected: (val) => setState(() {
-                        type = 'expense';
-                        category = 'Ingredients';
-                      }),
-                      selectedColor: Colors.red.shade100,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                decoration: const InputDecoration(labelText: "Description"),
-                onChanged: (val) => description = val,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: "Amount",
-                  suffixText: "₩",
-                ),
-                keyboardType: TextInputType.number,
-                onChanged: (val) => amount = double.tryParse(val) ?? 0,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (description.isNotEmpty && amount > 0) {
-                  txNotifier.addTransaction(BusinessTransaction(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    date: DateTime.now(),
-                    type: type,
-                    amount: amount,
-                    category: category,
-                    description: description,
-                  ));
-                  Navigator.pop(context);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ArtisanalTheme.primary,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text("Save"),
-            ),
-          ],
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
+        child: const SalesSlipSheet(),
       ),
     );
   }
@@ -252,11 +175,11 @@ class BusinessLedgerScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     // Receipt Header
-                    Text(
-                      l10n.ingredientLedger,
-                      style: ArtisanalTheme.lightTheme.textTheme.labelLarge
-                          ?.copyWith(letterSpacing: 2, fontWeight: FontWeight.bold),
-                    ),
+                    _buildLedgerSectionTitle(
+                        context, l10n.ingredientLedger, null,
+                        onTrailingTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpenseHistoryScreen()));
+                        }),
                     const SizedBox(height: 16),
                     Text(
                       currencyFormat.format(totalExpenses),
@@ -272,32 +195,34 @@ class BusinessLedgerScreen extends ConsumerWidget {
                     _dottedDivider(),
                     const SizedBox(height: 24),
 
-                    // Pantry Status Section
-                    _buildLedgerSectionTitle(context, "PANTRY STATUS", Icons.inventory_2_outlined),
-                    const SizedBox(height: 16),
-                    if (pantryItems.isEmpty)
-                      Text("No items in pantry", style: ArtisanalTheme.hand(fontSize: 14, color: Colors.black26))
-                    else
-                      ...pantryItems.take(3).map((item) => _buildVaultItem(
-                          item.name, 
-                          '${(item.currentStock / 1000).toStringAsFixed(1)}kg')),
-
                     const SizedBox(height: 32),
                     _dottedDivider(),
                     const SizedBox(height: 24),
 
-                    // Disbursements
+                    // Recent Purchases (Filtering only expenses)
                     _buildLedgerSectionTitle(
-                        context, l10n.recentDisbursements, null),
+                        context, l10n.recentPurchases.toUpperCase(), null, 
+                        onTrailingTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpenseHistoryScreen()));
+                        }),
                     const SizedBox(height: 16),
-                    if (transactions.isEmpty)
-                      Text("No recent transactions", style: ArtisanalTheme.hand(fontSize: 14, color: Colors.black26))
-                    else
-                      ...transactions.take(3).map((tx) => _buildDisbursementItem(
-                          DateFormat('dd MMM yyyy').format(tx.date),
-                          tx.description,
-                          currencyFormat.format(tx.amount),
-                          tx.type == 'sale')),
+                    (() {
+                      final expenses = transactions.where((tx) => tx.type == 'expense').toList()
+                        ..sort((a, b) => b.date.compareTo(a.date));
+                      
+                      if (expenses.isEmpty) {
+                        return Text(l10n.noPurchaseRecords, style: ArtisanalTheme.hand(fontSize: 14, color: Colors.black26));
+                      }
+                      
+                      return Column(
+                        children: expenses.take(3).map((tx) => _buildDisbursementItem(
+                            DateFormat('dd MMM yyyy').format(tx.date),
+                            tx.description,
+                            currencyFormat.format(tx.amount),
+                            false // Expenses are always negative/red here
+                        )).toList(),
+                      );
+                    })(),
 
                     const SizedBox(height: 48),
                     _dottedDivider(),
@@ -376,7 +301,8 @@ class BusinessLedgerScreen extends ConsumerWidget {
   }
 
   Widget _buildLedgerSectionTitle(
-      BuildContext context, String title, IconData? icon) {
+      BuildContext context, String title, IconData? icon, {VoidCallback? onTrailingTap}) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         if (icon != null) ...[
@@ -387,22 +313,37 @@ class BusinessLedgerScreen extends ConsumerWidget {
             style: ArtisanalTheme.lightTheme.textTheme.displaySmall
                 ?.copyWith(fontSize: 18, fontStyle: FontStyle.italic)),
         const Spacer(),
+        if (onTrailingTap != null)
+          GestureDetector(
+            onTap: onTrailingTap,
+            child: Text(
+              l10n.history,
+              style: ArtisanalTheme.hand(fontSize: 14, color: ArtisanalTheme.primary.withValues(alpha: 0.6)),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildVaultItem(String name, String value) {
+  Widget _buildVaultItem(String label, String value, {bool isWarning = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(name,
-              style: ArtisanalTheme.lightTheme.textTheme.bodyLarge
-                  ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500)),
+          Expanded(
+            child: Text(label,
+                style: ArtisanalTheme.hand(
+                  fontSize: 16, 
+                  color: isWarning ? ArtisanalTheme.primary : Colors.black87
+                )),
+          ),
           Text(value,
-              style: ArtisanalTheme.lightTheme.textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.bold, color: ArtisanalTheme.primary)),
+              style: ArtisanalTheme.hand(
+                fontSize: 16, 
+                color: isWarning ? ArtisanalTheme.primary : Colors.black54,
+                fontWeight: isWarning ? FontWeight.bold : FontWeight.normal
+              )),
         ],
       ),
     );

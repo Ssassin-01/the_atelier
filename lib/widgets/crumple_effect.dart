@@ -57,9 +57,8 @@ class _CrumpleEffectState extends State<CrumpleEffect> {
         return Opacity(
           opacity: _opacity.value,
           child: Transform(
-            transform: Matrix4.identity()
+            transform: Matrix4.diagonal3Values(_scale.value, _scale.value, 1.0)
               ..setEntry(3, 2, 0.001) // perspective
-              ..scale(_scale.value, _scale.value)
               ..rotateZ(_rotation.value)
               ..multiply(Matrix4.skew(_skewX.value, _skewY.value)),
             alignment: Alignment.center,

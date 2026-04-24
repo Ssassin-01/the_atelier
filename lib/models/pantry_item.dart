@@ -28,6 +28,9 @@ class PantryItem extends HiveObject {
   @HiveField(7)
   final String? imageUrl;
 
+  @HiveField(8)
+  final String category;
+
   PantryItem({
     required this.id,
     required this.name,
@@ -37,6 +40,7 @@ class PantryItem extends HiveObject {
     this.currentStock = 0,
     required this.lastUpdated,
     this.imageUrl,
+    this.category = 'Others',
   });
 
   /// Calculates the cost per single unit (e.g. per gram/ml)
@@ -53,9 +57,10 @@ class PantryItem extends HiveObject {
     double? currentStock,
     DateTime? lastUpdated,
     String? imageUrl,
+    String? category,
   }) {
     return PantryItem(
-      id: this.id,
+      id: id,
       name: name ?? this.name,
       purchasePrice: purchasePrice ?? this.purchasePrice,
       purchaseQuantity: purchaseQuantity ?? this.purchaseQuantity,
@@ -63,6 +68,7 @@ class PantryItem extends HiveObject {
       currentStock: currentStock ?? this.currentStock,
       lastUpdated: lastUpdated ?? this.lastUpdated,
       imageUrl: imageUrl ?? this.imageUrl,
+      category: category ?? this.category,
     );
   }
 }

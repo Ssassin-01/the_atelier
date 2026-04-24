@@ -436,6 +436,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restockNow => 'Get more at the market';
 
   @override
+  String get salesSlip => 'Sales Slip';
+
+  @override
+  String get addItem => '+ Add line item';
+
+  @override
+  String get paid => 'PAID';
+
+  @override
+  String get totalAmount => 'TOTAL AMOUNT';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get quantity => 'Qty';
+
+  @override
+  String get price => 'Price';
+
+  @override
+  String get salesHistory => 'Sales History';
+
+  @override
+  String get noSalesRecords => 'No sales recorded yet.';
+
+  @override
+  String get deleteRecord => 'Discard this record?';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get saleRegistered => 'Sale registered with a flourish.';
+
+  @override
   String get newIngredientTitle => 'New Ingredient Found!';
 
   @override
@@ -447,4 +486,212 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get skipForNow => 'Skip for now';
+
+  @override
+  String get totalVaultValue => 'Total Vault Value';
+
+  @override
+  String get inventoryStatus => 'Inventory Status';
+
+  @override
+  String get stable => 'Stable';
+
+  @override
+  String get urgent => 'Urgent';
+
+  @override
+  String get lowStock => 'Low Stock';
+
+  @override
+  String get missingInfo => 'Missing Info';
+
+  @override
+  String get totalEntries => 'Total Entries';
+
+  @override
+  String get outOfStock => 'OUT OF STOCK';
+
+  @override
+  String get updateInfo => 'UPDATE INFO';
+
+  @override
+  String get pantryLedger => 'Pantry Ledger';
+
+  @override
+  String get saveChanges => 'Save Changes';
+
+  @override
+  String get updateIngredient => 'Update Ingredient';
+
+  @override
+  String get ingredientName => 'Ingredient Name';
+
+  @override
+  String get totalQuantity => 'Total Quantity';
+
+  @override
+  String get currentStockLabel => 'Current Stock';
+
+  @override
+  String get purchasePriceLabel => 'Purchase Price';
+
+  @override
+  String get categoryFlour => 'Flour';
+
+  @override
+  String get categoryDairy => 'Dairy/Eggs';
+
+  @override
+  String get categorySweetener => 'Sweetener';
+
+  @override
+  String get categoryLeavening => 'Leavening';
+
+  @override
+  String get categoryAddIn => 'Add-in';
+
+  @override
+  String get categoryOthers => 'Others';
+
+  @override
+  String get quote1 =>
+      '\"The scent of wood and fresh sourdough—a master’s morning.\"';
+
+  @override
+  String get quote2 =>
+      '\"Every crumb tells the story of the grain’s journey.\"';
+
+  @override
+  String get quote3 => '\"Precision is key, but intuition is most important.\"';
+
+  @override
+  String get quote4 =>
+      '\"The best flour is the one that still feels like life.\"';
+
+  @override
+  String get quote5 =>
+      '\"Warmth, patience, and time: the true artisan tools.\"';
+
+  @override
+  String get mon => 'Mon';
+
+  @override
+  String get tue => 'Tue';
+
+  @override
+  String get wed => 'Wed';
+
+  @override
+  String get thu => 'Thu';
+
+  @override
+  String get fri => 'Fri';
+
+  @override
+  String get sat => 'Sat';
+
+  @override
+  String get sun => 'Sun';
+
+  @override
+  String get mainDough => 'Main Dough';
+
+  @override
+  String get newComponent => 'New Component';
+
+  @override
+  String get breadFlour => 'Bread Flour';
+
+  @override
+  String get water => 'Water';
+
+  @override
+  String get removeMedia => 'REMOVE MEDIA?';
+
+  @override
+  String get removeMediaConfirm =>
+      'Are you sure you want to remove this image from the recipe?';
+
+  @override
+  String get keepIt => 'KEEP IT';
+
+  @override
+  String get remove => 'REMOVE';
+
+  @override
+  String get newIngredientsFound => 'NEW INGREDIENTS FOUND';
+
+  @override
+  String get addIngredientsToPantry =>
+      'Would you like to add these to your pantry journal?';
+
+  @override
+  String get registerIntoPantry => 'Register into Pantry';
+
+  @override
+  String get manageCategories => 'Manage Categories';
+
+  @override
+  String get addCategory => 'Add Category';
+
+  @override
+  String get newCategory => 'New Category';
+
+  @override
+  String get renameCategory => 'Rename Category';
+
+  @override
+  String get categoryName => 'Category Name';
+
+  @override
+  String get newName => 'New Name';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get rename => 'Rename';
+
+  @override
+  String get addSale => 'Add Sale';
+
+  @override
+  String get recentPurchases => 'Recent Purchases';
+
+  @override
+  String get noPurchaseRecords => 'No purchase records';
+
+  @override
+  String get history => 'History >';
+
+  @override
+  String percentLeft(Object percent) {
+    return '$percent% left';
+  }
+
+  @override
+  String get addProductHint => 'Add product...';
+
+  @override
+  String get productSale => 'Product Sale';
+
+  @override
+  String get ingredientPurchase => 'Ingredient Purchase';
+
+  @override
+  String boughtDescription(Object name, Object quantity) {
+    return 'Bought: $name (${quantity}g)';
+  }
+
+  @override
+  String get nameHint => 'Enter name...';
+
+  @override
+  String get ingredientNameHint => 'e.g. Organic Rye Flour';
 }

@@ -37,6 +37,7 @@ void main() async {
   final recipeBox = await Hive.openBox<Recipe>('recipes');
   await Hive.openBox<PantryItem>('pantry');
   await Hive.openBox<BusinessTransaction>('transactions');
+  await Hive.openBox('settings');
   
   // Populate with mock data only if the box is empty (first run)
   if (recipeBox.isEmpty) {
@@ -75,7 +76,7 @@ void main() async {
     });
   }
 
-  final pantryBox = await Hive.box<PantryItem>('pantry');
+  final pantryBox = Hive.box<PantryItem>('pantry');
   if (pantryBox.isEmpty) {
     await pantryBox.putAll({
       'p1': PantryItem(
