@@ -419,4 +419,22 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get productionLogged => '생산 기록 완료! 장부 기록 및 재고 차감이 처리되었습니다.';
+
+  @override
+  String get lowStockAlert => '재고 부족 알림';
+
+  @override
+  String get restockNow => '더 필요한 재료들을 시장에서 구해보세요';
+
+  @override
+  String get newIngredientTitle => '새로운 재료 발견!';
+
+  @override
+  String get newIngredientDesc => '이 재료는 아직 팬트리에 없네요. 선반에 새로 등록할까요?';
+
+  @override
+  String get addToPantry => '팬트리에 추가';
+
+  @override
+  String get skipForNow => '나중에 하기';
 }

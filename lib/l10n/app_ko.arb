@@ -134,5 +134,11 @@
   "marginsDisclaimer": "팬트리 단가 기반으로 계산되었습니다. 가스비/수도세 등은 포함되지 않았습니다.",
   "logProduction": "생산 기록 및 재고 차감",
   "ingredientsMissingWarning": "팬트리에 없는 재료가 있어 원가 계산이 부정확할 수 있습니다.",
-  "productionLogged": "생산 기록 완료! 장부 기록 및 재고 차감이 처리되었습니다."
+  "productionLogged": "생산 기록 완료! 장부 기록 및 재고 차감이 처리되었습니다.",
+  "lowStockAlert": "재고 부족 알림",
+  "restockNow": "더 필요한 재료들을 시장에서 구해보세요",
+  "newIngredientTitle": "새로운 재료 발견!",
+  "newIngredientDesc": "이 재료는 아직 팬트리에 없네요. 선반에 새로 등록할까요?",
+  "addToPantry": "팬트리에 추가",
+  "skipForNow": "나중에 하기"
 }

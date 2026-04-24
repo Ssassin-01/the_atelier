@@ -428,4 +428,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get productionLogged =>
       'Production logged! Transaction added and stock updated.';
+
+  @override
+  String get lowStockAlert => 'Restock Needed';
+
+  @override
+  String get restockNow => 'Get more at the market';
+
+  @override
+  String get newIngredientTitle => 'New Ingredient Found!';
+
+  @override
+  String get newIngredientDesc =>
+      'This isn\'t in your pantry yet. Should we add it to the shelf?';
+
+  @override
+  String get addToPantry => 'Add to Pantry';
+
+  @override
+  String get skipForNow => 'Skip for now';
 }

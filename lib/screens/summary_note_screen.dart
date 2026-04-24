@@ -183,101 +183,99 @@ class _JournalPage extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Left leather binding
-          Container(
-            width: 32,
-            height: 2500, // Sufficiently long
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [Color(0xFFDAD6CF), Color(0xFFE8E4DC)],
-              ),
-            ),
-          ),
-          // Page content
-          Expanded(
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: CustomPaint(painter: _RuledLinePainter()),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(40, 48, 40, 100),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Date
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Text(
-                          l10n.summaryDate,
-                          style: ArtisanalTheme.hand(
-                            fontSize: 18,
-                            color: Colors.black.withValues(alpha: 0.45),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      // Title
-                      Center(
-                        child: Transform.rotate(
-                          angle: -0.015,
+      constraints: const BoxConstraints(minHeight: 500, maxWidth: 700),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Left leather binding
+            _buildLeatherBinding(),
+            // Page content
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: CustomPaint(painter: _RuledLinePainter()),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(40, 48, 40, 100),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Date
+                        Align(
+                          alignment: Alignment.topRight,
                           child: Text(
-                            title,
-                            textAlign: TextAlign.center,
-                            style: ArtisanalTheme.hand(fontSize: 48, color: ArtisanalTheme.ink).copyWith(fontWeight: FontWeight.bold, height: 1.1),
+                            l10n.summaryDate,
+                            style: ArtisanalTheme.hand(
+                              fontSize: 18,
+                              color: Colors.black.withValues(alpha: 0.45),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 36),
-                      // Hero Image
-                      Center(
-                        child: Transform.rotate(
-                          angle: 0.017,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 16, offset: const Offset(0, 6)),
-                              ],
-                              border: Border.all(color: Colors.white, width: 8),
+                        const SizedBox(height: 8),
+                        // Title
+                        Center(
+                          child: Transform.rotate(
+                            angle: -0.015,
+                            child: Text(
+                              title,
+                              textAlign: TextAlign.center,
+                              style: ArtisanalTheme.hand(fontSize: 48, color: ArtisanalTheme.ink).copyWith(fontWeight: FontWeight.bold, height: 1.1),
                             ),
-                            child: SizedBox(
-                              width: 380,
-                              child: AspectRatio(
-                                aspectRatio: 4 / 3,
-                                child: ArtisanalImage(imagePath: mainImage, fit: BoxFit.cover),
+                          ),
+                        ),
+                        const SizedBox(height: 36),
+                        // Hero Image
+                        Center(
+                          child: Transform.rotate(
+                            angle: 0.017,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 16, offset: const Offset(0, 6)),
+                                ],
+                                border: Border.all(color: Colors.white, width: 8),
+                              ),
+                              child: SizedBox(
+                                width: 380,
+                                child: AspectRatio(
+                                  aspectRatio: 4 / 3,
+                                  child: ArtisanalImage(imagePath: mainImage, fit: BoxFit.cover),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 80),
-
-                      // Render Dynamic Components
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: components.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 16),
-                        itemBuilder: (context, index) {
-                          final comp = components[index];
-                          return _RecipeSection(
-                            component: comp,
-                          );
-                        },
-                      ),
-                    ],
+                        const SizedBox(height: 80),
+                        
+                        // Render Dynamic Components
+                        ...components.map((comp) => Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: _RecipeSection(component: comp),
+                        )),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeatherBinding() {
+    return Container(
+      width: 32,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [Color(0xFFDAD6CF), Color(0xFFE8E4DC)],
+        ),
       ),
     );
   }
@@ -388,8 +386,9 @@ class _RecipeSection extends StatelessWidget {
                     ],
                   ),
                 );
-              });
+              }).toList();
             }(),
+
             const SizedBox(height: 16),
             // Steps
             ...component.steps.asMap().entries.map((entry) => Padding(
@@ -409,7 +408,6 @@ class _RecipeSection extends StatelessWidget {
             )),
           ],
         ),
-        const SizedBox(height: 60),
       ],
     );
   }

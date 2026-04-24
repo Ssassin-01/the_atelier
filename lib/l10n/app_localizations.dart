@@ -913,6 +913,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Production logged! Transaction added and stock updated.'**
   String get productionLogged;
+
+  /// No description provided for @lowStockAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'Restock Needed'**
+  String get lowStockAlert;
+
+  /// No description provided for @restockNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Get more at the market'**
+  String get restockNow;
+
+  /// No description provided for @newIngredientTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Ingredient Found!'**
+  String get newIngredientTitle;
+
+  /// No description provided for @newIngredientDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'This isn\'t in your pantry yet. Should we add it to the shelf?'**
+  String get newIngredientDesc;
+
+  /// No description provided for @addToPantry.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Pantry'**
+  String get addToPantry;
+
+  /// No description provided for @skipForNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get skipForNow;
 }
 
 class _AppLocalizationsDelegate

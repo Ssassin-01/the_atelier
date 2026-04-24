@@ -137,5 +137,11 @@
   "marginsDisclaimer": "Margins are calculated based on your pantry unit prices. Taxes and utilities not included.",
   "logProduction": "Log Production & Deduct Stock",
   "ingredientsMissingWarning": "Some ingredients are missing from your pantry. Cost data might be incomplete.",
-  "productionLogged": "Production logged! Transaction added and stock updated."
+  "productionLogged": "Production logged! Transaction added and stock updated.",
+  "lowStockAlert": "Restock Needed",
+  "restockNow": "Get more at the market",
+  "newIngredientTitle": "New Ingredient Found!",
+  "newIngredientDesc": "This isn't in your pantry yet. Should we add it to the shelf?",
+  "addToPantry": "Add to Pantry",
+  "skipForNow": "Skip for now"
 }

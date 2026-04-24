@@ -14,6 +14,8 @@ import '../models/ingredient.dart' as model;
 import '../models/step.dart' as model;
 import '../widgets/artisanal_image.dart';
 import '../services/recipe_service.dart';
+import '../providers/pantry_provider.dart';
+import '../models/pantry_item.dart';
 
 // ── Data Models ─────────────────────────────────────────────────────────────
 class IngredientEntry {
@@ -482,6 +484,42 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     );
   }
 
+  Future<void> _showNewIngredientDialog(BuildContext context, WidgetRef ref, String name) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFFDFBF7),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(l10n.newIngredientTitle, style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
+        content: Text(l10n.newIngredientDesc, style: ArtisanalTheme.hand(fontSize: 18)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.skipForNow, style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.addToPantry, style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontWeight: FontWeight.bold, fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final newItem = PantryItem(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        name: name,
+        purchasePrice: 0,
+        purchaseQuantity: 1000, // Default base
+        currentStock: 0,
+        unit: 'g',
+        lastUpdated: DateTime.now(),
+      );
+      await ref.read(pantryProvider.notifier).addItem(newItem);
+    }
+  }
+
   Widget _mediaActionBtn(IconData icon, VoidCallback onTap, {bool isSmall = false}) {
     return GestureDetector(
       onTap: () {
@@ -741,32 +779,89 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  onChanged: (val) {
-                    _triggerFeedback();
-                    entry.name = val;
+                RawAutocomplete<String>(
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    final pantryItems = ref.read(pantryProvider);
+                    if (textEditingValue.text.isEmpty) {
+                      return const Iterable<String>.empty();
+                    }
+                    return pantryItems
+                        .where((item) => item.name
+                            .toLowerCase()
+                            .contains(textEditingValue.text.toLowerCase()))
+                        .map((item) => item.name);
                   },
-                  controller: TextEditingController(text: entry.name)
-                    ..selection =
-                        TextSelection.collapsed(offset: entry.name.length),
-                  style: ArtisanalTheme.hand(fontSize: 18),
-                  decoration: const InputDecoration(
-                    hintText: "Ingredient name...",
-                    border: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black12, width: 1.0),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide:
-                          BorderSide(color: ArtisanalTheme.primary, width: 1.5),
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black12, width: 1.0),
-                    ),
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8),
-                  ),
+                  onSelected: (String selection) {
+                    _triggerFeedback();
+                    entry.name = selection;
+                  },
+                  fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                    if (controller.text != entry.name && entry.name.isNotEmpty) {
+                      controller.text = entry.name;
+                    }
+                    return TextField(
+                      focusNode: focusNode,
+                      controller: controller,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      onChanged: (val) {
+                        _triggerFeedback();
+                        entry.name = val;
+                      },
+                      onSubmitted: (val) {
+                        onFieldSubmitted();
+                        // Check if it's a new ingredient
+                        final pantryItems = ref.read(pantryProvider);
+                        final exists = pantryItems.any((item) => item.name.toLowerCase() == val.trim().toLowerCase());
+                        if (!exists && val.trim().isNotEmpty) {
+                          _showNewIngredientDialog(context, ref, val.trim());
+                        }
+                      },
+                      style: ArtisanalTheme.hand(fontSize: 18),
+                      decoration: const InputDecoration(
+                        hintText: "Ingredient name...",
+                        border: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black12, width: 1.0),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide:
+                              BorderSide(color: ArtisanalTheme.primary, width: 1.5),
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black12, width: 1.0),
+                        ),
+                        isDense: true,
+                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                      ),
+                    );
+                  },
+                  optionsViewBuilder: (context, onSelected, options) {
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Material(
+                        elevation: 4,
+                        color: const Color(0xFFFDFBF7),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          width: 200,
+                          constraints: const BoxConstraints(maxHeight: 200),
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemCount: options.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final String option = options.elementAt(index);
+                              return ListTile(
+                                dense: true,
+                                title: Text(option, style: ArtisanalTheme.hand(fontSize: 16)),
+                                onTap: () => onSelected(option),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 // Mirror the height of percentage text to keep underlines aligned
                 const SizedBox(height: 15),
