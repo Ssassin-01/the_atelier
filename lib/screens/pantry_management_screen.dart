@@ -7,7 +7,8 @@ import '../models/pantry_item.dart';
 import '../models/transaction.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/pantry_categories_provider.dart';
-import 'dart:io';
+import '../widgets/pantry/inventory_tag.dart';
+import '../widgets/pantry/pantry_dashboard.dart';
 
 class PantryManagementScreen extends ConsumerStatefulWidget {
   const PantryManagementScreen({super.key});
@@ -22,8 +23,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
   @override
   void initState() {
     super.initState();
-    // We'll initialize with a dummy or use DefaultTabController.
-    // Given the complexity of the current build, I'll use ref.read to get initial count.
     final initialCount = ref.read(pantryCategoriesProvider).length;
     _tabController = TabController(length: initialCount, vsync: this);
   }
@@ -40,7 +39,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     final categories = ref.watch(pantryCategoriesProvider);
     final l10n = AppLocalizations.of(context);
 
-    // Sync tab controller length if categories changed
     if (_tabController.length != categories.length) {
       final oldIndex = _tabController.index;
       _tabController.dispose();
@@ -70,13 +68,13 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F3F0),
+      backgroundColor: ArtisanalTheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: ArtisanalTheme.ink),
+          icon: const Icon(Icons.arrow_back_ios_new, color: ArtisanalTheme.primary),
         ),
         title: Text(
           l10n.pantryLedger,
@@ -87,129 +85,83 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: ArtisanalTheme.ink),
+            icon: const Icon(Icons.settings_outlined, color: ArtisanalTheme.primary),
             onPressed: () => _manageCategories(context, ref, categories),
           ),
           const SizedBox(width: 8),
         ],
       ),
-      body: Column(
-        children: [
-          // Ledger Dashboard
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFDFCFB),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-                border: Border.all(color: const Color(0xFFE5E0D8), width: 1),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(l10n.totalVaultValue.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 10, color: ArtisanalTheme.secondary, letterSpacing: 1)),
-                          const SizedBox(height: 4),
-                          Text("₩ ${totalVaultValue.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}", 
-                            style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink)),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF5F3F0),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE5E0D8)),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(l10n.inventoryStatus.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 8, color: ArtisanalTheme.secondary)),
-                            Text(urgentCount > 0 ? l10n.urgent.toUpperCase() : l10n.stable.toUpperCase(), 
-                              style: ArtisanalTheme.hand(fontSize: 12, fontWeight: FontWeight.bold, 
-                              color: urgentCount > 0 ? ArtisanalTheme.redInk : Colors.green.shade700)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: Divider(height: 1, color: Color(0xFFE5E0D8)),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildDashboardStat(l10n.lowStock.toUpperCase(), urgentCount.toString(), ArtisanalTheme.redInk),
-                      _buildDashboardStat(l10n.missingInfo.toUpperCase(), missingInfoCount.toString(), Colors.orange.shade700),
-                      _buildDashboardStat(l10n.totalEntries.toUpperCase(), pantryItems.length.toString(), ArtisanalTheme.ink),
-                    ],
-                  ),
-                ],
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: const NetworkImage('https://www.transparenttextures.com/patterns/paper-fibers.png'),
+            repeat: ImageRepeat.repeat,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withValues(alpha: 0.05),
+              BlendMode.dstATop,
+            ),
+          ),
+        ),
+        child: Column(
+          children: [
+            PantryDashboard(
+              totalVaultValue: totalVaultValue,
+              urgentCount: urgentCount,
+              missingInfoCount: missingInfoCount,
+              totalEntries: pantryItems.length,
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: TabBar(
+                controller: _tabController,
+                labelColor: ArtisanalTheme.primary,
+                unselectedLabelColor: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                indicatorColor: ArtisanalTheme.primary,
+                indicatorWeight: 3,
+                labelStyle: ArtisanalTheme.hand(fontWeight: FontWeight.bold),
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                dividerColor: Colors.transparent,
+                tabs: categories.map((c) {
+                  String name = c;
+                  if (c == 'All') {
+                    name = l10n.all;
+                  } else if (c == 'Flour') {
+                    name = l10n.categoryFlour;
+                  } else if (c == 'Dairy/Eggs') {
+                    name = l10n.categoryDairy;
+                  } else if (c == 'Sweetener') {
+                    name = l10n.categorySweetener;
+                  } else if (c == 'Leavening') {
+                    name = l10n.categoryLeavening;
+                  } else if (c == 'Add-in') {
+                    name = l10n.categoryAddIn;
+                  } else if (c == 'Others') {
+                    name = l10n.categoryOthers;
+                  }
+                  return Tab(text: name.toUpperCase());
+                }).toList(),
               ),
             ),
-          ),
+            const SizedBox(height: 8),
+            
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: categories.map((category) {
+                  final filteredItems = category == 'All'
+                      ? pantryItems
+                      : pantryItems.where((i) => i.category == category).toList();
 
-          // Custom TabBar area
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: TabBar(
-              controller: _tabController,
-              labelColor: ArtisanalTheme.primary,
-              unselectedLabelColor: ArtisanalTheme.secondary.withValues(alpha: 0.5),
-              indicatorColor: ArtisanalTheme.primary,
-              indicatorWeight: 3,
-              labelStyle: ArtisanalTheme.hand(fontWeight: FontWeight.bold),
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              dividerColor: Colors.transparent,
-              tabs: categories.map((c) {
-                String name = c;
-                if (c == 'All') {
-                  name = l10n.all;
-                } else if (c == 'Flour') {
-                  name = l10n.categoryFlour;
-                } else if (c == 'Dairy/Eggs') {
-                  name = l10n.categoryDairy;
-                } else if (c == 'Sweetener') {
-                  name = l10n.categorySweetener;
-                } else if (c == 'Leavening') {
-                  name = l10n.categoryLeavening;
-                } else if (c == 'Add-in') {
-                  name = l10n.categoryAddIn;
-                } else if (c == 'Others') {
-                  name = l10n.categoryOthers;
-                }
-                return Tab(text: name.toUpperCase());
-              }).toList(),
+                  return _buildPantryGrid(filteredItems);
+                }).toList(),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: categories.map((category) {
-                final filteredItems = category == 'All'
-                    ? pantryItems
-                    : pantryItems.where((i) => i.category == category).toList();
-
-                return _buildPantryGrid(filteredItems);
-              }).toList(),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddPantryItemSheet(context, ref),
@@ -233,7 +185,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     }
 
     return GridView.builder(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 120),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 16,
@@ -397,7 +349,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                         category: category,
                       ));
                       
-                      // Also record as a business transaction (expense)
                       ref.read(transactionProvider.notifier).addTransaction(BusinessTransaction(
                         id: 'tx_${now.millisecondsSinceEpoch}',
                         date: now,
@@ -554,15 +505,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
       ),
     );
   }
-  Widget _buildDashboardStat(String label, String value, Color color) {
-    return Column(
-      children: [
-        Text(label, style: ArtisanalTheme.hand(fontSize: 8, color: ArtisanalTheme.secondary)),
-        const SizedBox(height: 2),
-        Text(value, style: ArtisanalTheme.hand(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
-      ],
-    );
-  }
 
   Widget _buildArtisanalInput({
     required String label,
@@ -602,7 +544,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     );
   }
 
-  // Category Management Logic
   void _manageCategories(BuildContext context, WidgetRef ref, List<String> categories) {
     final l10n = AppLocalizations.of(context);
     showDialog(
@@ -721,216 +662,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
             child: Text(l10n.rename.toUpperCase()),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class InventoryTag extends StatelessWidget {
-  final PantryItem item;
-  const InventoryTag({super.key, required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final stockPercent = (item.currentStock / item.purchaseQuantity).clamp(0.0, 1.0);
-    final isLow = stockPercent < 0.2;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFDFCFB),
-        borderRadius: BorderRadius.circular(4),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(2, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image Area (Polaroid style)
-          Expanded(
-            flex: 3,
-            child: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F3F0),
-                border: Border.all(color: Colors.white, width: 6),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 4,
-                    offset: const Offset(1, 1),
-                  ),
-                ],
-              ),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (item.imageUrl != null)
-                    Image.file(
-                      File(item.imageUrl!),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
-                    )
-                  else
-                    _buildPlaceholder(),
-                  
-                  if (item.currentStock == 0)
-                    Positioned.fill(
-                      child: Container(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        child: Center(
-                          child: Transform.rotate(
-                            angle: -0.2,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: ArtisanalTheme.redInk, width: 3),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                l10n.outOfStock.toUpperCase(),
-                                style: ArtisanalTheme.hand(
-                                  color: ArtisanalTheme.redInk,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  // Tape effect on image
-                  Positioned(
-                    top: -10,
-                    left: 20,
-                    right: 20,
-                    child: Center(
-                      child: Container(
-                        width: 40,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE5E0D8).withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Info Area
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: ArtisanalTheme.hand(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: ArtisanalTheme.ink,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    "${item.currentStock.toInt()} / ${item.purchaseQuantity.toInt()} g",
-                    style: ArtisanalTheme.hand(
-                      fontSize: 10,
-                      color: ArtisanalTheme.secondary,
-                    ),
-                  ),
-                  const Spacer(),
-                  // Wavy Stock Gauge
-                  Stack(
-                    children: [
-                      Container(
-                        height: 6,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      ),
-                      FractionallySizedBox(
-                        widthFactor: stockPercent,
-                        child: Container(
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: isLow ? ArtisanalTheme.redInk : ArtisanalTheme.primary,
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (item.purchasePrice == 0 || item.purchaseQuantity == 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: ArtisanalTheme.redInk.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.info_outline, size: 8, color: ArtisanalTheme.redInk),
-                            const SizedBox(width: 4),
-                            Text(
-                              l10n.updateInfo.toUpperCase(),
-                              style: ArtisanalTheme.hand(
-                                color: ArtisanalTheme.redInk,
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  else if (isLow)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Text(
-                        l10n.lowStock.toUpperCase(),
-                        style: ArtisanalTheme.hand(
-                          color: ArtisanalTheme.redInk,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPlaceholder() {
-    return Container(
-      color: const Color(0xFFECEAE4),
-      child: Center(
-        child: Icon(
-          Icons.restaurant_menu_outlined,
-          color: Colors.white.withValues(alpha: 0.5),
-          size: 32,
-        ),
       ),
     );
   }

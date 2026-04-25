@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../services/recipe_service.dart';
-import '../widgets/artisanal_image.dart';
-import '../widgets/polaroid_card.dart';
-import '../widgets/crumple_effect.dart';
+import '../widgets/recipe_index_card.dart';
 import 'recipe_detail_screen.dart';
 
 class RecipeArchiveScreen extends ConsumerStatefulWidget {
@@ -34,7 +31,6 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
     final l10n = AppLocalizations.of(context);
     final recipes = ref.watch(recipeListProvider);
 
-    // ── Real filtering ───────────────────────────────────────────────────────
     final filtered = recipes.where((r) {
       final matchesSearch = _searchQuery.isEmpty ||
           r.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -43,8 +39,6 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                   .contains(_searchQuery.toLowerCase()) ??
               false);
 
-      // Simple category mapping by recipe name keywords
-      // (In a real app this would use a `category` field on the model)
       final matchesCategory = _selectedCategory == null ||
           _selectedCategory == 'All' ||
           r.name.toLowerCase().contains(_selectedCategory!.toLowerCase()) ||
@@ -57,172 +51,179 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
     }).toList();
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // ── Header (SliverAppBar) ──────────────────────────────────────────
-          SliverAppBar(
-            expandedHeight: 160,
-            floating: true,
-            snap: true,
-            pinned: false,
-            backgroundColor: ArtisanalTheme.background,
-            elevation: 0,
-            flexibleSpace: FlexibleSpaceBar(
-              background: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(28, 16, 28, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Stamp-like sub-label
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 3),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: ArtisanalTheme.primary
-                                  .withValues(alpha: 0.4),
-                              width: 1.5),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          l10n.rndArchive.toUpperCase(),
-                          style: ArtisanalTheme.hand(
-                            fontSize: 14,
-                            color: ArtisanalTheme.primary
-                                .withValues(alpha: 0.6),
-                          ).copyWith(letterSpacing: 1.5),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.myRecipes,
-                        style: ArtisanalTheme.lightTheme.textTheme.displayMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+      backgroundColor: ArtisanalTheme.background,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: const NetworkImage('https://www.transparenttextures.com/patterns/paper-fibers.png'),
+            repeat: ImageRepeat.repeat,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withValues(alpha: 0.05),
+              BlendMode.dstATop,
             ),
           ),
-
-          // ── Search Bar ────────────────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(28, 8, 28, 0),
-              child: _SearchBar(
-                hint: l10n.searchRecipes,
-                onChanged: (v) => setState(() => _searchQuery = v),
-              ),
-            ),
-          ),
-
-          // ── Category Filter Chips ─────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(28, 20, 0, 0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                child: Row(
-                  children: _categories.map((cat) {
-                    final isSelected = (_selectedCategory == null &&
-                            cat.$1 == 'All') ||
-                        cat.$1 == _selectedCategory;
-                    return _CategoryChip(
-                      label: cat.$2,
-                      isSelected: isSelected,
-                      onTap: () => setState(() {
-                        _selectedCategory =
-                            cat.$1 == 'All' ? null : cat.$1;
-                      }),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-          ),
-
-          // ── Entry count divider ───────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(28, 28, 28, 0),
-              child: Row(
-                children: [
-                  Text(
-                    '${filtered.length} ${filtered.length == 1 ? 'entry' : 'entries'}',
-                    style: ArtisanalTheme.hand(
-                      fontSize: 16,
-                      color:
-                          ArtisanalTheme.secondary.withValues(alpha: 0.55),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Divider(
-                      color: ArtisanalTheme.ink.withValues(alpha: 0.1),
-                      thickness: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // ── Recipe Card List ──────────────────────────────────────────────
-          filtered.isEmpty
-              ? SliverFillRemaining(
-                  child: Center(
+        ),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 160,
+              floating: true,
+              snap: true,
+              pinned: false,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              flexibleSpace: FlexibleSpaceBar(
+                background: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(28, 16, 28, 0),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.search_off,
-                            size: 52,
-                            color: ArtisanalTheme.outline
-                                .withValues(alpha: 0.3)),
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.emptyState,
-                          style: ArtisanalTheme.hand(
-                            fontSize: 20,
-                            color: ArtisanalTheme.secondary
-                                .withValues(alpha: 0.5),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: ArtisanalTheme.primary
+                                    .withValues(alpha: 0.4),
+                                width: 1.5),
+                            borderRadius: BorderRadius.circular(4),
                           ),
+                          child: Text(
+                            l10n.rndArchive.toUpperCase(),
+                            style: ArtisanalTheme.hand(
+                              fontSize: 14,
+                              color: ArtisanalTheme.primary
+                                  .withValues(alpha: 0.6),
+                            ).copyWith(letterSpacing: 1.5),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.myRecipes,
+                          style: ArtisanalTheme.lightTheme.textTheme.displayMedium,
                         ),
                       ],
                     ),
                   ),
-                )
-              : SliverPadding(
-                  padding:
-                      const EdgeInsets.fromLTRB(28, 20, 28, 120),
-                  sliver: SliverList.separated(
-                    itemCount: filtered.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
-                    itemBuilder: (context, index) {
-                      final recipe = filtered[index];
-                      return _RecipeIndexCard(
-                        recipe: recipe,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                RecipeDetailScreen(recipe: recipe),
-                          ),
-                        ),
-                        onDelete: () => ref.read(recipeListProvider.notifier).removeRecipe(recipe.id),
+                ),
+              ),
+            ),
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(28, 8, 28, 0),
+                child: _SearchBar(
+                  hint: l10n.searchRecipes,
+                  onChanged: (v) => setState(() => _searchQuery = v),
+                ),
+              ),
+            ),
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(28, 20, 0, 0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _categories.map((cat) {
+                      final isSelected = (_selectedCategory == null &&
+                              cat.$1 == 'All') ||
+                          cat.$1 == _selectedCategory;
+                      return _CategoryChip(
+                        label: cat.$2,
+                        isSelected: isSelected,
+                        onTap: () => setState(() {
+                          _selectedCategory =
+                              cat.$1 == 'All' ? null : cat.$1;
+                        }),
                       );
-                    },
+                    }).toList(),
                   ),
                 ),
-        ],
+              ),
+            ),
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(28, 28, 28, 0),
+                child: Row(
+                  children: [
+                    Text(
+                      '${filtered.length} ${filtered.length == 1 ? 'entry' : 'entries'}',
+                      style: ArtisanalTheme.hand(
+                        fontSize: 16,
+                        color:
+                            ArtisanalTheme.secondary.withValues(alpha: 0.55),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Divider(
+                        color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                        thickness: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            filtered.isEmpty
+                ? SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.search_off,
+                              size: 52,
+                              color: ArtisanalTheme.outline
+                                  .withValues(alpha: 0.3)),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.emptyState,
+                            style: ArtisanalTheme.hand(
+                              fontSize: 20,
+                              color: ArtisanalTheme.secondary
+                                  .withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : SliverPadding(
+                    padding:
+                        const EdgeInsets.fromLTRB(28, 20, 28, 120),
+                    sliver: SliverList.separated(
+                      itemCount: filtered.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final recipe = filtered[index];
+                        return RecipeIndexCard(
+                          recipe: recipe,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  RecipeDetailScreen(recipe: recipe),
+                            ),
+                          ),
+                          onDelete: () => ref.read(recipeListProvider.notifier).removeRecipe(recipe.id),
+                        );
+                      },
+                    ),
+                  ),
+          ],
+        ),
       ),
     );
   }
 }
 
-// ── Search Bar ─────────────────────────────────────────────────────────────
 class _SearchBar extends StatelessWidget {
   final String hint;
   final ValueChanged<String> onChanged;
@@ -267,7 +268,6 @@ class _SearchBar extends StatelessWidget {
   }
 }
 
-// ── Category Chip ──────────────────────────────────────────────────────────
 class _CategoryChip extends StatelessWidget {
   final String label;
   final bool isSelected;
@@ -308,213 +308,6 @@ class _CategoryChip extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-// ── Recipe Index Card ──────────────────────────────────────────────────────
-class _RecipeIndexCard extends StatefulWidget {
-  final dynamic recipe;
-  final VoidCallback onTap;
-  final VoidCallback onDelete;
-
-  const _RecipeIndexCard({
-    required this.recipe,
-    required this.onTap,
-    required this.onDelete,
-  });
-
-  @override
-  State<_RecipeIndexCard> createState() => _RecipeIndexCardState();
-}
-
-class _RecipeIndexCardState extends State<_RecipeIndexCard> with SingleTickerProviderStateMixin {
-  late AnimationController _crumpleController;
-
-  @override
-  void initState() {
-    super.initState();
-    _crumpleController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-  }
-
-  @override
-  void dispose() {
-    _crumpleController.dispose();
-    super.dispose();
-  }
-
-  void _triggerFeedback() {
-    HapticFeedback.mediumImpact();
-  }
-
-  Future<void> _confirmDelete() async {
-    _triggerFeedback();
-    
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFFFDFBF7),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("DELETE ENTRY?", style: ArtisanalTheme.hand(fontSize: 22, fontWeight: FontWeight.bold)),
-        content: Text("This will permanently remove this recipe from your collection.", style: ArtisanalTheme.hand(fontSize: 18)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text("CANCEL", style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text("REMOVE", style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && mounted) {
-      await _crumpleController.forward();
-      widget.onDelete();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final date = widget.recipe.createdAt as DateTime;
-    final dateStr =
-        '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
-
-    return GestureDetector(
-      onTap: widget.onTap,
-      onLongPress: _confirmDelete,
-      child: CrumpleEffect(
-        controller: _crumpleController,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              // ── Thumbnail with washi tape ──────────────────────────────────
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      bottomLeft: Radius.circular(16),
-                    ),
-                    child: ArtisanalImage(
-                      imagePath: widget.recipe.mainImageUrl,
-                      width: 110,
-                      height: 120,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  // Mini washi tape detail at the top edge of the image
-                  const Positioned(
-                    top: -6,
-                    left: 20,
-                    child: WashiTape(
-                        width: 56, height: 13, rotation: -0.04, opacity: 0.75),
-                  ),
-                ],
-              ),
-  
-              // ── Content ────────────────────────────────────────────────────
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.recipe.name,
-                        style: ArtisanalTheme.hand(
-                          fontSize: 22,
-                          color: ArtisanalTheme.ink,
-                        ).copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      if (widget.recipe.description != null &&
-                          (widget.recipe.description as String).isNotEmpty)
-                        Text(
-                          widget.recipe.description,
-                          style: ArtisanalTheme.hand(
-                            fontSize: 16,
-                            color:
-                                ArtisanalTheme.ink.withValues(alpha: 0.55),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      const SizedBox(height: 12),
-                      // Meta row
-                      Wrap(
-                        spacing: 14,
-                        runSpacing: 4,
-                        children: [
-                          _MetaItem(
-                              icon: Icons.calendar_today_outlined,
-                              label: dateStr),
-                          _MetaItem(
-                              icon: Icons.layers_outlined,
-                              label:
-                                  '${widget.recipe.components.length} components'),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-  
-              // ── Arrow ──────────────────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-                child: Icon(Icons.arrow_forward_ios_rounded,
-                    size: 14,
-                    color: ArtisanalTheme.outline.withValues(alpha: 0.6)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MetaItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _MetaItem({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon,
-            size: 13,
-            color: ArtisanalTheme.secondary.withValues(alpha: 0.45)),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: ArtisanalTheme.hand(
-            fontSize: 14,
-            color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -17,7 +17,7 @@ class DataSeedService {
         id: 'p_rice_flour_dry',
         name: 'Dry Glutinous Rice Flour (건식 찹쌀가루)',
         category: 'Flour',
-        currentStock: 1000,
+        currentStock: 800,
         purchasePrice: 4500,
         purchaseQuantity: 1000,
         unit: 'g',
@@ -27,7 +27,7 @@ class DataSeedService {
         id: 'p_rice_flour_cake',
         name: 'Rice Flour (Cake/박력 쌀가루)',
         category: 'Flour',
-        currentStock: 1000,
+        currentStock: 100, // Intentional Low Stock
         purchasePrice: 4000,
         purchaseQuantity: 1000,
         unit: 'g',
@@ -47,7 +47,7 @@ class DataSeedService {
         id: 'p_almond_flour',
         name: 'Almond Flour (아몬드 가루)',
         category: 'Flour',
-        currentStock: 500,
+        currentStock: 40, // Intentional Low Stock
         purchasePrice: 9000,
         purchaseQuantity: 500,
         unit: 'g',
@@ -58,9 +58,9 @@ class DataSeedService {
         id: 'p_eggs',
         name: 'Fresh Eggs (계란)',
         category: 'Dairy/Eggs',
-        currentStock: 10,
+        currentStock: 2, // Intentional Low Stock
         purchasePrice: 5000,
-        purchaseQuantity: 10,
+        purchaseQuantity: 30,
         unit: 'pcs',
         lastUpdated: DateTime.now(),
       ),
@@ -68,7 +68,7 @@ class DataSeedService {
         id: 'p_milk',
         name: 'Milk (우유)',
         category: 'Dairy/Eggs',
-        currentStock: 1000,
+        currentStock: 200, // Intentional Low Stock
         purchasePrice: 2800,
         purchaseQuantity: 1000,
         unit: 'ml',
@@ -88,7 +88,7 @@ class DataSeedService {
         id: 'p_butter',
         name: 'Butter (버터)',
         category: 'Dairy/Eggs',
-        currentStock: 450,
+        currentStock: 50, // Intentional Low Stock
         purchasePrice: 12000,
         purchaseQuantity: 450,
         unit: 'g',
@@ -109,29 +109,9 @@ class DataSeedService {
         id: 'p_icing_sugar',
         name: 'Icing Sugar (슈가파우더)',
         category: 'Sweetener',
-        currentStock: 500,
+        currentStock: 120, // Intentional Low Stock
         purchasePrice: 2500,
         purchaseQuantity: 500,
-        unit: 'g',
-        lastUpdated: DateTime.now(),
-      ),
-      PantryItem(
-        id: 'p_dextrose',
-        name: 'Dextrose (덱스트로스)',
-        category: 'Sweetener',
-        currentStock: 500,
-        purchasePrice: 3800,
-        purchaseQuantity: 500,
-        unit: 'g',
-        lastUpdated: DateTime.now(),
-      ),
-      PantryItem(
-        id: 'p_glucose_syrup',
-        name: 'Glucose Syrup (물엿)',
-        category: 'Sweetener',
-        currentStock: 1000,
-        purchasePrice: 4200,
-        purchaseQuantity: 1000,
         unit: 'g',
         lastUpdated: DateTime.now(),
       ),
@@ -140,7 +120,7 @@ class DataSeedService {
         id: 'p_kabocha',
         name: 'Frozen Kabocha (냉동 단호박)',
         category: 'Add-in',
-        currentStock: 2000,
+        currentStock: 1800,
         purchasePrice: 12000,
         purchaseQuantity: 2000,
         unit: 'g',
@@ -150,50 +130,9 @@ class DataSeedService {
         id: 'p_pumpkin_seeds',
         name: 'Pumpkin Seeds (호박씨)',
         category: 'Add-in',
-        currentStock: 2000,
+        currentStock: 10, // Intentional Low Stock
         purchasePrice: 5500,
         purchaseQuantity: 200,
-        unit: 'g',
-        lastUpdated: DateTime.now(),
-      ),
-      PantryItem(
-        id: 'p_roasted_rice',
-        name: 'Roasted Brown Rice (볶은 현미)',
-        category: 'Add-in',
-        currentStock: 200,
-        purchasePrice: 4500,
-        purchaseQuantity: 200,
-        unit: 'g',
-        lastUpdated: DateTime.now(),
-      ),
-      PantryItem(
-        id: 'p_cinnamon',
-        name: 'Cinnamon Powder (시나몬 가루)',
-        category: 'Add-in',
-        currentStock: 50,
-        purchasePrice: 3500,
-        purchaseQuantity: 50,
-        unit: 'g',
-        lastUpdated: DateTime.now(),
-      ),
-      // Others
-      PantryItem(
-        id: 'p_gelatin',
-        name: 'Sheet Gelatin (판 젤라틴)',
-        category: 'Others',
-        currentStock: 20,
-        purchasePrice: 4000,
-        purchaseQuantity: 20,
-        unit: 'pcs',
-        lastUpdated: DateTime.now(),
-      ),
-      PantryItem(
-        id: 'p_salt',
-        name: 'Salt (꽃소금)',
-        category: 'Others',
-        currentStock: 500,
-        purchasePrice: 1500,
-        purchaseQuantity: 500,
         unit: 'g',
         lastUpdated: DateTime.now(),
       ),
@@ -203,34 +142,53 @@ class DataSeedService {
       await pantry.addItem(item);
     }
 
-    // 2. Seed Analytics Data (Last 7 Days)
+    // 2. Seed Analytics Data (Last 30 Days for rich visualization)
     final random = Random();
     final now = DateTime.now();
 
-    for (int i = 0; i < 7; i++) {
+    final saleCategories = ['Store Sales', 'One-day Class', 'Online Order', 'Custom Cake'];
+    final expenseCategories = ['Ingredients', 'Packaging', 'Utility', 'Atelier Rent'];
+
+    for (int i = 0; i < 30; i++) {
       final date = now.subtract(Duration(days: i));
       
-      // Daily Sale
-      final saleAmount = 60000 + random.nextInt(80000).toDouble();
+      // Daily Sale (Varied amounts)
+      final saleAmount = 80000 + random.nextInt(150000).toDouble();
+      final saleCat = saleCategories[random.nextInt(saleCategories.length)];
       await transactions.addTransaction(BusinessTransaction(
         id: 'seed_sale_$i',
         amount: saleAmount,
         date: date,
         type: 'sale',
-        category: 'Sales',
-        description: 'Daily revenue (Day $i)',
+        category: saleCat,
+        description: 'Revenue from $saleCat',
       ));
 
-      // Daily Expense
-      final expenseAmount = 15000 + random.nextInt(30000).toDouble();
-      await transactions.addTransaction(BusinessTransaction(
-        id: 'seed_exp_$i',
-        amount: expenseAmount,
-        date: date,
-        type: 'expense',
-        category: 'Ingredients',
-        description: 'Restock ingredients (Day $i)',
-      ));
+      // Daily Expense (Every few days)
+      if (i % 3 == 0) {
+        final expenseAmount = 40000 + random.nextInt(60000).toDouble();
+        final expCat = expenseCategories[random.nextInt(expenseCategories.length)];
+        await transactions.addTransaction(BusinessTransaction(
+          id: 'seed_exp_$i',
+          amount: expenseAmount,
+          date: date,
+          type: 'expense',
+          category: expCat,
+          description: 'Payment for $expCat',
+        ));
+      }
+
+      // Rent payment once a month
+      if (date.day == 1) {
+        await transactions.addTransaction(BusinessTransaction(
+          id: 'seed_rent_$i',
+          amount: 800000,
+          date: date,
+          type: 'expense',
+          category: 'Atelier Rent',
+          description: 'Monthly Maintenance & Rent',
+        ));
+      }
     }
   }
 }
