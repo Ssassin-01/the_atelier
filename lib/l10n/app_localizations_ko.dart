@@ -678,4 +678,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get ingredientNameHint => '예: 유기농 호밀가루';
+
+  @override
+  String get analytics => '분석';
+
+  @override
+  String get businessAnalytics => '비즈니스 통계';
+
+  @override
+  String get inventoryDistribution => '카테고리별 재고 분포';
 }

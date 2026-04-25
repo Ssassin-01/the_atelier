@@ -10,6 +10,8 @@ import '../providers/pantry_provider.dart';
 import '../models/pantry_item.dart';
 import 'pantry_management_screen.dart';
 import 'expense_history_screen.dart';
+import 'business_analytics_screen.dart';
+import '../services/pdf_service.dart';
 import '../widgets/sales_slip_sheet.dart';
 
 class BusinessLedgerScreen extends ConsumerWidget {
@@ -71,14 +73,24 @@ class BusinessLedgerScreen extends ConsumerWidget {
                         MaterialPageRoute(builder: (_) => const PantryManagementScreen()),
                       );
                     }),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
+                _buildQuickAction(
+                    context, ref, l10n.analytics, Icons.analytics_outlined, const Color(0xFF5D4037), () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const BusinessAnalyticsScreen()),
+                      );
+                    }),
+                const SizedBox(width: 8),
                 _buildQuickAction(
                     context, ref, l10n.addSale, Icons.add_shopping_cart, ArtisanalTheme.primary, () {
                       _showSalesSlip(context);
                     }),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 _buildQuickAction(
-                    context, ref, l10n.exportPdf, Icons.picture_as_pdf, const Color(0xFF8C6F1D), () {}),
+                    context, ref, l10n.exportPdf, Icons.picture_as_pdf, const Color(0xFF8C6F1D), () {
+                      PdfService.generateFinancialReport(transactions, l10n.ingredientLedger);
+                    }),
               ],
             ),
             const SizedBox(height: 40),
@@ -325,29 +337,6 @@ class BusinessLedgerScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildVaultItem(String label, String value, {bool isWarning = false}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(label,
-                style: ArtisanalTheme.hand(
-                  fontSize: 16, 
-                  color: isWarning ? ArtisanalTheme.primary : Colors.black87
-                )),
-          ),
-          Text(value,
-              style: ArtisanalTheme.hand(
-                fontSize: 16, 
-                color: isWarning ? ArtisanalTheme.primary : Colors.black54,
-                fontWeight: isWarning ? FontWeight.bold : FontWeight.normal
-              )),
-        ],
-      ),
-    );
-  }
 
   Widget _buildDisbursementItem(
       String date, String description, String amount, bool isSale) {

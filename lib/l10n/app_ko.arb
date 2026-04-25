@@ -219,5 +219,8 @@
   "ingredientPurchase": "식재료 구매",
   "boughtDescription": "{name} 구매 ({quantity}g)",
   "nameHint": "이름을 입력하세요...",
-  "ingredientNameHint": "예: 유기농 호밀가루"
+  "ingredientNameHint": "예: 유기농 호밀가루",
+  "analytics": "분석",
+  "businessAnalytics": "비즈니스 통계",
+  "inventoryDistribution": "카테고리별 재고 분포"
 }

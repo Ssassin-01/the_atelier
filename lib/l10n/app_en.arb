@@ -222,5 +222,8 @@
   "ingredientPurchase": "Ingredient Purchase",
   "boughtDescription": "Bought: {name} ({quantity}g)",
   "nameHint": "Enter name...",
-  "ingredientNameHint": "e.g. Organic Rye Flour"
+  "ingredientNameHint": "e.g. Organic Rye Flour",
+  "analytics": "Analytics",
+  "businessAnalytics": "Business Analytics",
+  "inventoryDistribution": "Inventory Distribution"
 }

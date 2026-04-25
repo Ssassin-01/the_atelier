@@ -1423,6 +1423,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'e.g. Organic Rye Flour'**
   String get ingredientNameHint;
+
+  /// No description provided for @analytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get analytics;
+
+  /// No description provided for @businessAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Business Analytics'**
+  String get businessAnalytics;
+
+  /// No description provided for @inventoryDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory Distribution'**
+  String get inventoryDistribution;
 }
 
 class _AppLocalizationsDelegate

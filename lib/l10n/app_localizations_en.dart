@@ -694,4 +694,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ingredientNameHint => 'e.g. Organic Rye Flour';
+
+  @override
+  String get analytics => 'Analytics';
+
+  @override
+  String get businessAnalytics => 'Business Analytics';
+
+  @override
+  String get inventoryDistribution => 'Inventory Distribution';
 }
