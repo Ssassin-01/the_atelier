@@ -342,7 +342,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
             id: DateTime.now().millisecondsSinceEpoch.toString() + entry.name,
             name: entry.name,
             purchasePrice: 0,
-            purchaseQuantity: 1000,
+            targetQuantity: 1000,
             currentStock: 0,
             unit: 'g',
             lastUpdated: DateTime.now(),

@@ -47,7 +47,7 @@ class PantryDashboard extends StatelessWidget {
                     Text(l10n.totalVaultValue.toUpperCase(), 
                       style: ArtisanalTheme.hand(fontSize: 10, color: ArtisanalTheme.secondary, letterSpacing: 1)),
                     const SizedBox(height: 4),
-                    Text("₩ ${totalVaultValue.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}", 
+                    Text("${l10n.currencySymbol} ${totalVaultValue.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}", 
                       style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink)),
                   ],
                 ),

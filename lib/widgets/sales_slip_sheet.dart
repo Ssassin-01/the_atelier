@@ -155,7 +155,7 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final currencyFormat = NumberFormat.currency(symbol: '₩', decimalDigits: 0);
+    final currencyFormat = NumberFormat.currency(symbol: l10n.currencySymbol, decimalDigits: 0);
     final total = _calculateTotal();
 
     return Container(
@@ -194,7 +194,7 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                               letterSpacing: 2,
                             ),
                           ),
-                          _buildDateStamp(),
+                          _buildDateStamp(context),
                         ],
                       ),
                       const Divider(color: Colors.black12, height: 32),
@@ -248,8 +248,9 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
     );
   }
 
-  Widget _buildDateStamp() {
-    final dateStr = DateFormat('yy.MM.dd').format(DateTime.now());
+  Widget _buildDateStamp(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+    final dateStr = DateFormat.yMd(locale).format(DateTime.now());
     return Transform.rotate(
       angle: -0.1,
       child: Container(
@@ -404,11 +405,11 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                 controller: entry.amountController,
                 textAlign: TextAlign.right,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintText: "0",
+                decoration: InputDecoration(
+                  hintText: l10n.priceHint,
                   border: InputBorder.none,
                   isDense: true,
-                  contentPadding: EdgeInsets.only(bottom: 2),
+                  contentPadding: const EdgeInsets.only(bottom: 2),
                 ),
                 style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink),
                 onChanged: (_) => setState(() {}),

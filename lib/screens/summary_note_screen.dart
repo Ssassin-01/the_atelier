@@ -43,21 +43,22 @@ class _SummaryNoteScreenState extends ConsumerState<SummaryNoteScreen> with Sing
   }
 
   Future<void> _confirmDelete() async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFFFDFBF7),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("ARE YOU SURE?", style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
-        content: Text("Discarding this entry will permanently remove it from your journal.", style: ArtisanalTheme.hand(fontSize: 18)),
+        title: Text(l10n.deleteRecord.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
+        content: Text(l10n.removeMediaConfirm, style: ArtisanalTheme.hand(fontSize: 18)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text("CANCEL", style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+            child: Text(l10n.cancel.toUpperCase(), style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text("DISCARD", style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
+            child: Text(l10n.delete.toUpperCase(), style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
           ),
         ],
       ),
@@ -126,7 +127,7 @@ class _SummaryNoteScreenState extends ConsumerState<SummaryNoteScreen> with Sing
           if (widget.recipe != null) ...[
             TextButton(
               onPressed: _onEdit,
-              child: Text("EDIT", style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontSize: 16, fontWeight: FontWeight.bold)),
+              child: Text(AppLocalizations.of(context).rename.toUpperCase(), style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontSize: 16, fontWeight: FontWeight.bold)),
             ),
             IconButton(
               onPressed: _confirmDelete,
@@ -168,7 +169,7 @@ class _JournalPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     
-    final title = recipe?.name ?? 'Pumpkin Porridge Dessert';
+    final title = recipe?.name ?? (l10n.currentLanguage == '한국어' ? '이름 없는 연구' : 'Untitled Study');
     final mainImage = recipe?.mainImageUrl ?? 'assets/images/pumpkin_dessert.png';
     final components = recipe?.components ?? [];
 

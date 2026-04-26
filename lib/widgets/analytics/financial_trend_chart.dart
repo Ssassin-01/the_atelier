@@ -41,11 +41,17 @@ class FinancialTrendChart extends ConsumerWidget {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   if (value.toInt() >= 0 && value.toInt() < dates.length) {
+                    final isWeekly = dates[value.toInt()].contains('~');
                     return Padding(
                       padding: const EdgeInsets.only(top: 10.0),
                       child: Text(
                         dates[value.toInt()],
-                        style: ArtisanalTheme.hand(fontSize: 10, color: Colors.black26),
+                        textAlign: TextAlign.center,
+                        style: ArtisanalTheme.hand(
+                          fontSize: isWeekly ? 9 : 11,
+                          fontWeight: FontWeight.bold,
+                          color: ArtisanalTheme.primary.withValues(alpha: 0.6),
+                        ),
                       ),
                     );
                   }

@@ -26,36 +26,36 @@ class ArtisanalTheme {
       ),
       scaffoldBackgroundColor: background,
       textTheme: TextTheme(
-        // Headlines: Noto Serif
-        displayLarge: GoogleFonts.notoSerif(
+        // Headlines: Gowun Batang (Elegant Korean/English Serif)
+        displayLarge: GoogleFonts.gowunBatang(
           fontSize: 48,
           fontWeight: FontWeight.bold,
           color: onSurface,
           letterSpacing: -1.0,
         ),
-        displayMedium: GoogleFonts.notoSerif(
+        displayMedium: GoogleFonts.gowunBatang(
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: onSurface,
           letterSpacing: -0.5,
         ),
-        headlineMedium: GoogleFonts.notoSerif(
+        headlineMedium: GoogleFonts.gowunBatang(
           fontSize: 24,
           fontStyle: FontStyle.italic,
           color: primary,
         ),
-        // Body: Manrope
-        bodyLarge: GoogleFonts.manrope(
+        // Body: Gowun Dodum (Clean & Modern)
+        bodyLarge: GoogleFonts.gowunDodum(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: onSurface,
         ),
-        bodyMedium: GoogleFonts.manrope(
+        bodyMedium: GoogleFonts.gowunDodum(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           color: onSurface,
         ),
-        labelLarge: GoogleFonts.manrope(
+        labelLarge: GoogleFonts.gowunDodum(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: outline,
@@ -65,7 +65,7 @@ class ArtisanalTheme {
     );
   }
 
-  // Handwritten helper methods
+  // Handwritten helper methods supporting both Ko/En
   static TextStyle hand({
     double fontSize = 24,
     Color color = primary,
@@ -74,8 +74,9 @@ class ArtisanalTheme {
     FontWeight? fontWeight,
     FontStyle? fontStyle,
   }) {
-    return GoogleFonts.caveat(
-      fontSize: fontSize,
+    // Nanum Pen Script is a reliable artisanal choice for both languages
+    return GoogleFonts.nanumPenScript(
+      fontSize: fontSize + 2, // It tends to run a bit small
       fontWeight: fontWeight ?? FontWeight.w500,
       color: color,
       height: height,
@@ -84,11 +85,17 @@ class ArtisanalTheme {
     );
   }
 
-  static TextStyle note({double fontSize = 22, Color color = ink}) {
-    return GoogleFonts.reenieBeanie(
-      fontSize: fontSize,
-      fontWeight: FontWeight.w400,
+  static TextStyle note({
+    double fontSize = 22,
+    Color color = ink,
+    FontWeight? fontWeight,
+    double? letterSpacing,
+  }) {
+    return GoogleFonts.nanumPenScript(
+      fontSize: fontSize + 2,
+      fontWeight: fontWeight ?? FontWeight.w400,
       color: color,
+      letterSpacing: letterSpacing,
     );
   }
 

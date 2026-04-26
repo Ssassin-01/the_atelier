@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final localeProvider = StateProvider<Locale>((ref) {
-  // Default to system locale if needed, or stick to English
-  return const Locale('en');
+final localeProvider = StateProvider<Locale?>((ref) {
+  // Return null to let Flutter determine the locale from system settings
+  return null;
 });

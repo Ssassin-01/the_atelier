@@ -260,7 +260,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodPumpkinCream =>
-      'Roast pumpkin at 180C until completely soft. Puree while hot.\nIn a cold bowl, whip heavy cream with sugar and cinnamon until soft peaks form.\nGently fold puree into the cream.';
+      'Roast pumpkin at 180C until completely soft. Puree while hot.\nIn a cold bowl, whip heavy cream with sugar and cinnamon until soft peaks form. Gently fold puree into the cream.';
 
   @override
   String get noteOvermix => '*Do not overmix, keep it airy!';
@@ -703,4 +703,125 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inventoryDistribution => 'Inventory Distribution';
+
+  @override
+  String get verified => 'VERIFIED';
+
+  @override
+  String get deskHeader => 'From the Flour-dusted Desk';
+
+  @override
+  String get entry => 'entry';
+
+  @override
+  String get entries => 'entries';
+
+  @override
+  String get seedTooltip => 'Seed Test Data';
+
+  @override
+  String get dataCurated => 'Artisanal data curated successfully!';
+
+  @override
+  String get trends => 'TRENDS';
+
+  @override
+  String get inventory => 'INVENTORY';
+
+  @override
+  String get monthlyOverview => 'MONTHLY OVERVIEW';
+
+  @override
+  String get currencySymbol => '₩';
+
+  @override
+  String get priceHint => '0';
+
+  @override
+  String get unitKg => 'kg';
+
+  @override
+  String get unitPcs => 'pcs';
+
+  @override
+  String get unitG => 'g';
+
+  @override
+  String get searchIngredients => 'Search ingredients...';
+
+  @override
+  String get sortAlphabetical => 'Sort Alphabetically';
+
+  @override
+  String get sortByUrgency => 'Sort by Urgency';
+
+  @override
+  String restockIngredient(Object name) {
+    return 'Restock $name';
+  }
+
+  @override
+  String get quantityToAdd => 'Quantity to add';
+
+  @override
+  String get totalCostForBatch => 'Total cost';
+
+  @override
+  String get restockButton => 'Complete Restocking';
+
+  @override
+  String get inventoryGoal => 'Inventory Goal';
+
+  @override
+  String get setAsNewTarget => 'Set as new inventory goal?';
+
+  @override
+  String restockGuidance(Object amount, Object unit) {
+    return 'Need $amount$unit more to reach your goal.';
+  }
+
+  @override
+  String get daily => 'Daily';
+
+  @override
+  String get weekly => 'Weekly';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get yearly => 'Yearly';
+
+  @override
+  String get dailyOverview => 'Daily Overview';
+
+  @override
+  String get weeklyOverview => 'Weekly Overview';
+
+  @override
+  String get yearlyOverview => 'Yearly Overview';
+
+  @override
+  String get increase => 'Increase';
+
+  @override
+  String get decrease => 'Decrease';
+
+  @override
+  String get vsPrevious => 'vs previous';
+
+  @override
+  String get businessJournalTitle => 'ATELIER BUSINESS JOURNAL';
+
+  @override
+  String get totalExpensesLabel => 'Total Expenses';
+
+  @override
+  String get netProfitLabel => 'Net Profit';
+
+  @override
+  String get profitVerified => 'PROFIT VERIFIED';
+
+  @override
+  String get deficitNoted => 'DEFICIT NOTED';
 }

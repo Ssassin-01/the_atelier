@@ -15,8 +15,8 @@ class LowStockPannel extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final lowStockItems = items.where((item) {
-      final percent = item.purchaseQuantity > 0 
-          ? (item.currentStock / item.purchaseQuantity) 
+      final percent = item.targetQuantity > 0 
+          ? (item.currentStock / item.targetQuantity) 
           : 0.0;
       return percent < 0.2;
     }).toList();

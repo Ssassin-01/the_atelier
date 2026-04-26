@@ -11,7 +11,6 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final currentLocale = ref.watch(localeProvider);
 
     return Scaffold(
       backgroundColor: ArtisanalTheme.background,
@@ -54,7 +53,8 @@ class SettingsScreen extends ConsumerWidget {
                     l10n.language,
                     trailer: l10n.currentLanguage,
                     onTap: () {
-                      final newLocale = currentLocale.languageCode == 'en' ? const Locale('ko') : const Locale('en');
+                      final activeLocale = Localizations.localeOf(context);
+                      final newLocale = activeLocale.languageCode == 'en' ? const Locale('ko') : const Locale('en');
                       ref.read(localeProvider.notifier).state = newLocale;
                     },
                   ),

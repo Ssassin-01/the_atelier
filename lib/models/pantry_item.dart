@@ -11,10 +11,10 @@ class PantryItem extends HiveObject {
   final String name;
 
   @HiveField(2)
-  final double purchasePrice; // The price paid for the bulk amount
+  final double purchasePrice; // The price paid originally (reference price)
 
   @HiveField(3)
-  final double purchaseQuantity; // The amount bought (e.g. 20000 for 20kg)
+  final double targetQuantity; // The goal quantity to maintain (Standard Base)
 
   @HiveField(4)
   final String unit; // kg, g, ml, etc.
@@ -35,7 +35,7 @@ class PantryItem extends HiveObject {
     required this.id,
     required this.name,
     required this.purchasePrice,
-    required this.purchaseQuantity,
+    required this.targetQuantity,
     this.unit = 'g',
     this.currentStock = 0,
     required this.lastUpdated,
@@ -43,16 +43,17 @@ class PantryItem extends HiveObject {
     this.category = 'Others',
   });
 
-  /// Calculates the cost per single unit (e.g. per gram/ml)
+  /// Calculates the cost per single unit (e.g. per gram/ml) based on the target price/qty
   double get unitPrice {
-    if (purchaseQuantity <= 0) return 0;
-    return purchasePrice / purchaseQuantity;
+    if (targetQuantity <= 0) return 0;
+    return purchasePrice / targetQuantity;
   }
 
   PantryItem copyWith({
+    String? id,
     String? name,
     double? purchasePrice,
-    double? purchaseQuantity,
+    double? targetQuantity,
     String? unit,
     double? currentStock,
     DateTime? lastUpdated,
@@ -60,10 +61,10 @@ class PantryItem extends HiveObject {
     String? category,
   }) {
     return PantryItem(
-      id: id,
+      id: id ?? this.id,
       name: name ?? this.name,
       purchasePrice: purchasePrice ?? this.purchasePrice,
-      purchaseQuantity: purchaseQuantity ?? this.purchaseQuantity,
+      targetQuantity: targetQuantity ?? this.targetQuantity,
       unit: unit ?? this.unit,
       currentStock: currentStock ?? this.currentStock,
       lastUpdated: lastUpdated ?? this.lastUpdated,

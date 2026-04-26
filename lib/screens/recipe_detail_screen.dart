@@ -41,6 +41,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
   }
 
   Future<void> _confirmDelete() async {
+    final l10n = AppLocalizations.of(context);
     HapticFeedback.mediumImpact();
     
     final confirmed = await showDialog<bool>(
@@ -48,16 +49,16 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFFFDFBF7),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("DISCARD ENTRY?", style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
-        content: Text("Are you sure you want to remove this recipe from your collection?", style: ArtisanalTheme.hand(fontSize: 18)),
+        title: Text(l10n.deleteRecord.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
+        content: Text(l10n.removeMediaConfirm, style: ArtisanalTheme.hand(fontSize: 18)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text("CANCEL", style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+            child: Text(l10n.cancel.toUpperCase(), style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text("DISCARD", style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
+            child: Text(l10n.delete.toUpperCase(), style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
           ),
         ],
       ),
@@ -131,7 +132,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
             actions: [
               TextButton(
                 onPressed: _onEdit,
-                child: Text("EDIT", style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontSize: 16, fontWeight: FontWeight.bold)),
+                child: Text(l10n.rename.toUpperCase(), style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontSize: 16, fontWeight: FontWeight.bold)),
               ),
               IconButton(
                 onPressed: _confirmDelete,
@@ -242,7 +243,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
                             ),
                             icon: const Icon(Icons.menu_book, size: 20),
                             label: Text(
-                              'Open Journal Summary',
+                              l10n.openJournalSummary,
                               style: ArtisanalTheme.hand(fontSize: 18),
                             ),
                             style: TextButton.styleFrom(
@@ -431,6 +432,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
   }
 
   Widget _buildIngredientsContent() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,8 +447,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.underline,
                 ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
           ),
         ),
         const SizedBox(height: 20),
@@ -514,7 +515,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Slide or tap to flip',
+                  l10n.currentLanguage == '한국어' ? '밀어서 넘기기' : 'Slide or tap to flip',
                   style: ArtisanalTheme.hand(fontSize: 14),
                 ),
                 const Icon(
@@ -539,13 +540,12 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
         SizedBox(
           width: 180,
           child: Text(
-            'Method: ${widget.component.title}',
+            l10n.currentLanguage == '한국어' ? '조리법: ${widget.component.title}' : 'Method: ${widget.component.title}',
             style: ArtisanalTheme.hand(
               fontSize: 22,
               color: ArtisanalTheme.primary,
             ).copyWith(fontWeight: FontWeight.bold),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
           ),
         ),
         const SizedBox(height: 20),
@@ -589,7 +589,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
                   color: ArtisanalTheme.secondary,
                 ),
                 Text(
-                  'Back to ingredients',
+                  l10n.tabIngredients,
                   style: ArtisanalTheme.hand(fontSize: 14),
                 ),
               ],

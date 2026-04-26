@@ -18,18 +18,18 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
   String _searchQuery = '';
   String? _selectedCategory; // null = All
 
-  final List<(String, String)> _categories = const [
-    ('All', 'All'),
-    ('Sourdough', 'Sourdough'),
-    ('Desserts', 'Desserts'),
-    ('Pastry', 'Pastry'),
-    ('Cookies', 'Cookies'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final recipes = ref.watch(recipeListProvider);
+
+    final List<(String, String)> categories = [
+      ('All', l10n.all),
+      ('Sourdough', l10n.collectionSourdough),
+      ('Desserts', l10n.collectionDesserts),
+      ('Pastry', l10n.collectionPastry),
+      ('Cookies', l10n.collectionCookies),
+    ];
 
     final filtered = recipes.where((r) {
       final matchesSearch = _searchQuery.isEmpty ||
@@ -128,9 +128,9 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: _categories.map((cat) {
+                    children: categories.map((cat) {
                       final isSelected = (_selectedCategory == null &&
-                              cat.$1 == 'All') ||
+                               cat.$1 == 'All') ||
                           cat.$1 == _selectedCategory;
                       return _CategoryChip(
                         label: cat.$2,
@@ -148,11 +148,11 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(28, 28, 28, 0),
+                padding: const EdgeInsets.fromLTRB(28, 40, 28, 0),
                 child: Row(
                   children: [
                     Text(
-                      '${filtered.length} ${filtered.length == 1 ? 'entry' : 'entries'}',
+                      '${filtered.length} ${filtered.length == 1 ? l10n.entry : l10n.entries}',
                       style: ArtisanalTheme.hand(
                         fontSize: 16,
                         color:
@@ -233,36 +233,23 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 48,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: ArtisanalTheme.secondary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+        ),
       ),
       child: TextField(
         onChanged: onChanged,
-        style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: ArtisanalTheme.hand(
-            fontSize: 18,
-            color: ArtisanalTheme.secondary.withValues(alpha: 0.35),
-          ),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Icon(Icons.search_rounded,
-                color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
-                size: 22),
-          ),
+          prefixIcon: const Icon(Icons.search, color: ArtisanalTheme.secondary),
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
         ),
+        style: ArtisanalTheme.hand(fontSize: 18),
       ),
     );
   }
@@ -283,29 +270,23 @@ class _CategoryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.only(right: 10),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? ArtisanalTheme.ink : Colors.transparent,
-          borderRadius: BorderRadius.circular(30),
+          color: isSelected ? ArtisanalTheme.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected
-                ? ArtisanalTheme.ink
-                : ArtisanalTheme.ink.withValues(alpha: 0.15),
-            width: 1.2,
+            color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.outline.withValues(alpha: 0.3),
           ),
         ),
         child: Text(
-          label,
+          label.toUpperCase(),
           style: ArtisanalTheme.hand(
-            fontSize: 17,
-            color: isSelected
-                ? Colors.white
-                : ArtisanalTheme.ink.withValues(alpha: 0.65),
-          ),
+            fontSize: 13,
+            color: isSelected ? Colors.white : ArtisanalTheme.secondary,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ).copyWith(letterSpacing: 1),
         ),
       ),
     );

@@ -599,7 +599,7 @@ abstract class AppLocalizations {
   /// No description provided for @methodPumpkinCream.
   ///
   /// In en, this message translates to:
-  /// **'Roast pumpkin at 180C until completely soft. Puree while hot.\nIn a cold bowl, whip heavy cream with sugar and cinnamon until soft peaks form.\nGently fold puree into the cream.'**
+  /// **'Roast pumpkin at 180C until completely soft. Puree while hot.\nIn a cold bowl, whip heavy cream with sugar and cinnamon until soft peaks form. Gently fold puree into the cream.'**
   String get methodPumpkinCream;
 
   /// No description provided for @noteOvermix.
@@ -1441,6 +1441,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Inventory Distribution'**
   String get inventoryDistribution;
+
+  /// No description provided for @verified.
+  ///
+  /// In en, this message translates to:
+  /// **'VERIFIED'**
+  String get verified;
+
+  /// No description provided for @deskHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'From the Flour-dusted Desk'**
+  String get deskHeader;
+
+  /// No description provided for @entry.
+  ///
+  /// In en, this message translates to:
+  /// **'entry'**
+  String get entry;
+
+  /// No description provided for @entries.
+  ///
+  /// In en, this message translates to:
+  /// **'entries'**
+  String get entries;
+
+  /// No description provided for @seedTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Seed Test Data'**
+  String get seedTooltip;
+
+  /// No description provided for @dataCurated.
+  ///
+  /// In en, this message translates to:
+  /// **'Artisanal data curated successfully!'**
+  String get dataCurated;
+
+  /// No description provided for @trends.
+  ///
+  /// In en, this message translates to:
+  /// **'TRENDS'**
+  String get trends;
+
+  /// No description provided for @inventory.
+  ///
+  /// In en, this message translates to:
+  /// **'INVENTORY'**
+  String get inventory;
+
+  /// No description provided for @monthlyOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'MONTHLY OVERVIEW'**
+  String get monthlyOverview;
+
+  /// No description provided for @currencySymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'₩'**
+  String get currencySymbol;
+
+  /// No description provided for @priceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0'**
+  String get priceHint;
+
+  /// No description provided for @unitKg.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get unitKg;
+
+  /// No description provided for @unitPcs.
+  ///
+  /// In en, this message translates to:
+  /// **'pcs'**
+  String get unitPcs;
+
+  /// No description provided for @unitG.
+  ///
+  /// In en, this message translates to:
+  /// **'g'**
+  String get unitG;
+
+  /// No description provided for @searchIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Search ingredients...'**
+  String get searchIngredients;
+
+  /// No description provided for @sortAlphabetical.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort Alphabetically'**
+  String get sortAlphabetical;
+
+  /// No description provided for @sortByUrgency.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by Urgency'**
+  String get sortByUrgency;
+
+  /// No description provided for @restockIngredient.
+  ///
+  /// In en, this message translates to:
+  /// **'Restock {name}'**
+  String restockIngredient(Object name);
+
+  /// No description provided for @quantityToAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity to add'**
+  String get quantityToAdd;
+
+  /// No description provided for @totalCostForBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Total cost'**
+  String get totalCostForBatch;
+
+  /// No description provided for @restockButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Restocking'**
+  String get restockButton;
+
+  /// No description provided for @inventoryGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory Goal'**
+  String get inventoryGoal;
+
+  /// No description provided for @setAsNewTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Set as new inventory goal?'**
+  String get setAsNewTarget;
+
+  /// No description provided for @restockGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'Need {amount}{unit} more to reach your goal.'**
+  String restockGuidance(Object amount, Object unit);
+
+  /// No description provided for @daily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get daily;
+
+  /// No description provided for @weekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get weekly;
+
+  /// No description provided for @monthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthly;
+
+  /// No description provided for @yearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get yearly;
+
+  /// No description provided for @dailyOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Overview'**
+  String get dailyOverview;
+
+  /// No description provided for @weeklyOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Overview'**
+  String get weeklyOverview;
+
+  /// No description provided for @yearlyOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly Overview'**
+  String get yearlyOverview;
+
+  /// No description provided for @increase.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase'**
+  String get increase;
+
+  /// No description provided for @decrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease'**
+  String get decrease;
+
+  /// No description provided for @vsPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'vs previous'**
+  String get vsPrevious;
+
+  /// No description provided for @businessJournalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ATELIER BUSINESS JOURNAL'**
+  String get businessJournalTitle;
+
+  /// No description provided for @totalExpensesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Expenses'**
+  String get totalExpensesLabel;
+
+  /// No description provided for @netProfitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Profit'**
+  String get netProfitLabel;
+
+  /// No description provided for @profitVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'PROFIT VERIFIED'**
+  String get profitVerified;
+
+  /// No description provided for @deficitNoted.
+  ///
+  /// In en, this message translates to:
+  /// **'DEFICIT NOTED'**
+  String get deficitNoted;
 }
 
 class _AppLocalizationsDelegate

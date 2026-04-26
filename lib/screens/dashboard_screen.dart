@@ -126,7 +126,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              "VERIFIED",
+                              l10n.verified.toUpperCase(),
                               style: ArtisanalTheme.hand(
                                   fontSize: 10,
                                   color: ArtisanalTheme.primary
@@ -262,7 +262,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           children: [
             const SizedBox(height: 12),
             Text(
-              "From the Flour-dusted Desk",
+              l10n.deskHeader,
               style: ArtisanalTheme.lightTheme.textTheme.displayLarge
                   ?.copyWith(height: 1.1),
             ),

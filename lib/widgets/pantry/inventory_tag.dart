@@ -1,23 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
 import '../../theme/artisanal_theme.dart';
 import '../../models/pantry_item.dart';
 import '../../l10n/app_localizations.dart';
 
-class InventoryTag extends StatelessWidget {
+class InventoryTag extends ConsumerWidget {
   final PantryItem item;
-  const InventoryTag({super.key, required this.item});
+  final VoidCallback onRestock;
+  
+  const InventoryTag({
+    super.key, 
+    required this.item,
+    required this.onRestock,
+  });
+
+  String _getCategoryImageAsset(String category) {
+    switch (category) {
+      case 'Flour':
+        return 'assets/images/categories/flour.png';
+      case 'Dairy/Eggs':
+        return 'assets/images/categories/dairy_eggs.png';
+      case 'Sweetener':
+        return 'assets/images/categories/sweetener.png';
+      case 'Leavening':
+        return 'assets/images/categories/leavening.png';
+      case 'Add-in':
+        return 'assets/images/categories/addin.png';
+      default:
+        return 'assets/images/categories/others.png';
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final stockPercent = (item.currentStock / (item.purchaseQuantity > 0 ? item.purchaseQuantity : 1)).clamp(0.0, 1.0);
+    final stockPercent = (item.currentStock / (item.targetQuantity > 0 ? item.targetQuantity : 1)).clamp(0.0, 1.0);
     final isLow = stockPercent < 0.2;
 
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFFDFCFB),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -25,6 +49,7 @@ class InventoryTag extends StatelessWidget {
             offset: const Offset(2, 2),
           ),
         ],
+        border: isLow ? Border.all(color: ArtisanalTheme.redInk.withValues(alpha: 0.3), width: 1.5) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,7 +60,8 @@ class InventoryTag extends StatelessWidget {
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: const Color(0xFFF5F3F0),
-                border: Border.all(color: Colors.white, width: 6),
+                border: Border.all(color: Colors.white, width: 4),
+                borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.1),
@@ -47,33 +73,39 @@ class InventoryTag extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (item.imageUrl != null && File(item.imageUrl!).existsSync())
-                    Image.file(
-                      File(item.imageUrl!),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
-                    )
-                  else
-                    _buildPlaceholder(),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: item.imageUrl != null && File(item.imageUrl!).existsSync()
+                        ? Image.file(
+                            File(item.imageUrl!),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Image.asset(_getCategoryImageAsset(item.category), fit: BoxFit.cover),
+                          )
+                        : Image.asset(_getCategoryImageAsset(item.category), fit: BoxFit.cover),
+                  ),
                   
                   if (item.currentStock == 0)
                     Positioned.fill(
                       child: Container(
-                        color: Colors.white.withValues(alpha: 0.3),
+                        decoration: BoxDecoration(
+                           color: Colors.white.withValues(alpha: 0.3),
+                           borderRadius: BorderRadius.circular(4),
+                        ),
                         child: Center(
                           child: Transform.rotate(
                             angle: -0.2,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                border: Border.all(color: ArtisanalTheme.redInk, width: 3),
+                                border: Border.all(color: ArtisanalTheme.redInk, width: 2),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 l10n.outOfStock.toUpperCase(),
                                 style: ArtisanalTheme.hand(
                                   color: ArtisanalTheme.redInk,
-                                  fontSize: 18,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -83,18 +115,26 @@ class InventoryTag extends StatelessWidget {
                       ),
                     ),
 
+                  // Restock Button
                   Positioned(
-                    top: -10,
-                    left: 20,
-                    right: 20,
-                    child: Center(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: onRestock,
                       child: Container(
-                        width: 40,
-                        height: 12,
+                        padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE5E0D8).withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(2),
+                          color: ArtisanalTheme.ink.withValues(alpha: 0.8),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                             BoxShadow(
+                               color: Colors.black.withValues(alpha: 0.2),
+                               blurRadius: 4,
+                               offset: const Offset(0, 2),
+                             ),
+                          ],
                         ),
+                        child: const Icon(Icons.add_shopping_cart, color: Colors.white, size: 14),
                       ),
                     ),
                   ),
@@ -105,24 +145,25 @@ class InventoryTag extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     item.name,
                     style: ArtisanalTheme.hand(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
                       color: ArtisanalTheme.ink,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: 1),
                   Text(
-                    "${item.currentStock.toInt()} / ${item.purchaseQuantity.toInt()} g",
+                    "${item.currentStock.toInt()} / ${item.targetQuantity.toInt()} ${item.unit == 'g' ? l10n.unitG : l10n.unitPcs}",
                     style: ArtisanalTheme.hand(
-                      fontSize: 10,
+                      fontSize: 9,
                       color: ArtisanalTheme.secondary,
                     ),
                   ),
@@ -130,61 +171,48 @@ class InventoryTag extends StatelessWidget {
                   Stack(
                     children: [
                       Container(
-                        height: 6,
+                        height: 5,
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(3),
+                          borderRadius: BorderRadius.circular(2.5),
                         ),
                       ),
                       FractionallySizedBox(
                         widthFactor: stockPercent,
                         child: Container(
-                          height: 6,
+                          height: 5,
                           decoration: BoxDecoration(
                             color: isLow ? ArtisanalTheme.redInk : ArtisanalTheme.primary,
-                            borderRadius: BorderRadius.circular(3),
+                            borderRadius: BorderRadius.circular(2.5),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  if (item.purchasePrice == 0 || item.purchaseQuantity == 0)
+                  if (item.purchasePrice == 0 || item.targetQuantity == 0)
                     Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: ArtisanalTheme.redInk.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.info_outline, size: 8, color: ArtisanalTheme.redInk),
-                            const SizedBox(width: 4),
-                            Text(
-                              l10n.updateInfo.toUpperCase(),
-                              style: ArtisanalTheme.hand(
-                                color: ArtisanalTheme.redInk,
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                      padding: const EdgeInsets.only(top: 2.0),
+                      child: Text(
+                        l10n.updateInfo.toUpperCase(),
+                        style: ArtisanalTheme.hand(
+                          color: ArtisanalTheme.redInk,
+                          fontSize: 7,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     )
                   else if (isLow)
                     Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
+                      padding: const EdgeInsets.only(top: 2.0),
                       child: Text(
                         l10n.lowStock.toUpperCase(),
                         style: ArtisanalTheme.hand(
                           color: ArtisanalTheme.redInk,
-                          fontSize: 8,
+                          fontSize: 7,
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
                       ),
                     ),
                 ],
@@ -192,19 +220,6 @@ class InventoryTag extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPlaceholder() {
-    return Container(
-      color: const Color(0xFFECEAE4),
-      child: Center(
-        child: Icon(
-          Icons.restaurant_menu_outlined,
-          color: Colors.white.withValues(alpha: 0.5),
-          size: 32,
-        ),
       ),
     );
   }
