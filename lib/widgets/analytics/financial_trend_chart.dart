@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../../theme/artisanal_theme.dart';
 import '../../providers/analytics_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 class FinancialTrendChart extends ConsumerWidget {
   const FinancialTrendChart({super.key});
@@ -17,9 +18,13 @@ class FinancialTrendChart extends ConsumerWidget {
     
     final maxVal = _calculateMaxY(salesMap, expensesMap);
 
-    return SizedBox(
-      height: 240,
-      child: BarChart(
+    final l10n = AppLocalizations.of(context);
+    
+    return Column(
+      children: [
+        SizedBox(
+          height: 200,
+          child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
           maxY: maxVal,
@@ -103,7 +108,7 @@ class FinancialTrendChart extends ConsumerWidget {
                 ),
                 BarChartRodData(
                   toY: expensesMap[date]!,
-                  color: ArtisanalTheme.redInk.withValues(alpha: 0.3),
+                  color: ArtisanalTheme.redInk.withValues(alpha: 0.6), // More visible
                   width: 10,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(1)),
                 ),
@@ -112,8 +117,43 @@ class FinancialTrendChart extends ConsumerWidget {
           }),
         ),
       ),
-    );
-  }
+    ),
+    const SizedBox(height: 16),
+    // Legend Row
+    Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildLegendItem(l10n.ingredientLedger, ArtisanalTheme.primary.withValues(alpha: 0.8)),
+        const SizedBox(width: 24),
+        _buildLegendItem("총 지출", ArtisanalTheme.redInk.withValues(alpha: 0.6)),
+      ],
+    ),
+  ],
+);
+}
+
+Widget _buildLegendItem(String label, Color color) {
+return Row(
+  children: [
+    Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    ),
+    const SizedBox(width: 8),
+    Text(
+      label,
+      style: ArtisanalTheme.hand(
+        fontSize: 12,
+        color: ArtisanalTheme.secondary.withValues(alpha: 0.8),
+      ),
+    ),
+  ],
+);
+}
 
   double _calculateMaxY(Map<String, double> sales, Map<String, double> expenses) {
     double maxValue = 50000;

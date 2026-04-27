@@ -10,7 +10,8 @@ import 'business_analytics_screen.dart';
 import '../services/pdf_service.dart';
 import '../widgets/sales_slip_sheet.dart';
 import '../widgets/low_stock_pannel.dart';
-import '../widgets/quick_action_button.dart';
+import '../widgets/operations/vault_header.dart';
+import '../widgets/operations/operational_stamp_button.dart';
 import '../widgets/serrated_ledger_card.dart';
 
 class BusinessLedgerScreen extends ConsumerWidget {
@@ -28,7 +29,7 @@ class BusinessLedgerScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const Icon(Icons.menu, color: ArtisanalTheme.primary),
+        leading: const Icon(Icons.auto_awesome_mosaic_outlined, color: ArtisanalTheme.primary),
         title: Text(l10n.appTitle,
             style: ArtisanalTheme.lightTheme.textTheme.displayMedium
                 ?.copyWith(fontSize: 24, fontStyle: FontStyle.italic)),
@@ -38,15 +39,14 @@ class BusinessLedgerScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(right: 16),
             child: CircleAvatar(
               radius: 18,
-              backgroundImage: const NetworkImage(
-                  'https://images.unsplash.com/photo-1583394838336-acd977730f8a?q=80&w=100'),
-              onBackgroundImageError: (exception, stackTrace) {},
+              backgroundColor: ArtisanalTheme.primary.withValues(alpha: 0.1),
+              child: const Icon(Icons.person, color: ArtisanalTheme.primary, size: 20),
             ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -57,43 +57,55 @@ class BusinessLedgerScreen extends ConsumerWidget {
                   fontStyle: FontStyle.italic,
                   color: ArtisanalTheme.primary),
             ),
-            const SizedBox(height: 16),
-            LowStockPannel(items: pantryItems),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+            
+            // 1. Financial Snapshot
+            VaultHeader(transactions: transactions),
+            
+            const SizedBox(height: 32),
+            
+            // 2. Quick Management Tools
             Row(
               children: [
-                QuickActionButton(
+                OperationalStampButton(
                     label: l10n.manageDatabase,
-                    icon: Icons.storage,
+                    icon: Icons.inventory_2,
                     color: const Color(0xFF8C6F1D),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PantryManagementScreen()))),
-                const SizedBox(width: 8),
-                QuickActionButton(
+                const SizedBox(width: 12),
+                OperationalStampButton(
                     label: l10n.analytics,
                     icon: Icons.analytics_outlined,
                     color: const Color(0xFF5D4037),
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BusinessAnalyticsScreen()))),
-                const SizedBox(width: 8),
-                QuickActionButton(
+                const SizedBox(width: 12),
+                OperationalStampButton(
                     label: l10n.addSale,
-                    icon: Icons.add_shopping_cart,
+                    icon: Icons.point_of_sale,
                     color: ArtisanalTheme.primary,
                     onTap: () => _showSalesSlip(context)),
-                const SizedBox(width: 8),
-                QuickActionButton(
+                const SizedBox(width: 12),
+                OperationalStampButton(
                     label: l10n.exportPdf,
                     icon: Icons.picture_as_pdf,
-                    color: const Color(0xFF8C6F1D),
+                    color: const Color(0xFF4E342E),
                     onTap: () => PdfService.generateFinancialReport(transactions, l10n.ingredientLedger)),
               ],
             ),
+            
+            const SizedBox(height: 48),
+            
+            // 3. Operational Alerts
+            LowStockPannel(items: pantryItems),
+            
             const SizedBox(height: 40),
+            
+            // 4. Detailed History Card
             SerratedLedgerCard(
               totalExpenses: txNotifier.getTotal('expense'),
               transactions: transactions,
               onHistoryTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpenseHistoryScreen())),
             ),
-            const SizedBox(height: 120),
           ],
         ),
       ),
@@ -114,3 +126,4 @@ class BusinessLedgerScreen extends ConsumerWidget {
     );
   }
 }
+

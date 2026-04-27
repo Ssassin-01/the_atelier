@@ -824,4 +824,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deficitNoted => 'DEFICIT NOTED';
+
+  @override
+  String lastRestocked(String date) {
+    return 'Last Restocked: $date';
+  }
+
+  @override
+  String get inventoryValueReport => 'Inventory Value Report';
+
+  @override
+  String get restockPriority => 'Restock Priority';
+
+  @override
+  String get inventoryCard => 'Inventory Card';
 }

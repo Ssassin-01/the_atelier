@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:io';
 import '../theme/artisanal_theme.dart';
 import '../providers/pantry_provider.dart';
 import '../providers/transaction_provider.dart';
@@ -106,23 +107,23 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
               elevation: 0,
               leading: IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios_new, color: ArtisanalTheme.primary),
+                icon: const Icon(Icons.arrow_back_ios_new, color: ArtisanalTheme.primary, size: 20),
               ),
               title: Text(
-                l10n.pantryLedger,
+                l10n.pantryLedger.toUpperCase(),
                 style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(
-                  fontSize: 22,
-                  fontStyle: FontStyle.italic,
+                  fontSize: 18,
+                  letterSpacing: 2.0,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               actions: [
                 IconButton(
-                  icon: Icon(_sortByUrgency ? Icons.priority_high : Icons.sort_by_alpha, color: ArtisanalTheme.primary),
+                  icon: Icon(_sortByUrgency ? Icons.priority_high : Icons.sort_by_alpha, color: ArtisanalTheme.primary, size: 20),
                   onPressed: () => setState(() => _sortByUrgency = !_sortByUrgency),
-                  tooltip: _sortByUrgency ? l10n.sortByUrgency : l10n.sortAlphabetical,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.settings_outlined, color: ArtisanalTheme.primary),
+                  icon: const Icon(Icons.settings_outlined, color: ArtisanalTheme.primary, size: 20),
                   onPressed: () => _manageCategories(context, ref, categories, l10n),
                 ),
                 const SizedBox(width: 8),
@@ -144,20 +145,77 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                             totalEntries: pantryItems.length,
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                            child: TextField(
-                              controller: _searchController,
-                              style: ArtisanalTheme.hand(fontSize: 16),
-                              onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
-                              decoration: InputDecoration(
-                                hintText: l10n.searchIngredients,
-                                prefixIcon: const Icon(Icons.search, color: ArtisanalTheme.secondary, size: 20),
-                                filled: true,
-                                fillColor: const Color(0xFFF5F3F0).withValues(alpha: 0.5),
-                                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                            child: Container(
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF9F6F1),
+                                border: Border.all(color: const Color(0xFFD4C4A1), width: 1.5),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Stack(
+                                children: [
+                                  // Brass Handle Detail (Simulated with icons/shapes)
+                                  Positioned(
+                                    left: 0, right: 0, bottom: 5,
+                                    child: Center(
+                                      child: Container(
+                                        width: 30,
+                                        height: 8,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFB8860B).withValues(alpha: 0.3),
+                                          borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: Row(
+                                      children: [
+                                         const Icon(Icons.inventory_2_outlined, color: Color(0xFFB8860B), size: 18),
+                                         const SizedBox(width: 12),
+                                         Expanded(
+                                           child: TextField(
+                                             controller: _searchController,
+                                             style: ArtisanalTheme.hand(fontSize: 16, color: ArtisanalTheme.ink),
+                                             onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+                                             decoration: InputDecoration(
+                                               hintText: l10n.searchIngredients.toUpperCase(),
+                                               hintStyle: ArtisanalTheme.hand(
+                                                 fontSize: 14, 
+                                                 color: ArtisanalTheme.secondary.withValues(alpha: 0.3),
+                                                 letterSpacing: 1.2,
+                                               ),
+                                               border: InputBorder.none,
+                                               isDense: true,
+                                             ),
+                                           ),
+                                         ),
+                                         Container(
+                                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                           decoration: BoxDecoration(
+                                             border: Border.all(color: const Color(0xFFD4C4A1)),
+                                           ),
+                                           child: Text(
+                                             "CAT. N°",
+                                             style: ArtisanalTheme.hand(fontSize: 9, color: const Color(0xFFD4C4A1)),
+                                           ),
+                                         ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
+                          const SizedBox(height: 8),
                         ],
                       ),
                     ),
@@ -166,15 +224,26 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                       delegate: _SliverAppBarDelegate(
                         TabBar(
                           controller: _tabController,
-                          labelColor: ArtisanalTheme.primary,
-                          unselectedLabelColor: ArtisanalTheme.secondary.withValues(alpha: 0.5),
-                          indicatorColor: ArtisanalTheme.primary,
-                          indicatorWeight: 3,
-                          labelStyle: ArtisanalTheme.hand(fontWeight: FontWeight.bold),
+                          labelColor: Colors.white,
+                          unselectedLabelColor: ArtisanalTheme.primary.withValues(alpha: 0.5),
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicator: BoxDecoration(
+                            color: ArtisanalTheme.primary,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12),
+                            ),
+                          ),
+                          labelStyle: ArtisanalTheme.hand(fontWeight: FontWeight.bold, fontSize: 13),
                           isScrollable: true,
                           tabAlignment: TabAlignment.start,
-                          dividerColor: Colors.transparent,
-                          tabs: categories.map((c) => Tab(text: getCategoryDisplayName(c).toUpperCase())).toList(),
+                          dividerColor: ArtisanalTheme.primary.withValues(alpha: 0.2),
+                          tabs: categories.map((c) => Tab(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(getCategoryDisplayName(c).toUpperCase()),
+                            ),
+                          )).toList(),
                         ),
                       ),
                     ),
@@ -211,6 +280,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
           ],
         ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEditSheet(l10n),
         backgroundColor: ArtisanalTheme.ink,
@@ -238,31 +308,50 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.85,
+        childAspectRatio: 0.78,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        return GestureDetector(
-          onTap: () => _showAddEditSheet(l10n, item),
-          child: InventoryTag(
-            item: item,
-            onRestock: () => _showRestockSheet(item, l10n),
+        return Transform.rotate(
+          angle: (item.id.hashCode % 10 - 5) / 400, // Very subtle random rotation (-0.0125 to 0.0125 rad)
+          child: GestureDetector(
+            onTap: () => _showAddEditSheet(l10n, item),
+            child: InventoryTag(
+              item: item,
+              onRestock: () => _showRestockSheet(item, l10n),
+            ),
           ),
         );
       },
     );
   }
 
-  String _getCategoryAsset(String category) {
-    switch (category) {
-      case 'Flour': return 'assets/images/categories/flour.png';
-      case 'Dairy/Eggs': return 'assets/images/categories/dairy.png';
-      case 'Sweetener': return 'assets/images/categories/sweetener.png';
-      case 'Leavening': return 'assets/images/categories/leavening.png';
-      case 'Add-in': return 'assets/images/categories/addin.png';
-      default: return 'assets/images/categories/others.png';
+  Widget _buildIngredientImage(String name, String category) {
+    String assetPath = 'assets/images/categories/others.png';
+    final lowerName = name.toLowerCase();
+
+    // Map specific ingredients to the updated realistic category assets
+    if (lowerName.contains('flour') || lowerName.contains('밀가루') || lowerName.contains('강력') || lowerName.contains('박력')) {
+      assetPath = 'assets/images/categories/flour.png';
+    } else if (lowerName.contains('salt') || lowerName.contains('소금')) {
+      assetPath = 'assets/images/categories/others.png';
+    } else if (lowerName.contains('butter') || lowerName.contains('버터')) {
+      assetPath = 'assets/images/categories/dairy_eggs.png';
+    } else if (lowerName.contains('sugar') || lowerName.contains('설탕')) {
+      assetPath = 'assets/images/categories/sweetener.png';
+    } else {
+      switch (category) {
+        case 'Flour': assetPath = 'assets/images/categories/flour.png'; break;
+        case 'Dairy/Eggs': assetPath = 'assets/images/categories/dairy_eggs.png'; break;
+        case 'Sweetener': assetPath = 'assets/images/categories/sweetener.png'; break;
+        case 'Leavening': assetPath = 'assets/images/categories/leavening.png'; break;
+        case 'Add-in': assetPath = 'assets/images/categories/addin.png'; break;
+        default: assetPath = 'assets/images/categories/others.png'; break;
+      }
     }
+
+    return Image.asset(assetPath, fit: BoxFit.cover);
   }
 
   void _showRestockSheet(PantryItem item, AppLocalizations l10n) {
@@ -330,11 +419,14 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                       ),
                     ),
                     Opacity(
-                      opacity: 0.4,
+                      opacity: 0.8,
                       child: SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: Image.asset(_getCategoryAsset(item.category)),
+                        width: 50,
+                        height: 50,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: _buildIngredientImage(item.name, item.category),
+                        ),
                       ),
                     ),
                   ],
@@ -507,14 +599,75 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ValueListenableBuilder(
-                        valueListenable: categoryNotifier,
-                        builder: (context, val, _) => _buildLedgerDropdown(
-                          label: l10n.categoryName,
-                          value: displayCategories.any((c) => c.$1 == val) ? val : 'Others',
-                          items: displayCategories.map((c) => DropdownMenuItem(value: c.$1, child: Text(c.$2))).toList(),
-                          onChanged: (newVal) => categoryNotifier.value = newVal!,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l10n.categoryName.toUpperCase(), style: ArtisanalTheme.note(fontSize: 12, color: ArtisanalTheme.secondary.withValues(alpha: 0.6))),
+                          const SizedBox(height: 12),
+                          ValueListenableBuilder(
+                            valueListenable: categoryNotifier,
+                            builder: (context, currentCat, _) => SizedBox(
+                              height: 100,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: displayCategories.length,
+                                separatorBuilder: (context, index) => const SizedBox(width: 12),
+                                itemBuilder: (context, index) {
+                                  final cat = displayCategories[index];
+                                  final isSelected = cat.$1 == currentCat;
+                                  return GestureDetector(
+                                    onTap: () => categoryNotifier.value = cat.$1,
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          width: 60,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: isSelected ? ArtisanalTheme.primary : Colors.transparent,
+                                              width: 2,
+                                            ),
+                                            boxShadow: isSelected ? [
+                                              BoxShadow(
+                                                color: ArtisanalTheme.primary.withValues(alpha: 0.2),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 4),
+                                              )
+                                            ] : null,
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(10),
+                                            child: Stack(
+                                              fit: StackFit.expand,
+                                              children: [
+                                                _buildIngredientImage('', cat.$1),
+                                                if (isSelected)
+                                                  Container(
+                                                    color: ArtisanalTheme.primary.withValues(alpha: 0.2),
+                                                    child: const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          cat.$2.toUpperCase(),
+                                          style: ArtisanalTheme.hand(
+                                            fontSize: 10,
+                                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                            color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.secondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       _buildLedgerField(
@@ -837,9 +990,9 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   final TabBar _tabBar;
 
   @override
-  double get minExtent => _tabBar.preferredSize.height;
+  double get minExtent => 48.0;
   @override
-  double get maxExtent => _tabBar.preferredSize.height;
+  double get maxExtent => 48.0;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {

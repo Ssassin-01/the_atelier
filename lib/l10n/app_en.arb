@@ -264,5 +264,16 @@
   "totalExpensesLabel": "Total Expenses",
   "netProfitLabel": "Net Profit",
   "profitVerified": "PROFIT VERIFIED",
-  "deficitNoted": "DEFICIT NOTED"
+  "deficitNoted": "DEFICIT NOTED",
+  "lastRestocked": "Last Restocked: {date}",
+  "@lastRestocked": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryValueReport": "Inventory Value Report",
+  "restockPriority": "Restock Priority",
+  "inventoryCard": "Inventory Card"
 }

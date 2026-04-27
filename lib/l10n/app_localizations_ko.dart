@@ -809,4 +809,18 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get deficitNoted => '손실 기록됨';
+
+  @override
+  String lastRestocked(String date) {
+    return '마지막 보충 : $date';
+  }
+
+  @override
+  String get inventoryValueReport => '창고 자산 보고서';
+
+  @override
+  String get restockPriority => '보충 우선순위 항목';
+
+  @override
+  String get inventoryCard => '재고 기록 카드';
 }

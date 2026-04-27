@@ -1675,6 +1675,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'DEFICIT NOTED'**
   String get deficitNoted;
+
+  /// No description provided for @lastRestocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Restocked: {date}'**
+  String lastRestocked(String date);
+
+  /// No description provided for @inventoryValueReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory Value Report'**
+  String get inventoryValueReport;
+
+  /// No description provided for @restockPriority.
+  ///
+  /// In en, this message translates to:
+  /// **'Restock Priority'**
+  String get restockPriority;
+
+  /// No description provided for @inventoryCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Inventory Card'**
+  String get inventoryCard;
 }
 
 class _AppLocalizationsDelegate

@@ -260,6 +260,17 @@
   "businessJournalTitle": "아뜰리에 비즈니스 저널",
   "totalExpensesLabel": "총 지출",
   "netProfitLabel": "정산 순수익",
+  "lastRestocked": "마지막 보충 : {date}",
+  "@lastRestocked": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryValueReport": "창고 자산 보고서",
+  "restockPriority": "보충 우선순위 항목",
+  "inventoryCard": "재고 기록 카드",
   "profitVerified": "수익 확인됨",
   "deficitNoted": "손실 기록됨"
 }

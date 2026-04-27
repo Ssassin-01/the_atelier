@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
+import 'package:intl/intl.dart';
 import '../../theme/artisanal_theme.dart';
 import '../../models/pantry_item.dart';
 import '../../l10n/app_localizations.dart';
+
+
+import '../../widgets/custom_clippers.dart';
+import '../../widgets/masking_tape.dart';
 
 class InventoryTag extends ConsumerWidget {
   final PantryItem item;
@@ -15,21 +20,32 @@ class InventoryTag extends ConsumerWidget {
     required this.onRestock,
   });
 
-  String _getCategoryImageAsset(String category) {
-    switch (category) {
-      case 'Flour':
-        return 'assets/images/categories/flour.png';
-      case 'Dairy/Eggs':
-        return 'assets/images/categories/dairy_eggs.png';
-      case 'Sweetener':
-        return 'assets/images/categories/sweetener.png';
-      case 'Leavening':
-        return 'assets/images/categories/leavening.png';
-      case 'Add-in':
-        return 'assets/images/categories/addin.png';
-      default:
-        return 'assets/images/categories/others.png';
+  Widget _buildIngredientImage(String name, String category) {
+    String assetPath = 'assets/images/categories/others.png';
+    final lowerName = name.toLowerCase();
+
+    // Map specific ingredients to the updated realistic category assets
+    if (lowerName.contains('flour') || lowerName.contains('밀가루') || lowerName.contains('강력') || lowerName.contains('박력')) {
+      assetPath = 'assets/images/categories/flour.png';
+    } else if (lowerName.contains('salt') || lowerName.contains('소금')) {
+      assetPath = 'assets/images/categories/others.png'; // Now maps to realistic salt photo
+    } else if (lowerName.contains('butter') || lowerName.contains('버터')) {
+      assetPath = 'assets/images/categories/dairy_eggs.png'; // Now maps to realistic butter photo
+    } else if (lowerName.contains('sugar') || lowerName.contains('설탕')) {
+      assetPath = 'assets/images/categories/sweetener.png'; // Now maps to realistic sugar photo
+    } else {
+      // Fallback to category defaults which are now all realistic photos
+      switch (category) {
+        case 'Flour': assetPath = 'assets/images/categories/flour.png'; break;
+        case 'Dairy/Eggs': assetPath = 'assets/images/categories/dairy_eggs.png'; break;
+        case 'Sweetener': assetPath = 'assets/images/categories/sweetener.png'; break;
+        case 'Leavening': assetPath = 'assets/images/categories/leavening.png'; break;
+        case 'Add-in': assetPath = 'assets/images/categories/addin.png'; break;
+        default: assetPath = 'assets/images/categories/others.png'; break;
+      }
     }
+
+    return Image.asset(assetPath, fit: BoxFit.cover);
   }
 
   @override
@@ -38,189 +54,193 @@ class InventoryTag extends ConsumerWidget {
     final stockPercent = (item.currentStock / (item.targetQuantity > 0 ? item.targetQuantity : 1)).clamp(0.0, 1.0);
     final isLow = stockPercent < 0.2;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFDFCFB),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(2, 2),
-          ),
-        ],
-        border: isLow ? Border.all(color: ArtisanalTheme.redInk.withValues(alpha: 0.3), width: 1.5) : null,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 3,
-            child: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F3F0),
-                border: Border.all(color: Colors.white, width: 4),
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 4,
-                    offset: const Offset(1, 1),
-                  ),
-                ],
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 8,
+                offset: const Offset(1, 2),
               ),
+            ],
+          ),
+          child: ClipPath(
+            clipper: TornPaperClipper(intensity: 2.0, seed: item.id.hashCode),
+            child: Container(
+              color: const Color(0xFFFDFCFB),
               child: Stack(
-                fit: StackFit.expand,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: item.imageUrl != null && File(item.imageUrl!).existsSync()
-                        ? Image.file(
-                            File(item.imageUrl!),
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Image.asset(_getCategoryImageAsset(item.category), fit: BoxFit.cover),
-                          )
-                        : Image.asset(_getCategoryImageAsset(item.category), fit: BoxFit.cover),
-                  ),
-                  
-                  if (item.currentStock == 0)
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                           color: Colors.white.withValues(alpha: 0.3),
-                           borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Center(
-                          child: Transform.rotate(
-                            angle: -0.2,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: ArtisanalTheme.redInk, width: 2),
-                                color: Colors.white.withValues(alpha: 0.9),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                l10n.outOfStock.toUpperCase(),
-                                style: ArtisanalTheme.hand(
-                                  color: ArtisanalTheme.redInk,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Image Part - Looking like a Polaroid or pasted photo
+                      Expanded(
+                        flex: 4,
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F3F0),
+                            image: DecorationImage(
+                              image: const NetworkImage('https://www.transparenttextures.com/patterns/natural-paper.png'),
+                              opacity: 0.05,
+                              repeat: ImageRepeat.repeat,
+                            ),
+                          ),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Center(
+                                  child: (item.imageUrl != null && 
+                                          !item.imageUrl!.startsWith('assets/') && 
+                                          File(item.imageUrl!).existsSync())
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(4),
+                                          child: Image.file(File(item.imageUrl!), fit: BoxFit.cover),
+                                        )
+                                      : Opacity(
+                                          opacity: 0.8,
+                                          child: _buildIngredientImage(item.name, item.category),
+                                        ),
                                 ),
                               ),
-                            ),
+                              if (isLow)
+                                Positioned(
+                                  left: 8,
+                                  top: 8,
+                                  child: Transform.rotate(
+                                    angle: -0.15,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: ArtisanalTheme.redInk.withValues(alpha: 0.8),
+                                      ),
+                                      child: Text(
+                                        l10n.urgent.toUpperCase(),
+                                        style: ArtisanalTheme.hand(
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ),
-                    ),
-
-                  // Restock Button
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: GestureDetector(
-                      onTap: onRestock,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: ArtisanalTheme.ink.withValues(alpha: 0.8),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                             BoxShadow(
-                               color: Colors.black.withValues(alpha: 0.2),
-                               blurRadius: 4,
-                               offset: const Offset(0, 2),
-                             ),
-                          ],
-                        ),
-                        child: const Icon(Icons.add_shopping_cart, color: Colors.white, size: 14),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: ArtisanalTheme.hand(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: ArtisanalTheme.ink,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    "${item.currentStock.toInt()} / ${item.targetQuantity.toInt()} ${item.unit == 'g' ? l10n.unitG : l10n.unitPcs}",
-                    style: ArtisanalTheme.hand(
-                      fontSize: 9,
-                      color: ArtisanalTheme.secondary,
-                    ),
-                  ),
-                  const Spacer(),
-                  Stack(
-                    children: [
-                      Container(
-                        height: 5,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(2.5),
-                        ),
-                      ),
-                      FractionallySizedBox(
-                        widthFactor: stockPercent,
-                        child: Container(
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: isLow ? ArtisanalTheme.redInk : ArtisanalTheme.primary,
-                            borderRadius: BorderRadius.circular(2.5),
+                      
+                      // Info Part
+                      Expanded(
+                        flex: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.name.toUpperCase(),
+                                style: ArtisanalTheme.hand(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: ArtisanalTheme.ink,
+                                  letterSpacing: 0.5,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                l10n.lastRestocked(DateFormat('MM.dd').format(item.lastUpdated)),
+                                style: ArtisanalTheme.hand(
+                                  fontSize: 9,
+                                  color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "${item.currentStock.toInt()}${item.unit == 'g' ? l10n.unitG : l10n.unitPcs}",
+                                    style: ArtisanalTheme.hand(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: isLow ? ArtisanalTheme.redInk : ArtisanalTheme.primary,
+                                    ),
+                                  ),
+                                  Text(
+                                    "/ ${item.targetQuantity.toInt()}",
+                                    style: ArtisanalTheme.hand(
+                                      fontSize: 11,
+                                      color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                height: 2,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE5E0D8),
+                                  borderRadius: BorderRadius.circular(1),
+                                ),
+                                child: FractionallySizedBox(
+                                  alignment: Alignment.centerLeft,
+                                  widthFactor: stockPercent,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: isLow ? ArtisanalTheme.redInk : ArtisanalTheme.primary,
+                                      borderRadius: BorderRadius.circular(1),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                  if (item.purchasePrice == 0 || item.targetQuantity == 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2.0),
-                      child: Text(
-                        l10n.updateInfo.toUpperCase(),
-                        style: ArtisanalTheme.hand(
-                          color: ArtisanalTheme.redInk,
-                          fontSize: 7,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  else if (isLow)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2.0),
-                      child: Text(
-                        l10n.lowStock.toUpperCase(),
-                        style: ArtisanalTheme.hand(
-                          color: ArtisanalTheme.redInk,
-                          fontSize: 7,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
+                  
+                  // Action Button
+                  Positioned(
+                    right: 4,
+                    top: 4,
+                    child: GestureDetector(
+                      onTap: onRestock,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        child: Icon(Icons.add_shopping_cart, 
+                          color: ArtisanalTheme.ink.withValues(alpha: 0.3), size: 16),
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+        // Adding Masking Tape at the top to make it look "pasted"
+        Positioned(
+          top: -6,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: MaskingTape(
+              width: 50,
+              rotation: (item.id.hashCode % 10 - 5) / 50, // Subtle random rotation
+              color: const Color(0xFFE2DCC8).withValues(alpha: 0.2),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
+

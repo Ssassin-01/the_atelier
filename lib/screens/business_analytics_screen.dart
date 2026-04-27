@@ -266,14 +266,14 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
               
               _buildReceiptRow(
                 l10n.ingredientLedger,
-                currencyFormat.format(data.totalSales),
+                "+${currencyFormat.format(data.totalSales)}",
                 data.salesChange,
                 ArtisanalTheme.primary,
               ),
               const SizedBox(height: 16),
               _buildReceiptRow(
                 l10n.totalExpensesLabel,
-                currencyFormat.format(data.totalExpenses),
+                "-${currencyFormat.format(data.totalExpenses)}",
                 data.expenseChange,
                 ArtisanalTheme.redInk,
               ),
@@ -294,7 +294,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                     ),
                   ),
                   Text(
-                    currencyFormat.format(profit),
+                    "${isProfitPositive ? '+' : ''}${currencyFormat.format(profit)}",
                     style: ArtisanalTheme.hand(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
