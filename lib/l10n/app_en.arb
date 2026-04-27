@@ -1,4 +1,16 @@
 {
+  "selectSource": "Select Image Source",
+  "@selectSource": {
+    "description": "Title for image source selection sheet"
+  },
+  "restoreDefault": "Restore Default",
+  "@restoreDefault": {
+    "description": "Label for restoring default image"
+  },
+  "fixedLabel": "FIXED",
+  "@fixedLabel": {
+    "description": "Label for fixed items"
+  },
   "appTitle": "The Atelier",
   "@appTitle": {
     "description": "The title of the application"
@@ -212,6 +224,7 @@
   "ok": "OK",
   "add": "Add",
   "rename": "Rename",
+  "sketch": "Sketch",
   "addSale": "Add Sale",
   "recentPurchases": "Recent Purchases",
   "noPurchaseRecords": "No purchase records",
@@ -275,5 +288,21 @@
   },
   "inventoryValueReport": "Inventory Value Report",
   "restockPriority": "Restock Priority",
-  "inventoryCard": "Inventory Card"
+  "inventoryCard": "Inventory Card",
+  "expiryDate": "Best Before",
+  "selectDate": "Select Date",
+  "noExpiry": "On-hand Stock",
+  "urgentFreshness": "CAUTION",
+  "priorityUse": "PRIORITY",
+  "expired": "EXPIRED",
+  "daysRemaining": "{days} Days Left",
+  "@daysRemaining": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "gallery": "Gallery",
+  "camera": "Camera"
 }

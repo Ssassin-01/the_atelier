@@ -98,6 +98,24 @@ abstract class AppLocalizations {
     Locale('ko'),
   ];
 
+  /// Title for image source selection sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Select Image Source'**
+  String get selectSource;
+
+  /// Label for restoring default image
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Default'**
+  String get restoreDefault;
+
+  /// Label for fixed items
+  ///
+  /// In en, this message translates to:
+  /// **'FIXED'**
+  String get fixedLabel;
+
   /// The title of the application
   ///
   /// In en, this message translates to:
@@ -1358,6 +1376,12 @@ abstract class AppLocalizations {
   /// **'Rename'**
   String get rename;
 
+  /// No description provided for @sketch.
+  ///
+  /// In en, this message translates to:
+  /// **'Sketch'**
+  String get sketch;
+
   /// No description provided for @addSale.
   ///
   /// In en, this message translates to:
@@ -1699,6 +1723,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Inventory Card'**
   String get inventoryCard;
+
+  /// No description provided for @expiryDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Before'**
+  String get expiryDate;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get selectDate;
+
+  /// No description provided for @noExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'On-hand Stock'**
+  String get noExpiry;
+
+  /// No description provided for @urgentFreshness.
+  ///
+  /// In en, this message translates to:
+  /// **'CAUTION'**
+  String get urgentFreshness;
+
+  /// No description provided for @priorityUse.
+  ///
+  /// In en, this message translates to:
+  /// **'PRIORITY'**
+  String get priorityUse;
+
+  /// No description provided for @expired.
+  ///
+  /// In en, this message translates to:
+  /// **'EXPIRED'**
+  String get expired;
+
+  /// No description provided for @daysRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} Days Left'**
+  String daysRemaining(int days);
+
+  /// No description provided for @gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
+
+  /// No description provided for @camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get camera;
 }
 
 class _AppLocalizationsDelegate

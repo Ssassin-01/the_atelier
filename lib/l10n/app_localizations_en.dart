@@ -9,6 +9,15 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get selectSource => 'Select Image Source';
+
+  @override
+  String get restoreDefault => 'Restore Default';
+
+  @override
+  String get fixedLabel => 'FIXED';
+
+  @override
   String get appTitle => 'The Atelier';
 
   @override
@@ -659,6 +668,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rename => 'Rename';
 
   @override
+  String get sketch => 'Sketch';
+
+  @override
   String get addSale => 'Add Sale';
 
   @override
@@ -838,4 +850,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inventoryCard => 'Inventory Card';
+
+  @override
+  String get expiryDate => 'Best Before';
+
+  @override
+  String get selectDate => 'Select Date';
+
+  @override
+  String get noExpiry => 'On-hand Stock';
+
+  @override
+  String get urgentFreshness => 'CAUTION';
+
+  @override
+  String get priorityUse => 'PRIORITY';
+
+  @override
+  String get expired => 'EXPIRED';
+
+  @override
+  String daysRemaining(int days) {
+    return '$days Days Left';
+  }
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get camera => 'Camera';
 }

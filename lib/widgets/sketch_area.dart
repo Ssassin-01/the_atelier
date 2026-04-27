@@ -36,7 +36,8 @@ class SketchPainter extends CustomPainter {
 }
 
 class SketchArea extends StatefulWidget {
-  const SketchArea({super.key});
+  final GlobalKey? canvasKey;
+  const SketchArea({super.key, this.canvasKey});
 
   @override
   State<SketchArea> createState() => _SketchAreaState();
@@ -82,9 +83,12 @@ class _SketchAreaState extends State<SketchArea> {
                   }
                 });
               },
-              child: CustomPaint(
-                painter: SketchPainter(_paths),
-                size: Size.infinite,
+              child: RepaintBoundary(
+                key: widget.canvasKey,
+                child: CustomPaint(
+                  painter: SketchPainter(_paths),
+                  size: Size.infinite,
+                ),
               ),
             ),
           ),
@@ -92,33 +96,50 @@ class _SketchAreaState extends State<SketchArea> {
         const SizedBox(height: 16),
         // Toolbar
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: ArtisanalTheme.ink,
             borderRadius: BorderRadius.circular(999),
             boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10)],
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.undo, color: Colors.white70),
-                onPressed: () => setState(() => _paths.isNotEmpty ? _paths.removeLast() : null),
-              ),
-              const VerticalDivider(color: Colors.white24, width: 24),
-              _buildColorButton(ArtisanalTheme.ink),
-              const SizedBox(width: 12),
-              _buildColorButton(ArtisanalTheme.redInk),
-              const SizedBox(width: 12),
-              _buildColorButton(const Color(0xFFC27A5B)),
-              const SizedBox(width: 12),
-              _buildColorButton(Colors.blueGrey),
-              const VerticalDivider(color: Colors.white24, width: 24),
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.white70),
-                onPressed: () => setState(() => _paths.clear()),
-              ),
-            ],
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.undo, color: Colors.white70, size: 20),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => setState(() => _paths.isNotEmpty ? _paths.removeLast() : null),
+                ),
+                Container(
+                  height: 20,
+                  width: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 12),
+                  color: Colors.white24,
+                ),
+                _buildColorButton(ArtisanalTheme.ink),
+                const SizedBox(width: 10),
+                _buildColorButton(ArtisanalTheme.redInk),
+                const SizedBox(width: 10),
+                _buildColorButton(const Color(0xFFC27A5B)),
+                const SizedBox(width: 10),
+                _buildColorButton(Colors.blueGrey),
+                Container(
+                  height: 20,
+                  width: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 12),
+                  color: Colors.white24,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.white70, size: 20),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => setState(() => _paths.clear()),
+                ),
+              ],
+            ),
           ),
         ),
       ],

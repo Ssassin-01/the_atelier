@@ -66,5 +66,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow access to photo library to select ingredient photos.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow access to camera to take ingredient photos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow access to microphone for video if needed.</string>
 </dict>
 </plist>

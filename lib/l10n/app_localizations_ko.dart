@@ -9,6 +9,15 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
+  String get selectSource => '이미지 출처 선택';
+
+  @override
+  String get restoreDefault => '기본 이미지로 복원';
+
+  @override
+  String get fixedLabel => '고정됨';
+
+  @override
   String get appTitle => '아뜰리에';
 
   @override
@@ -644,6 +653,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get rename => '변경';
 
   @override
+  String get sketch => '그림 그리기';
+
+  @override
   String get addSale => '매출 등록';
 
   @override
@@ -823,4 +835,33 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get inventoryCard => '재고 기록 카드';
+
+  @override
+  String get expiryDate => '소비기한';
+
+  @override
+  String get selectDate => '날짜 선택';
+
+  @override
+  String get noExpiry => '현장 재고';
+
+  @override
+  String get urgentFreshness => '신선도 주의';
+
+  @override
+  String get priorityUse => '우선 사용';
+
+  @override
+  String get expired => '사용 불가';
+
+  @override
+  String daysRemaining(int days) {
+    return '$days일 남음';
+  }
+
+  @override
+  String get gallery => '갤러리';
+
+  @override
+  String get camera => '카메라';
 }

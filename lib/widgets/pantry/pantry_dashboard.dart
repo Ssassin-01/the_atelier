@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../theme/artisanal_theme.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -7,6 +8,10 @@ class PantryDashboard extends StatelessWidget {
   final int urgentCount;
   final int missingInfoCount;
   final int totalEntries;
+  final VoidCallback? onTotalTap;
+  final VoidCallback? onLowStockTap;
+  final VoidCallback? onMissingInfoTap;
+  final String activeFilter; // 'all', 'lowStock', 'missingInfo'
 
   const PantryDashboard({
     super.key,
@@ -14,6 +19,10 @@ class PantryDashboard extends StatelessWidget {
     required this.urgentCount,
     required this.missingInfoCount,
     required this.totalEntries,
+    this.onTotalTap,
+    this.onLowStockTap,
+    this.onMissingInfoTap,
+    this.activeFilter = 'all',
   });
 
   @override
@@ -106,9 +115,25 @@ class PantryDashboard extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildCertStat(l10n.totalEntries, totalEntries.toString()),
-                            _buildCertStat(l10n.lowStock, urgentCount.toString(), isAlert: urgentCount > 0),
-                            _buildCertStat(l10n.missingInfo, missingInfoCount.toString()),
+                            _buildCertStat(
+                              l10n.totalEntries, 
+                              totalEntries.toString(),
+                              onTap: onTotalTap,
+                              isSelected: activeFilter == 'all',
+                            ),
+                            _buildCertStat(
+                              l10n.lowStock, 
+                              urgentCount.toString(), 
+                              isAlert: urgentCount > 0,
+                              onTap: onLowStockTap,
+                              isSelected: activeFilter == 'lowStock',
+                            ),
+                            _buildCertStat(
+                              l10n.missingInfo, 
+                              missingInfoCount.toString(),
+                              onTap: onMissingInfoTap,
+                              isSelected: activeFilter == 'missingInfo',
+                            ),
                           ],
                         ),
                         
@@ -186,25 +211,53 @@ class PantryDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildCertStat(String label, String value, {bool isAlert = false}) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: ArtisanalTheme.lightTheme.textTheme.headlineSmall?.copyWith(
-            color: isAlert ? ArtisanalTheme.redInk : ArtisanalTheme.ink,
-            fontWeight: FontWeight.bold,
+  Widget _buildCertStat(String label, String value, {bool isAlert = false, VoidCallback? onTap, bool isSelected = false}) {
+    return GestureDetector(
+      onTap: () {
+        if (onTap != null) {
+          HapticFeedback.selectionClick();
+          onTap();
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? ArtisanalTheme.primary.withValues(alpha: 0.05) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? ArtisanalTheme.primary.withValues(alpha: 0.2) : Colors.transparent,
+            width: 1,
           ),
         ),
-        const SizedBox(height: 2),
-        Text(
-          label.toUpperCase(),
-          style: ArtisanalTheme.hand(
-            fontSize: 9,
-            color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
-          ),
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: ArtisanalTheme.lightTheme.textTheme.headlineSmall?.copyWith(
+                color: isAlert ? ArtisanalTheme.redInk : ArtisanalTheme.ink,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label.toUpperCase(),
+              style: ArtisanalTheme.hand(
+                fontSize: 9,
+                color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            if (isSelected)
+              Container(
+                margin: const EdgeInsets.only(top: 4),
+                height: 2,
+                width: 20,
+                color: ArtisanalTheme.primary,
+              ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

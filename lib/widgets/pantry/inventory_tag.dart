@@ -10,6 +10,8 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/custom_clippers.dart';
 import '../../widgets/masking_tape.dart';
 
+import '../../providers/category_icons_provider.dart';
+
 class InventoryTag extends ConsumerWidget {
   final PantryItem item;
   final VoidCallback onRestock;
@@ -20,21 +22,48 @@ class InventoryTag extends ConsumerWidget {
     required this.onRestock,
   });
 
-  Widget _buildIngredientImage(String name, String category) {
+  Widget _buildIngredientImage(WidgetRef ref, String name, String category, [String? customImageUrl]) {
+    // Priority 1: User's custom image for this item
+    if (customImageUrl != null && customImageUrl.isNotEmpty) {
+      if (customImageUrl.startsWith('http')) {
+        return Image.network(customImageUrl, fit: BoxFit.cover);
+      } else {
+        final file = File(customImageUrl);
+        if (file.existsSync()) {
+          return Image.file(file, fit: BoxFit.cover);
+        }
+      }
+    }
+
+    // Priority 2: Category-level custom icons
+    final categoryIcons = ref.watch(categoryIconsProvider);
+    if (categoryIcons.containsKey(category)) {
+      final catPath = categoryIcons[category]!;
+      if (catPath.startsWith('http')) {
+        return Image.network(catPath, fit: BoxFit.cover);
+      } else if (catPath.startsWith('assets/')) {
+        return Image.asset(catPath, fit: BoxFit.cover);
+      } else {
+        final file = File(catPath);
+        if (file.existsSync()) {
+          return Image.file(file, fit: BoxFit.cover);
+        }
+      }
+    }
+
     String assetPath = 'assets/images/categories/others.png';
     final lowerName = name.toLowerCase();
 
-    // Map specific ingredients to the updated realistic category assets
+    // Priority 3: Name-based mapping
     if (lowerName.contains('flour') || lowerName.contains('밀가루') || lowerName.contains('강력') || lowerName.contains('박력')) {
       assetPath = 'assets/images/categories/flour.png';
     } else if (lowerName.contains('salt') || lowerName.contains('소금')) {
-      assetPath = 'assets/images/categories/others.png'; // Now maps to realistic salt photo
+      assetPath = 'assets/images/categories/others.png';
     } else if (lowerName.contains('butter') || lowerName.contains('버터')) {
-      assetPath = 'assets/images/categories/dairy_eggs.png'; // Now maps to realistic butter photo
+      assetPath = 'assets/images/categories/dairy_eggs.png';
     } else if (lowerName.contains('sugar') || lowerName.contains('설탕')) {
-      assetPath = 'assets/images/categories/sweetener.png'; // Now maps to realistic sugar photo
+      assetPath = 'assets/images/categories/sweetener.png';
     } else {
-      // Fallback to category defaults which are now all realistic photos
       switch (category) {
         case 'Flour': assetPath = 'assets/images/categories/flour.png'; break;
         case 'Dairy/Eggs': assetPath = 'assets/images/categories/dairy_eggs.png'; break;
@@ -95,17 +124,7 @@ class InventoryTag extends ConsumerWidget {
                               Padding(
                                 padding: const EdgeInsets.all(12.0),
                                 child: Center(
-                                  child: (item.imageUrl != null && 
-                                          !item.imageUrl!.startsWith('assets/') && 
-                                          File(item.imageUrl!).existsSync())
-                                      ? ClipRRect(
-                                          borderRadius: BorderRadius.circular(4),
-                                          child: Image.file(File(item.imageUrl!), fit: BoxFit.cover),
-                                        )
-                                      : Opacity(
-                                          opacity: 0.8,
-                                          child: _buildIngredientImage(item.name, item.category),
-                                        ),
+                                  child: _buildIngredientImage(ref, item.name, item.category, item.imageUrl),
                                 ),
                               ),
                               if (isLow)
@@ -243,4 +262,3 @@ class InventoryTag extends ConsumerWidget {
     );
   }
 }
-

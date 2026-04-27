@@ -14,19 +14,25 @@ class PantryCategoriesNotifier extends StateNotifier<List<String>> {
 
   void _loadCategories() {
     final saved = _box.get('pantry_categories');
-    if (saved != null && saved is List) {
-      // Ensure 'All' is always present at index 0 and others follow
-      final List<String> loaded = List<String>.from(saved);
-      if (!loaded.contains('All')) {
-        loaded.insert(0, 'All');
-      }
-      state = loaded;
-    }
+    List<String> loaded = saved != null && saved is List ? List<String>.from(saved) : ['All', 'Flour', 'Dairy/Eggs', 'Sweetener', 'Leavening', 'Add-in', 'Others'];
+    
+    // Sort logic: All first, mid categories alphabetical, Others last
+    loaded.remove('All');
+    loaded.remove('Others');
+    loaded.sort();
+    
+    state = ['All', ...loaded, 'Others'];
   }
 
   Future<void> addCategory(String category) async {
     if (!state.contains(category)) {
-      state = [...state, category];
+      final List<String> newList = [...state];
+      newList.add(category);
+      // Re-sort
+      newList.remove('All');
+      newList.remove('Others');
+      newList.sort();
+      state = ['All', ...newList, 'Others'];
       await _box.put('pantry_categories', state);
     }
   }
@@ -40,7 +46,12 @@ class PantryCategoriesNotifier extends StateNotifier<List<String>> {
 
   Future<void> renameCategory(String oldName, String newName) async {
     if (oldName == 'All' || oldName == 'Others') return;
-    state = state.map((c) => c == oldName ? newName : c).toList();
+    final List<String> newList = state.map((c) => c == oldName ? newName : c).toList();
+    // Re-sort
+    newList.remove('All');
+    newList.remove('Others');
+    newList.sort();
+    state = ['All', ...newList, 'Others'];
     await _box.put('pantry_categories', state);
   }
 }

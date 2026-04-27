@@ -1,4 +1,16 @@
 {
+  "selectSource": "이미지 출처 선택",
+  "@selectSource": {
+    "description": "이미지 소스 선택 시트의 제목"
+  },
+  "restoreDefault": "기본 이미지로 복원",
+  "@restoreDefault": {
+    "description": "기본 이미지 복원 라벨"
+  },
+  "fixedLabel": "고정됨",
+  "@fixedLabel": {
+    "description": "고정된 항목 라벨"
+  },
   "appTitle": "아뜰리에",
   "dashboard": "작업실 홈",
   "journal": "연구 저널",
@@ -209,6 +221,7 @@
   "ok": "확인",
   "add": "추가",
   "rename": "변경",
+  "sketch": "그림 그리기",
   "addSale": "매출 등록",
   "recentPurchases": "최근 매입 내역",
   "noPurchaseRecords": "기록된 매입 내역이 없습니다.",
@@ -272,5 +285,21 @@
   "restockPriority": "보충 우선순위 항목",
   "inventoryCard": "재고 기록 카드",
   "profitVerified": "수익 확인됨",
-  "deficitNoted": "손실 기록됨"
+  "deficitNoted": "손실 기록됨",
+  "expiryDate": "소비기한",
+  "selectDate": "날짜 선택",
+  "noExpiry": "현장 재고",
+  "urgentFreshness": "신선도 주의",
+  "priorityUse": "우선 사용",
+  "expired": "사용 불가",
+  "daysRemaining": "{days}일 남음",
+  "@daysRemaining": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "gallery": "갤러리",
+  "camera": "카메라"
 }

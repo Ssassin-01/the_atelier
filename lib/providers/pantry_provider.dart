@@ -59,4 +59,14 @@ class PantryNotifier extends StateNotifier<List<PantryItem>> {
       }
     }
   }
+
+  /// Update all items in a category when it's renamed or deleted
+  Future<void> bulkUpdateCategory(String oldCategory, String? newCategory) async {
+    for (var item in _box.values) {
+      if (item.category == oldCategory) {
+        await _box.put(item.id, item.copyWith(category: newCategory ?? 'Others'));
+      }
+    }
+    _loadItems();
+  }
 }
