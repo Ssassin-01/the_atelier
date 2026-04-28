@@ -125,12 +125,15 @@ class PantryDashboard extends StatelessWidget {
                               l10n.lowStock, 
                               urgentCount.toString(), 
                               isAlert: urgentCount > 0,
+                              alertColor: ArtisanalTheme.redInk,
                               onTap: onLowStockTap,
                               isSelected: activeFilter == 'lowStock',
                             ),
                             _buildCertStat(
                               l10n.missingInfo, 
                               missingInfoCount.toString(),
+                              isAlert: missingInfoCount > 0,
+                              alertColor: const Color(0xFFB8860B), // Artisanal Gold/Mustard
                               onTap: onMissingInfoTap,
                               isSelected: activeFilter == 'missingInfo',
                             ),
@@ -211,7 +214,7 @@ class PantryDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildCertStat(String label, String value, {bool isAlert = false, VoidCallback? onTap, bool isSelected = false}) {
+  Widget _buildCertStat(String label, String value, {bool isAlert = false, Color? alertColor, VoidCallback? onTap, bool isSelected = false}) {
     return GestureDetector(
       onTap: () {
         if (onTap != null) {
@@ -235,7 +238,7 @@ class PantryDashboard extends StatelessWidget {
             Text(
               value,
               style: ArtisanalTheme.lightTheme.textTheme.headlineSmall?.copyWith(
-                color: isAlert ? ArtisanalTheme.redInk : ArtisanalTheme.ink,
+                color: isAlert ? (alertColor ?? ArtisanalTheme.redInk) : ArtisanalTheme.ink,
                 fontWeight: FontWeight.bold,
               ),
             ),

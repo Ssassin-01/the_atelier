@@ -123,9 +123,9 @@ class FinancialTrendChart extends ConsumerWidget {
     Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildLegendItem(l10n.ingredientLedger, ArtisanalTheme.primary.withValues(alpha: 0.8)),
+        _buildLegendItem(l10n.totalRevenue, ArtisanalTheme.primary.withValues(alpha: 0.8)),
         const SizedBox(width: 24),
-        _buildLegendItem("총 지출", ArtisanalTheme.redInk.withValues(alpha: 0.6)),
+        _buildLegendItem(l10n.operatingExpenses, ArtisanalTheme.redInk.withValues(alpha: 0.6)),
       ],
     ),
   ],

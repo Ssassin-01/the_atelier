@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'transaction_provider.dart';
 import 'pantry_provider.dart';
+import '../models/transaction.dart';
 
 enum AnalyticsPeriod { day, week, month, year }
 
@@ -15,6 +16,8 @@ class AnalyticsData {
   final double previousSales;
   final double previousExpenses;
   final AnalyticsPeriod period;
+  final String? topExpenseCategory;
+  final List<BusinessTransaction> periodTransactions;
 
   AnalyticsData({
     required this.salesTrend,
@@ -26,6 +29,8 @@ class AnalyticsData {
     required this.previousSales,
     required this.previousExpenses,
     required this.period,
+    this.topExpenseCategory,
+    required this.periodTransactions,
   });
 
   double get salesChange => previousSales == 0 ? 0 : (totalSales - previousSales) / previousSales;
@@ -196,11 +201,28 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
       .where((t) => t.type == 'expense' && t.date.isAfter(prevStartDate) && t.date.isBefore(prevEndDate))
       .fold(0.0, (sum, t) => sum + t.amount);
 
+  // Top Expense Category
+  final Map<String, double> expenseByCategory = {};
+  for (final tx in transactions.where((t) => t.type == 'expense' && t.date.isAfter(startDate))) {
+    expenseByCategory[tx.category] = (expenseByCategory[tx.category] ?? 0) + tx.amount;
+  }
+  String? topCat;
+  double maxExp = 0;
+  expenseByCategory.forEach((cat, amt) {
+    if (amt > maxExp) {
+      maxExp = amt;
+      topCat = cat;
+    }
+  });
+
   // Inventory Distribution
   final Map<String, int> categoryCounts = {};
   for (final item in pantryItems) {
     categoryCounts[item.category] = (categoryCounts[item.category] ?? 0) + 1;
   }
+
+  final currentTxs = transactions.where((t) => t.date.isAfter(startDate)).toList()
+    ..sort((a, b) => b.date.compareTo(a.date));
 
   return AnalyticsData(
     salesTrend: salesMap,
@@ -212,5 +234,7 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
     previousSales: previousSales,
     previousExpenses: previousExpenses,
     period: period,
+    topExpenseCategory: topCat,
+    periodTransactions: currentTxs,
   );
 });

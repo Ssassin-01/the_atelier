@@ -674,6 +674,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addSale => 'Add Sale';
 
   @override
+  String get totalRevenue => 'Total Revenue';
+
+  @override
+  String get financialTrends => 'Financial Trends';
+
+  @override
+  String get addTransactionShort => 'Add Entry';
+
+  @override
+  String get operatingExpenses => 'Operating Expenses';
+
+  @override
+  String get topExpenseItem => 'Highest Expense';
+
+  @override
   String get recentPurchases => 'Recent Purchases';
 
   @override

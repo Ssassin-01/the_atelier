@@ -10,6 +10,14 @@ class DataSeedService {
     final pantry = ref.read(pantryProvider.notifier);
     final transactions = ref.read(transactionProvider.notifier);
 
+    // 0. Clear existing data for a fresh start
+    for (final item in ref.read(pantryProvider)) {
+      await pantry.deleteItem(item.id);
+    }
+    for (final tx in ref.read(transactionProvider)) {
+      await transactions.deleteTransaction(tx.id);
+    }
+
     // 1. Seed Pantry Items (Organized by professional categories)
     final items = [
       // Flour
@@ -146,8 +154,17 @@ class DataSeedService {
     final random = Random();
     final now = DateTime.now();
 
-    final saleCategories = ['Store Sales', 'One-day Class', 'Online Order', 'Custom Cake'];
-    final expenseCategories = ['Ingredients', 'Packaging', 'Utility', 'Atelier Rent'];
+    final saleCategories = ['매장 판매', '원데이 클래스', '온라인 주문', '주문 제작 케이크'];
+    final expenseCategories = ['재료 구입', '포장재 구입', '수도광열비', '공방 정기 결제'];
+
+    final specificSales = [
+      '딸기 생크림 케이크 3호 판매',
+      '플레인 스콘 10세트 택배 발송',
+      '시그니처 마들렌 답례품 주문',
+      '휘낭시에 5종 선물 세트',
+      '원데이 클래스 (4인)',
+      '디저트 카페 정기 납품'
+    ];
 
     for (int i = 0; i < 30; i++) {
       final date = now.subtract(Duration(days: i));
@@ -155,13 +172,15 @@ class DataSeedService {
       // Daily Sale (Varied amounts)
       final saleAmount = 80000 + random.nextInt(150000).toDouble();
       final saleCat = saleCategories[random.nextInt(saleCategories.length)];
+      final saleDesc = i < specificSales.length ? specificSales[i] : '$saleCat 매출';
+      
       await transactions.addTransaction(BusinessTransaction(
         id: 'seed_sale_$i',
         amount: saleAmount,
         date: date,
         type: 'sale',
         category: saleCat,
-        description: 'Revenue from $saleCat',
+        description: saleDesc,
       ));
 
       // Daily Expense (Every few days)
@@ -174,7 +193,7 @@ class DataSeedService {
           date: date,
           type: 'expense',
           category: expCat,
-          description: 'Payment for $expCat',
+          description: '$expCat 결제',
         ));
       }
 
@@ -185,8 +204,8 @@ class DataSeedService {
           amount: 800000,
           date: date,
           type: 'expense',
-          category: 'Atelier Rent',
-          description: 'Monthly Maintenance & Rent',
+          category: '공방 임대료',
+          description: '공방 월세 및 관리비 납부',
         ));
       }
     }

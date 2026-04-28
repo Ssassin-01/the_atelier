@@ -659,6 +659,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get addSale => '매출 등록';
 
   @override
+  String get totalRevenue => '총 매출액';
+
+  @override
+  String get financialTrends => '공방 손익 추이';
+
+  @override
+  String get addTransactionShort => '기록 추가';
+
+  @override
+  String get operatingExpenses => '운영 지출';
+
+  @override
+  String get topExpenseItem => '최고 지출 항목';
+
+  @override
   String get recentPurchases => '최근 매입 내역';
 
   @override

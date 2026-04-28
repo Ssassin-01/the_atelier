@@ -1388,6 +1388,36 @@ abstract class AppLocalizations {
   /// **'Add Sale'**
   String get addSale;
 
+  /// No description provided for @totalRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Revenue'**
+  String get totalRevenue;
+
+  /// No description provided for @financialTrends.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Trends'**
+  String get financialTrends;
+
+  /// No description provided for @addTransactionShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Entry'**
+  String get addTransactionShort;
+
+  /// No description provided for @operatingExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating Expenses'**
+  String get operatingExpenses;
+
+  /// No description provided for @topExpenseItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest Expense'**
+  String get topExpenseItem;
+
   /// No description provided for @recentPurchases.
   ///
   /// In en, this message translates to:
