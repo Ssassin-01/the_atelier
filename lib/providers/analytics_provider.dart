@@ -18,6 +18,13 @@ class AnalyticsData {
   final AnalyticsPeriod period;
   final String? topExpenseCategory;
   final List<BusinessTransaction> periodTransactions;
+  
+  // New detailed insights
+  final Map<int, double> hourlySales; // hour (0-23) -> amount
+  final Map<int, double> weekdaySales; // weekday (1-7) -> amount
+  final List<MapEntry<String, double>> topSellingItems;
+  final double fixedCosts;
+  final double variableCosts;
 
   AnalyticsData({
     required this.salesTrend,
@@ -31,10 +38,34 @@ class AnalyticsData {
     required this.period,
     this.topExpenseCategory,
     required this.periodTransactions,
+    this.hourlySales = const {},
+    this.weekdaySales = const {},
+    this.topSellingItems = const [],
+    this.fixedCosts = 0,
+    this.variableCosts = 0,
   });
 
   double get salesChange => previousSales == 0 ? 0 : (totalSales - previousSales) / previousSales;
   double get expenseChange => previousExpenses == 0 ? 0 : (totalExpenses - previousExpenses) / previousExpenses;
+  double get netProfit => totalSales - totalExpenses;
+
+  // New Highlight Getters
+  int? get busiestHour {
+    if (hourlySales.isEmpty) return null;
+    return hourlySales.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+  }
+
+  int? get busiestDay {
+    if (weekdaySales.isEmpty) return null;
+    return weekdaySales.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+  }
+
+  String? get topItemName => topSellingItems.isEmpty ? null : topSellingItems.first.key;
+  
+  double get fixedCostRatio {
+    final total = fixedCosts + variableCosts;
+    return total == 0 ? 0 : fixedCosts / total;
+  }
 
   String getInsight() {
     final saleUp = salesChange > 0.05;
@@ -201,6 +232,35 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
       .where((t) => t.type == 'expense' && t.date.isAfter(prevStartDate) && t.date.isBefore(prevEndDate))
       .fold(0.0, (sum, t) => sum + t.amount);
 
+  // Detailed Insight Aggregation
+  final Map<int, double> hourlySales = {};
+  final Map<int, double> weekdaySales = {};
+  final Map<String, double> itemSales = {};
+  double fixedCosts = 0;
+  double variableCosts = 0;
+
+  for (final tx in transactions.where((t) => t.date.isAfter(startDate))) {
+    // 1. Hourly Pattern (Daily Focus)
+    hourlySales[tx.date.hour] = (hourlySales[tx.date.hour] ?? 0) + tx.amount;
+
+    // 2. Weekday Pattern (Weekly Focus)
+    weekdaySales[tx.date.weekday] = (weekdaySales[tx.date.weekday] ?? 0) + tx.amount;
+
+    // 3. Popular Items
+    if (tx.type == 'sale') {
+      itemSales[tx.description] = (itemSales[tx.description] ?? 0) + tx.amount;
+    }
+
+    // 4. Cost Analysis
+    if (tx.type == 'expense') {
+      if (tx.category == 'Rent' || tx.category == 'Utilities' || tx.category == 'Salary') {
+        fixedCosts += tx.amount;
+      } else {
+        variableCosts += tx.amount;
+      }
+    }
+  }
+
   // Top Expense Category
   final Map<String, double> expenseByCategory = {};
   for (final tx in transactions.where((t) => t.type == 'expense' && t.date.isAfter(startDate))) {
@@ -221,6 +281,9 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
     categoryCounts[item.category] = (categoryCounts[item.category] ?? 0) + 1;
   }
 
+  final topSellingItems = itemSales.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value));
+
   final currentTxs = transactions.where((t) => t.date.isAfter(startDate)).toList()
     ..sort((a, b) => b.date.compareTo(a.date));
 
@@ -236,5 +299,10 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
     period: period,
     topExpenseCategory: topCat,
     periodTransactions: currentTxs,
+    hourlySales: hourlySales,
+    weekdaySales: weekdaySales,
+    topSellingItems: topSellingItems.take(5).toList(),
+    fixedCosts: fixedCosts,
+    variableCosts: variableCosts,
   );
 });
