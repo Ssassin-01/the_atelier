@@ -39,10 +39,12 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
   final ScrollController _scrollController = ScrollController();
   bool _isPaid = false;
   bool _isSaving = false;
+  late String _currentType;
 
   @override
   void initState() {
     super.initState();
+    _currentType = widget.type;
     if (widget.initialTransaction != null) {
       final tx = widget.initialTransaction!;
       final entry = _ItemEntry();
@@ -146,27 +148,34 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
     // Briefly show the PAID stamp before closing
     await Future.delayed(const Duration(milliseconds: 800));
 
-    for (final item in validItems) {
+    // If we are editing, remove the old one first to avoid conflicts and allow splitting
+    if (widget.initialTransaction != null) {
+      await txNotifier.deleteTransaction(widget.initialTransaction!.id);
+    }
+
+    for (int i = 0; i < validItems.length; i++) {
+      final item = validItems[i];
       final qty = double.tryParse(item.quantityController.text) ?? 1;
       final price = double.tryParse(item.amountController.text) ?? 0;
       
       final tx = BusinessTransaction(
-        id: widget.initialTransaction?.id ?? (DateTime.now().millisecondsSinceEpoch.toString() + item.hashCode.toString()),
+        // Ensure unique ID for each item even in batch save
+        id: "${DateTime.now().millisecondsSinceEpoch}_$i", 
         date: widget.initialTransaction?.date ?? DateTime.now(),
-        type: widget.type,
+        type: _currentType,
         amount: qty * price,
-        category: widget.type == 'sale' ? l10n.productSale : l10n.totalExpensesLabel,
+        category: _currentType == 'sale' ? l10n.productSale : l10n.totalExpensesLabel,
         description: "${item.descriptionController.text} (x${qty.toInt()})",
       );
 
-      txNotifier.addTransaction(tx);
+      await txNotifier.addTransaction(tx);
     }
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.type == 'sale' ? l10n.saleRegistered : '기록되었습니다'),
-          backgroundColor: widget.type == 'sale' ? ArtisanalTheme.primary : ArtisanalTheme.redInk,
+          content: Text(_currentType == 'sale' ? l10n.saleRegistered : '기록되었습니다'),
+          backgroundColor: _currentType == 'sale' ? ArtisanalTheme.primary : ArtisanalTheme.redInk,
         ),
       );
       Navigator.pop(context);
@@ -207,17 +216,24 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            (widget.type == 'sale' ? l10n.salesSlip : '지출 전표').toUpperCase(),
+                            (widget.initialTransaction != null 
+                              ? '내역 수정' 
+                              : (_currentType == 'sale' ? l10n.salesSlip : '지출 전표')).toUpperCase(),
                             style: ArtisanalTheme.hand(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              color: (widget.type == 'sale' ? ArtisanalTheme.secondary : ArtisanalTheme.redInk).withValues(alpha: 0.6),
+                              color: (_currentType == 'sale' ? ArtisanalTheme.greenInk : ArtisanalTheme.redInk).withValues(alpha: 0.6),
                               letterSpacing: 2,
                             ),
                           ),
                           _buildDateStamp(context),
                         ],
                       ),
+                      const SizedBox(height: 12),
+                      
+                      // Type Selection (Sale vs Expense)
+                      _buildTypeSelector(),
+                      
                       const Divider(color: Colors.black12, height: 32),
                       
                       // Table Header
@@ -241,15 +257,16 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                           return _buildEntryRow(index, animation);
                         },
                       ),
-  
-                      const SizedBox(height: 16),
-                      GestureDetector(
-                        onTap: _addItem,
-                        child: Text(
-                          l10n.addItem,
-                          style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.primaryContainer, fontStyle: FontStyle.italic),
+                        if (widget.initialTransaction == null) ...[
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: _addItem,
+                          child: Text(
+                            l10n.addItem,
+                            style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.primaryContainer, fontStyle: FontStyle.italic),
+                          ),
                         ),
-                      ),
+                      ],
   
                       const Divider(color: Colors.black12, height: 40),
 
@@ -257,7 +274,14 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(l10n.totalAmount, style: ArtisanalTheme.hand(fontSize: 20, fontWeight: FontWeight.bold)),
-                          Text(currencyFormat.format(total), style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold, color: widget.type == 'sale' ? ArtisanalTheme.primary : ArtisanalTheme.redInk)),
+                          Text(
+                            "${_currentType == 'sale' ? '+' : '-'}${currencyFormat.format(total)}", 
+                            style: ArtisanalTheme.hand(
+                              fontSize: 24, 
+                              fontWeight: FontWeight.bold, 
+                              color: _currentType == 'sale' ? ArtisanalTheme.greenInk : Colors.red.shade700
+                            )
+                          ),
                         ],
                       ),
                       
@@ -266,6 +290,40 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                       Center(
                         child: _buildPaidStampButton(),
                       ),
+                      if (widget.initialTransaction != null) ...[
+                        const SizedBox(height: 24),
+                        Center(
+                          child: TextButton.icon(
+                            icon: const Icon(Icons.delete_outline_rounded, size: 18, color: ArtisanalTheme.redInk),
+                            label: Text('이 내역 삭제하기', 
+                              style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk).copyWith(decoration: TextDecoration.underline)),
+                            onPressed: () async {
+                               final confirmed = await showDialog<bool>(
+                                 context: context,
+                                 builder: (context) => AlertDialog(
+                                   title: Text('내역 삭제', style: ArtisanalTheme.hand(fontWeight: FontWeight.bold)),
+                                   content: Text('이 내역을 정말 삭제할까요?', style: ArtisanalTheme.hand()),
+                                   actions: [
+                                     TextButton(
+                                       onPressed: () => Navigator.pop(context, false),
+                                       child: Text('취소', style: ArtisanalTheme.hand(color: ArtisanalTheme.ink.withValues(alpha: 0.5))),
+                                     ),
+                                     TextButton(
+                                       onPressed: () => Navigator.pop(context, true),
+                                       child: Text('삭제하기', style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold)),
+                                     ),
+                                   ],
+                                 ),
+                               );
+
+                               if (confirmed == true && mounted) {
+                                 ref.read(transactionProvider.notifier).deleteTransaction(widget.initialTransaction!.id);
+                                 Navigator.pop(context);
+                               }
+                            },
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -324,6 +382,7 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                 flex: 4,
                 child: Autocomplete<Recipe>(
                   focusNode: entry.focusNode,
+                  textEditingController: entry.descriptionController,
                   displayStringForOption: (option) => option.name,
                   optionsBuilder: (textEditingValue) {
                     if (textEditingValue.text.isEmpty) return const Iterable<Recipe>.empty();
@@ -456,7 +515,7 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
               const SizedBox(width: 4),
     
               // Delete Row
-              if (!isRemoving)
+              if (!isRemoving && widget.initialTransaction == null)
                 IconButton(
                   icon: Icon(Icons.remove_circle_outline, size: 22, color: ArtisanalTheme.redInk.withValues(alpha: 0.2)),
                   padding: EdgeInsets.zero,
@@ -497,9 +556,9 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
           duration: const Duration(milliseconds: 300),
           padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 14),
           decoration: BoxDecoration(
-            color: _isPaid ? Colors.transparent : (widget.type == 'sale' ? ArtisanalTheme.primary : ArtisanalTheme.redInk).withValues(alpha: 0.05),
+            color: _isPaid ? Colors.transparent : (_currentType == 'sale' ? ArtisanalTheme.greenInk : ArtisanalTheme.redInk).withValues(alpha: 0.05),
             border: Border.all(
-              color: _isPaid ? ArtisanalTheme.redInk : (widget.type == 'sale' ? ArtisanalTheme.primary : ArtisanalTheme.redInk).withValues(alpha: 0.2),
+              color: _isPaid ? ArtisanalTheme.redInk : (_currentType == 'sale' ? ArtisanalTheme.greenInk : ArtisanalTheme.redInk).withValues(alpha: 0.2),
               width: 2,
             ),
             borderRadius: BorderRadius.circular(4),
@@ -511,11 +570,13 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                 opacity: _isPaid ? 0 : 1,
                 duration: const Duration(milliseconds: 200),
                 child: Text(
-                  (widget.type == 'sale' ? l10n.paid : '지출 확인').toUpperCase(),
+                  (widget.initialTransaction != null
+                    ? '수정 완료'
+                    : (_currentType == 'sale' ? l10n.paid : '지출 확인')).toUpperCase(),
                   style: ArtisanalTheme.hand(
                     fontSize: 24, 
                     fontWeight: FontWeight.bold, 
-                    color: widget.type == 'sale' ? ArtisanalTheme.primary : ArtisanalTheme.redInk,
+                    color: _currentType == 'sale' ? ArtisanalTheme.greenInk : ArtisanalTheme.redInk,
                     letterSpacing: 2,
                   ),
                 ),
@@ -531,7 +592,7 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                       child: Transform.rotate(
                         angle: -0.15,
                         child: Text(
-                          (widget.type == 'sale' ? l10n.paid : '지출 확인').toUpperCase(),
+                          (_currentType == 'sale' ? l10n.paid : '지출 확인').toUpperCase(),
                           style: ArtisanalTheme.hand(
                             fontSize: 34, 
                             fontWeight: FontWeight.bold, 
@@ -546,6 +607,50 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTypeSelector() {
+    return Row(
+      children: [
+        _buildTypeOption('sale', '매출'),
+        const SizedBox(width: 24),
+        _buildTypeOption('expense', '지출'),
+      ],
+    );
+  }
+
+  Widget _buildTypeOption(String type, String label) {
+    final isSelected = _currentType == type;
+    final color = type == 'sale' ? ArtisanalTheme.primary : ArtisanalTheme.redInk;
+    
+    return GestureDetector(
+      onTap: () => setState(() => _currentType = type),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: isSelected 
+              ? Icon(Icons.check, size: 16, color: color) 
+              : null,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: ArtisanalTheme.hand(
+              fontSize: 18, 
+              color: isSelected ? color : ArtisanalTheme.ink.withValues(alpha: 0.3),
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }

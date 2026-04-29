@@ -11,7 +11,8 @@ class ArtisanalTheme {
   static const Color outline = Color(0xFF84746B);
   static const Color onSurface = Color(0xFF2D241E);
   static const Color ink = Color(0xFF4A3B32);
-  static const Color redInk = Color(0xFF8B3A3A);
+  static const Color redInk = Color(0xFFB22222); // More vivid "Firebrick" red for better clarity
+  static const Color greenInk = Color(0xFF2E7D32); // Deep forest green for positive entries
 
   static ThemeData get lightTheme {
     return ThemeData(

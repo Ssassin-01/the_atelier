@@ -88,22 +88,17 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
               _buildPeriodSelector(ref, l10n),
               const SizedBox(height: 24),
               
-              // New Action Buttons Row
+              // 1. Action Buttons Row
               _buildTransactionActionButtons(context, l10n),
               
               const SizedBox(height: 32),
               
-              // 1. Transaction Log Section (Recent Activity)
-              _buildTransactionLogSection(analytics, l10n),
-              
-              const SizedBox(height: 32),
-              
-              // 2. Visual Insights (Financial Trends)
+              // 2. Visual Insights (Financial Trends) - Moved Up
               _buildVisualAnalyticsSection(analytics, l10n),
               
               const SizedBox(height: 48),
               
-              // 3. Summary Receipt (Business Journal / Magazine)
+              // 3. Integrated Business Journal Receipt (Detailed Ledger)
               _buildSummarySection(context, analytics, l10n),
               
               const SizedBox(height: 48),
@@ -520,7 +515,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "GRAND TOTAL",
+                                  "최종 정산",
                                   style: ArtisanalTheme.note(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
@@ -600,29 +595,75 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
 
   Widget _buildReceiptDetailContent(AnalyticsData data, NumberFormat format, AppLocalizations l10n) {
     if (data.period == AnalyticsPeriod.day || data.period == AnalyticsPeriod.week) {
-      // Mini Ledger for Daily/Weekly
-      final txs = data.periodTransactions.whereType<BusinessTransaction>().take(3).toList();
+      // Integrated Ledger for Daily/Weekly
+      final txs = data.periodTransactions.whereType<BusinessTransaction>().take(8).toList();
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "RECENT LEDGER ENTRIES",
-            style: ArtisanalTheme.note(fontSize: 10, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "상세 장부 내역",
+                style: ArtisanalTheme.note(fontSize: 10, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
+              ),
+              Text(
+                "탭하여 수정/삭제",
+                style: ArtisanalTheme.note(fontSize: 8, color: ArtisanalTheme.ink.withValues(alpha: 0.2)),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           if (txs.isEmpty)
-            Text("No entries recorded.", style: ArtisanalTheme.hand(fontSize: 13, color: ArtisanalTheme.ink.withValues(alpha: 0.2)))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text("기록된 내역이 없습니다.", 
+                  style: ArtisanalTheme.hand(fontSize: 13, color: ArtisanalTheme.ink.withValues(alpha: 0.2))),
+              ),
+            )
           else
-            ...txs.map((tx) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(child: Text(tx.description, maxLines: 1, overflow: TextOverflow.ellipsis, style: ArtisanalTheme.hand(fontSize: 14))),
-                  Text("${tx.type == 'sale' ? '+' : '-'}${format.format(tx.amount)}", style: ArtisanalTheme.note(fontSize: 12)),
-                ],
+            ...txs.map((tx) => InkWell(
+              onTap: () => _showSalesSlip(context, type: tx.type, initialTransaction: tx),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(tx.description, 
+                            maxLines: 1, 
+                            overflow: TextOverflow.ellipsis, 
+                            style: ArtisanalTheme.hand(fontSize: 14, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink)),
+                          Text(DateFormat('HH:mm').format(tx.date), 
+                            style: ArtisanalTheme.note(fontSize: 9, color: ArtisanalTheme.ink.withValues(alpha: 0.3))),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      "${tx.type == 'sale' ? '+' : '-'}${format.format(tx.amount)}", 
+                      style: ArtisanalTheme.hand(
+                        fontSize: 15, 
+                        color: tx.type == 'sale' ? ArtisanalTheme.greenInk : Colors.red.shade700,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             )),
+          if (data.periodTransactions.length > 8) ...[
+             const SizedBox(height: 12),
+             Center(
+               child: Text(
+                 "외 ${data.periodTransactions.length - 8}개의 내역이 더 있습니다.",
+                 style: ArtisanalTheme.note(fontSize: 9, color: ArtisanalTheme.ink.withValues(alpha: 0.2)),
+               ),
+             ),
+          ],
         ],
       );
     } else {
@@ -631,16 +672,16 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "PERFORMANCE SUMMARY",
+            "실적 요약 보고",
             style: ArtisanalTheme.note(fontSize: 10, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
           ),
           const SizedBox(height: 16),
-          _buildSummaryRow("Top Selling Product", data.topItemName ?? "N/A"),
+          _buildSummaryRow("가장 많이 팔린 품목", data.topItemName ?? "없음"),
           const SizedBox(height: 8),
-          _buildSummaryRow("Primary Expense", data.topExpenseCategory ?? "N/A"),
+          _buildSummaryRow("주요 지출 카테고리", data.topExpenseCategory ?? "없음"),
           if (data.period == AnalyticsPeriod.month) ...[
             const SizedBox(height: 8),
-            _buildSummaryRow("Fixed Cost Ratio", "${(data.fixedCostRatio * 100).toStringAsFixed(1)}%"),
+            _buildSummaryRow("고정비 비중", "${(data.fixedCostRatio * 100).toStringAsFixed(1)}%"),
           ],
         ],
       );
@@ -752,7 +793,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
           style: ArtisanalTheme.lightTheme.textTheme.bodyLarge?.copyWith(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: isRevenue ? Colors.green.shade700 : Colors.red.shade700,
+            color: isRevenue ? ArtisanalTheme.greenInk : Colors.red.shade700,
           ),
         ),
       ],
@@ -767,7 +808,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
             context,
             label: '매출 기록',
             icon: Icons.add_circle,
-            color: ArtisanalTheme.primary,
+            color: ArtisanalTheme.greenInk,
             onPressed: () => _showSalesSlip(context, type: 'sale'),
           ),
         ),
@@ -821,137 +862,9 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     );
   }
 
-  Widget _buildTransactionLogSection(AnalyticsData data, AppLocalizations l10n) {
-    final currencyFormat = NumberFormat.currency(symbol: l10n.currencySymbol, decimalDigits: 0);
-    final recentTxs = data.periodTransactions.whereType<BusinessTransaction>().take(5).toList();
 
-    return ArtisanalCard(
-      title: l10n.recentPurchases,
-      rotation: -0.003,
-      tapeLabel: 'LOG',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (recentTxs.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Center(
-                child: Text(
-                  l10n.noPurchaseRecords,
-                  style: ArtisanalTheme.hand(color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
-                ),
-              ),
-            )
-          else ...[
-            ...recentTxs.map((tx) => _buildTransactionEntryVisual(context, tx, currencyFormat, l10n)),
-            if (data.periodTransactions.length > 5) ...[
-              const SizedBox(height: 16),
-              _dottedDivider(),
-              const SizedBox(height: 8),
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    // Future: Show full history
-                  },
-                  child: Text(
-                    l10n.history,
-                    style: ArtisanalTheme.hand(fontSize: 12, color: ArtisanalTheme.primary),
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ],
-      ),
-    );
-  }
 
-  Widget _buildTransactionEntryVisual(BuildContext context, BusinessTransaction tx, NumberFormat format, AppLocalizations l10n) {
-    final isSale = tx.type == 'sale';
-    return InkWell(
-      onTap: () => _showTransactionOptions(context, tx),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    tx.description,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: ArtisanalTheme.lightTheme.textTheme.bodyLarge?.copyWith(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    DateFormat('dd MMM HH:mm').format(tx.date),
-                    style: ArtisanalTheme.note(fontSize: 11, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              "${isSale ? '+' : '-'}${format.format(tx.amount)}",
-              style: ArtisanalTheme.hand(
-                fontSize: 18,
-                color: isSale ? Colors.green.shade700 : Colors.red.shade700,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showTransactionOptions(BuildContext context, BusinessTransaction tx) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              tx.description,
-              style: ArtisanalTheme.lightTheme.textTheme.displaySmall?.copyWith(fontSize: 18),
-            ),
-            const SizedBox(height: 24),
-            ListTile(
-              leading: const Icon(Icons.edit_outlined, color: ArtisanalTheme.primary),
-              title: Text('수정하기', style: ArtisanalTheme.hand()),
-              onTap: () {
-                Navigator.pop(context);
-                // Future: Show edit form
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: ArtisanalTheme.redInk),
-              title: Text('삭제하기', style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk)),
-              onTap: () {
-                ref.read(transactionProvider.notifier).deleteTransaction(tx.id);
-                Navigator.pop(context);
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showSalesSlip(BuildContext context, {String type = 'sale'}) {
+  void _showSalesSlip(BuildContext context, {String type = 'sale', BusinessTransaction? initialTransaction}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -960,7 +873,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: SalesSlipSheet(type: type),
+        child: SalesSlipSheet(type: type, initialTransaction: initialTransaction),
       ),
     );
   }
