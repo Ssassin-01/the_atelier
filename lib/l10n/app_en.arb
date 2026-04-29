@@ -309,5 +309,12 @@
     }
   },
   "gallery": "Gallery",
-  "camera": "Camera"
+  "camera": "Camera",
+  "masterLedgerArchive": "Master Ledger Archive",
+  "tapToModifyOrDelete": "Tap an entry to edit or delete",
+  "revenue": "Revenue",
+  "expense": "Expense",
+  "balance": "Balance",
+  "entriesRecordedLabel": "ENTRIES RECORDED",
+  "noEntriesOnSelectedDate": "No records found for the selected date."
 }

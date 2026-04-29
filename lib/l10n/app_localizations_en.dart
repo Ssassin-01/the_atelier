@@ -894,4 +894,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get camera => 'Camera';
+
+  @override
+  String get masterLedgerArchive => 'Master Ledger Archive';
+
+  @override
+  String get tapToModifyOrDelete => 'Tap an entry to edit or delete';
+
+  @override
+  String get revenue => 'Revenue';
+
+  @override
+  String get expense => 'Expense';
+
+  @override
+  String get balance => 'Balance';
+
+  @override
+  String get entriesRecordedLabel => 'ENTRIES RECORDED';
+
+  @override
+  String get noEntriesOnSelectedDate =>
+      'No records found for the selected date.';
 }

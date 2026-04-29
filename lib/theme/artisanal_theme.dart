@@ -107,4 +107,23 @@ class ArtisanalTheme {
       color: color,
     );
   }
+
+  // Receipt helper: Monospace for that "thermal printer" look
+  static TextStyle receipt({
+    double fontSize = 14,
+    Color color = ink,
+    FontWeight? fontWeight,
+    double? letterSpacing,
+    double? height,
+    TextDecoration? decoration,
+  }) {
+    return GoogleFonts.nanumGothicCoding(
+      fontSize: fontSize,
+      fontWeight: fontWeight ?? FontWeight.w400,
+      color: color,
+      letterSpacing: letterSpacing,
+      height: height,
+      decoration: decoration,
+    );
+  }
 }

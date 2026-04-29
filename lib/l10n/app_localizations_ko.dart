@@ -879,4 +879,25 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get camera => '카메라';
+
+  @override
+  String get masterLedgerArchive => '마스터 장부 보관소';
+
+  @override
+  String get tapToModifyOrDelete => '항목을 탭하여 수정하거나 삭제할 수 있습니다';
+
+  @override
+  String get revenue => '수입';
+
+  @override
+  String get expense => '지출';
+
+  @override
+  String get balance => '잔고';
+
+  @override
+  String get entriesRecordedLabel => '개의 기록이 등록됨';
+
+  @override
+  String get noEntriesOnSelectedDate => '선택한 날짜의 기록이 없습니다.';
 }

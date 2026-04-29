@@ -239,9 +239,9 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                       // Table Header
                       Row(
                         children: [
-                          Expanded(flex: 4, child: Text(l10n.description.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 14, color: Colors.black38))),
-                          Expanded(flex: 1, child: Text(l10n.quantity.toUpperCase(), textAlign: TextAlign.center, style: ArtisanalTheme.hand(fontSize: 14, color: Colors.black38))),
-                          Expanded(flex: 2, child: Text(l10n.price.toUpperCase(), textAlign: TextAlign.right, style: ArtisanalTheme.hand(fontSize: 14, color: Colors.black38))),
+                          Expanded(flex: 4, child: Text(l10n.description.toUpperCase(), style: ArtisanalTheme.receipt(fontSize: 11, color: Colors.black38, fontWeight: FontWeight.bold))),
+                          Expanded(flex: 1, child: Text(l10n.quantity.toUpperCase(), textAlign: TextAlign.center, style: ArtisanalTheme.receipt(fontSize: 11, color: Colors.black38, fontWeight: FontWeight.bold))),
+                          Expanded(flex: 2, child: Text(l10n.price.toUpperCase(), textAlign: TextAlign.right, style: ArtisanalTheme.receipt(fontSize: 11, color: Colors.black38, fontWeight: FontWeight.bold))),
                           const SizedBox(width: 40),
                         ],
                       ),
@@ -273,11 +273,11 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(l10n.totalAmount, style: ArtisanalTheme.hand(fontSize: 20, fontWeight: FontWeight.bold)),
+                          Text(l10n.totalAmount, style: ArtisanalTheme.receipt(fontSize: 16, fontWeight: FontWeight.bold)),
                           Text(
                             "${_currentType == 'sale' ? '+' : '-'}${currencyFormat.format(total)}", 
-                            style: ArtisanalTheme.hand(
-                              fontSize: 24, 
+                            style: ArtisanalTheme.receipt(
+                              fontSize: 20, 
                               fontWeight: FontWeight.bold, 
                               color: _currentType == 'sale' ? ArtisanalTheme.greenInk : Colors.red.shade700
                             )
@@ -355,7 +355,7 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
             ),
             Text(
               dateStr,
-              style: ArtisanalTheme.hand(fontSize: 16, color: ArtisanalTheme.redInk.withValues(alpha: 0.7), fontWeight: FontWeight.bold),
+              style: ArtisanalTheme.receipt(fontSize: 14, color: ArtisanalTheme.redInk.withValues(alpha: 0.7), fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -413,7 +413,7 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                             isDense: true,
                             contentPadding: const EdgeInsets.only(bottom: 2),
                           ),
-                          style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink),
+                          style: ArtisanalTheme.receipt(fontSize: 14, color: ArtisanalTheme.ink),
                           onChanged: (val) {
                             entry.descriptionController.text = val;
                           },
@@ -440,7 +440,7 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                               final option = options.elementAt(index);
                               return ListTile(
                                 dense: true,
-                                title: Text(option.name, style: ArtisanalTheme.hand(fontSize: 16)),
+                                title: Text(option.name, style: ArtisanalTheme.receipt(fontSize: 14)),
                                 onTap: () => onSelected(option),
                               );
                             },
@@ -475,7 +475,7 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                       ),
-                      style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink, fontWeight: FontWeight.bold),
+                      style: ArtisanalTheme.receipt(fontSize: 14, color: ArtisanalTheme.ink, fontWeight: FontWeight.bold),
                       onChanged: (_) => setState(() {}),
                     ),
                   ),
@@ -504,7 +504,7 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                         isDense: true,
                         contentPadding: const EdgeInsets.only(bottom: 2),
                       ),
-                      style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink),
+                      style: ArtisanalTheme.receipt(fontSize: 14, color: ArtisanalTheme.ink),
                       onChanged: (_) => setState(() {}),
                     ),
                     Container(height: 1, color: ArtisanalTheme.ink.withValues(alpha: 0.05)),

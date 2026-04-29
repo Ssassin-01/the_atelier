@@ -1807,6 +1807,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Camera'**
   String get camera;
+
+  /// No description provided for @masterLedgerArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Master Ledger Archive'**
+  String get masterLedgerArchive;
+
+  /// No description provided for @tapToModifyOrDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap an entry to edit or delete'**
+  String get tapToModifyOrDelete;
+
+  /// No description provided for @revenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue'**
+  String get revenue;
+
+  /// No description provided for @expense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get expense;
+
+  /// No description provided for @balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balance;
+
+  /// No description provided for @entriesRecordedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ENTRIES RECORDED'**
+  String get entriesRecordedLabel;
+
+  /// No description provided for @noEntriesOnSelectedDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No records found for the selected date.'**
+  String get noEntriesOnSelectedDate;
 }
 
 class _AppLocalizationsDelegate
