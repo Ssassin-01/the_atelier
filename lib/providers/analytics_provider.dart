@@ -105,14 +105,20 @@ class AnalyticsData {
   }
 }
 
-final analyticsPeriodProvider = StateProvider<AnalyticsPeriod>((ref) => AnalyticsPeriod.day);
+final analyticsPeriodProvider = StateProvider<AnalyticsPeriod>((ref) => AnalyticsPeriod.week);
+final weeklyBaseDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+final monthlyBaseDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
 
 final analyticsProvider = Provider<AnalyticsData>((ref) {
   final transactions = ref.watch(transactionProvider);
   final pantryItems = ref.watch(pantryProvider);
   final period = ref.watch(analyticsPeriodProvider);
+  
+  final baseDate = period == AnalyticsPeriod.month 
+      ? ref.watch(monthlyBaseDateProvider) 
+      : ref.watch(weeklyBaseDateProvider);
 
-  final now = DateTime.now();
+  final now = baseDate;
   final Map<String, double> salesMap = {};
   final Map<String, double> expensesMap = {};
   final List<String> dates = [];
@@ -156,8 +162,7 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
       label = labelFormat.format(date);
     } else if (period == AnalyticsPeriod.week) {
       DateTime weekStart = startDate.add(Duration(days: i * 7));
-      DateTime weekEnd = weekStart.add(const Duration(days: 6));
-      label = "${DateFormat('MM.dd').format(weekStart)}~${DateFormat('dd').format(weekEnd)}";
+      label = DateFormat('M/d').format(weekStart); // Simplified label e.g., "4/6"
     } else if (period == AnalyticsPeriod.month) {
       date = DateTime(startDate.year, startDate.month + i, 1);
       label = labelFormat.format(date);
@@ -181,8 +186,7 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
         final weekIdx = (daysDiff / 7).floor();
         if (weekIdx < steps) {
           DateTime wStart = startDate.add(Duration(days: weekIdx * 7));
-          DateTime wEnd = wStart.add(const Duration(days: 6));
-          label = "${DateFormat('MM.dd').format(wStart)}~${DateFormat('dd').format(wEnd)}";
+          label = DateFormat('M/d').format(wStart);
         }
       }
     } else if (period == AnalyticsPeriod.month) {

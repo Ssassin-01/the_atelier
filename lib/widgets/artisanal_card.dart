@@ -5,6 +5,7 @@ import 'masking_tape.dart';
 class ArtisanalCard extends StatelessWidget {
   final String title;
   final Widget child;
+  final Widget? action; // New optional action widget
   final double rotation;
   final String? tapeLabel;
   final Color? tapeColor;
@@ -13,6 +14,7 @@ class ArtisanalCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.child,
+    this.action,
     this.rotation = 0,
     this.tapeLabel,
     this.tapeColor = const Color(0xFFEEE7D1),
@@ -46,14 +48,20 @@ class ArtisanalCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title.toUpperCase(),
-                  style: ArtisanalTheme.hand(
-                    fontSize: 14,
-                    letterSpacing: 1.2,
-                    fontWeight: FontWeight.bold,
-                    color: ArtisanalTheme.primary.withValues(alpha: 0.7),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title.toUpperCase(),
+                      style: ArtisanalTheme.hand(
+                        fontSize: 14,
+                        letterSpacing: 1.2,
+                        fontWeight: FontWeight.bold,
+                        color: ArtisanalTheme.primary.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    if (action != null) action!,
+                  ],
                 ),
                 const SizedBox(height: 4),
                 Container(

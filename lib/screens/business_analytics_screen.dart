@@ -28,8 +28,30 @@ class BusinessAnalyticsScreen extends ConsumerStatefulWidget {
 
 class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScreen> {
   int _activeChartIndex = 0; // 0: Financial, 1: Inventory
+  int _activeInsightPage = 0; // 0: Charts, 1: Receipt Summary
+  late PageController _insightPageController;
+  double _currentPage = 0.0;
 
   @override
+  void initState() {
+    super.initState();
+    _insightPageController = PageController(
+      initialPage: 0,
+      viewportFraction: 1.0,
+    )..addListener(() {
+      if (_insightPageController.hasClients) {
+        setState(() {
+          _currentPage = _insightPageController.page ?? 0.0;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _insightPageController.dispose();
+    super.dispose();
+  }
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final analytics = ref.watch(analyticsProvider);
@@ -93,15 +115,29 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
               
               const SizedBox(height: 32),
               
-              // 2. Visual Insights (Financial Trends) - Moved Up
-              _buildVisualAnalyticsSection(analytics, l10n),
+              // 2. Insight Header / Indicator
+              _buildInsightNavigator(l10n),
               
-              const SizedBox(height: 48),
+              const SizedBox(height: 16),
+
+              // 3. Horizontal Deck (Charts & Receipt)
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                height: _activeInsightPage == 0 ? 800 : 1250, // Increased heights to prevent overflow
+                child: PageView(
+                  controller: _insightPageController,
+                  clipBehavior: Clip.none, 
+                  physics: const BouncingScrollPhysics(),
+                  onPageChanged: (idx) => setState(() => _activeInsightPage = idx),
+                  children: [
+                    _buildAnimatedPage(0, analytics, l10n),
+                    _buildAnimatedPage(1, analytics, l10n),
+                  ],
+                ),
+              ),
               
-              // 3. Integrated Business Journal Receipt (Detailed Ledger)
-              _buildSummarySection(context, analytics, l10n),
-              
-              const SizedBox(height: 48),
+              const SizedBox(height: 32),
               
               _buildInsightSection(analytics.getInsight()),
             ],
@@ -111,9 +147,89 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     );
   }
 
+  Widget _buildAnimatedPage(int index, AnalyticsData analytics, AppLocalizations l10n) {
+    // Calculate the relative position of the page (-1.0 to 1.0)
+    double relativePos = index - _currentPage;
+    
+    // Smooth interpolation values
+    double scale = 1.0 - (relativePos.abs() * 0.15).clamp(0.0, 0.15);
+    double opacity = 1.0 - (relativePos.abs() * 0.5).clamp(0.0, 0.5);
+    double rotation = (relativePos * 0.1).clamp(-0.1, 0.1); // Tilt effect
+    double translation = relativePos * 50; // Slight parallax
+
+    return Transform(
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.001) // Perspective
+        ..translate(translation)
+        ..scale(scale)
+        ..rotateY(rotation),
+      alignment: relativePos > 0 ? Alignment.centerLeft : Alignment.centerRight,
+      child: Opacity(
+        opacity: opacity,
+        child: Padding(
+          padding: EdgeInsets.only(top: index == 0 ? 24 : 10),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: index == 0 
+                  ? _buildVisualAnalyticsSection(analytics, l10n)
+                  : _buildSummarySection(context, analytics, l10n),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInsightNavigator(AppLocalizations l10n) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildInsightTab(0, l10n.trends),
+        const SizedBox(width: 24),
+        _buildInsightTab(1, l10n.businessJournalTitle),
+      ],
+    );
+  }
+
+  Widget _buildInsightTab(int index, String label) {
+    final isSelected = _activeInsightPage == index;
+    return GestureDetector(
+      onTap: () {
+        _insightPageController.animateToPage(
+          index,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      },
+      child: Column(
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: ArtisanalTheme.receipt(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.ink.withValues(alpha: 0.2),
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: 2,
+            width: isSelected ? 40 : 0,
+            color: ArtisanalTheme.primary,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildVisualAnalyticsSection(AnalyticsData analytics, AppLocalizations l10n) {
     return ArtisanalCard(
       title: _activeChartIndex == 0 ? l10n.financialTrends : l10n.inventoryDistribution,
+      action: _activeChartIndex == 0 ? _buildDateNavigator(ref, l10n) : null,
       rotation: 0.005,
       tapeLabel: l10n.analytics.toUpperCase(),
       child: Column(
@@ -161,8 +277,6 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
 
   Widget _buildPeriodSpecificInsight(AnalyticsData data, AppLocalizations l10n) {
     switch (data.period) {
-      case AnalyticsPeriod.day:
-        return HourlyPatternChart(key: const ValueKey('daily-insight'), hourlySales: data.hourlySales);
       case AnalyticsPeriod.week:
         return WeeklyDistributionChart(key: const ValueKey('weekly-insight'), weekdaySales: data.weekdaySales);
       case AnalyticsPeriod.month:
@@ -174,25 +288,8 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
             PopularItemsList(items: data.topSellingItems),
           ],
         );
-      case AnalyticsPeriod.year:
-        return Column(
-          key: const ValueKey('yearly-insight'),
-          children: [
-            Text(
-              "올해의 베스트 어워즈",
-              style: ArtisanalTheme.note(fontSize: 12, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink.withValues(alpha: 0.5)),
-            ),
-            const SizedBox(height: 24),
-            PopularItemsList(items: data.topSellingItems),
-            const SizedBox(height: 32),
-            Text(
-              "연간 성장 리포트",
-              style: ArtisanalTheme.note(fontSize: 12, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink.withValues(alpha: 0.5)),
-            ),
-            const SizedBox(height: 16),
-            const FinancialTrendChart(), // Reuse trend chart but it adapts to year
-          ],
-        );
+      default:
+        return const SizedBox.shrink();
     }
   }
 
@@ -260,21 +357,15 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        children: AnalyticsPeriod.values.map((p) {
+        children: [AnalyticsPeriod.week, AnalyticsPeriod.month].map((p) {
           final isSelected = currentPeriod == p;
-          String label;
-          switch (p) {
-            case AnalyticsPeriod.day: label = l10n.daily; break; // Ensure these exist in l10n
-            case AnalyticsPeriod.week: label = l10n.weekly; break;
-            case AnalyticsPeriod.month: label = l10n.monthly; break;
-            case AnalyticsPeriod.year: label = l10n.yearly; break;
-          }
+          String label = p == AnalyticsPeriod.week ? l10n.weekly : l10n.monthly;
           
           return Expanded(
             child: GestureDetector(
               onTap: () => ref.read(analyticsPeriodProvider.notifier).state = p,
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   color: isSelected ? ArtisanalTheme.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
@@ -283,7 +374,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                   child: Text(
                     label.toUpperCase(),
                     style: ArtisanalTheme.hand(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       color: isSelected ? Colors.white : ArtisanalTheme.primary.withValues(alpha: 0.6),
                     ),
@@ -297,50 +388,140 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     );
   }
 
+  Widget _buildDateNavigator(WidgetRef ref, AppLocalizations l10n) {
+    final currentPeriod = ref.watch(analyticsPeriodProvider);
+    final baseDate = currentPeriod == AnalyticsPeriod.month 
+        ? ref.watch(monthlyBaseDateProvider) 
+        : ref.watch(weeklyBaseDateProvider);
+    
+    final baseDateNotifier = currentPeriod == AnalyticsPeriod.month 
+        ? ref.read(monthlyBaseDateProvider.notifier) 
+        : ref.read(weeklyBaseDateProvider.notifier);
+    
+    String periodText = "";
+    if (currentPeriod == AnalyticsPeriod.week) {
+      final start = baseDate.subtract(Duration(days: baseDate.weekday - 1));
+      periodText = DateFormat('M/d').format(start);
+    } else {
+      periodText = DateFormat('yy.MM').format(baseDate);
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildNavButton(
+          Icons.chevron_left_rounded,
+          () {
+            final next = currentPeriod == AnalyticsPeriod.week
+                ? baseDate.subtract(const Duration(days: 7))
+                : DateTime(baseDate.year, baseDate.month - 1, 1);
+            baseDateNotifier.state = next;
+          },
+        ),
+        const SizedBox(width: 8),
+        Text(
+          periodText,
+          style: ArtisanalTheme.receipt(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: ArtisanalTheme.ink,
+          ),
+        ),
+        const SizedBox(width: 8),
+        _buildNavButton(
+          Icons.chevron_right_rounded,
+          () {
+            final next = currentPeriod == AnalyticsPeriod.week
+                ? baseDate.add(const Duration(days: 7))
+                : DateTime(baseDate.year, baseDate.month + 1, 1);
+            baseDateNotifier.state = next;
+          },
+        ),
+        const SizedBox(width: 4),
+        IconButton(
+          icon: const Icon(Icons.history_rounded, size: 14, color: ArtisanalTheme.primary),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          onPressed: () => baseDateNotifier.state = DateTime.now(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNavButton(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 20, color: ArtisanalTheme.ink),
+      ),
+    );
+  }
+
   Widget _buildInsightSection(String insight) {
     return Transform.rotate(
-      angle: 0.02,
+      angle: -0.015,
       child: Center(
         child: Container(
           width: double.infinity,
-          constraints: const BoxConstraints(maxWidth: 380),
-          padding: const EdgeInsets.all(20),
+          constraints: const BoxConstraints(maxWidth: 360),
+          padding: const EdgeInsets.fromLTRB(28, 32, 28, 32),
           decoration: BoxDecoration(
-            color: const Color(0xFFFEF9E7), // Sticky note yellow
+            color: const Color(0xFFFFF9C4), // Slightly warmer yellow
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(2, 4),
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 15,
+                offset: const Offset(2, 6),
               ),
             ],
-            // A bit of paper edge effect
             borderRadius: BorderRadius.circular(2),
+            image: const DecorationImage(
+              image: NetworkImage('https://www.transparenttextures.com/patterns/handmade-paper.png'),
+              opacity: 0.2,
+              repeat: ImageRepeat.repeat,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                   const Icon(Icons.edit_note, size: 18, color: Colors.brown),
-                   const SizedBox(width: 8),
-                   Text(
-                     "ARTISAN'S LOG",
-                     style: ArtisanalTheme.note(
-                       fontSize: 12,
-                       fontWeight: FontWeight.bold,
-                       color: Colors.brown.withValues(alpha: 0.6),
-                     ),
-                   ),
+                  Icon(Icons.auto_fix_high, size: 16, color: Colors.brown.shade400),
+                  const SizedBox(width: 8),
+                  Text(
+                    "ARTISAN'S INSIGHT",
+                    style: ArtisanalTheme.receipt(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.brown.withValues(alpha: 0.4),
+                      letterSpacing: 1.5,
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Text(
                 insight,
                 style: ArtisanalTheme.hand(
-                  fontSize: 15,
-                  height: 1.5,
-                  color: Colors.brown.shade800,
+                  fontSize: 16,
+                  height: 1.6,
+                  color: Colors.brown.shade900,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Text(
+                  DateFormat('yyyy. MM. dd').format(DateTime.now()),
+                  style: ArtisanalTheme.receipt(
+                    fontSize: 8,
+                    color: Colors.brown.withValues(alpha: 0.3),
+                  ),
                 ),
               ),
             ],
@@ -355,13 +536,6 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     IconData icon = Icons.auto_awesome;
     
     switch (data.period) {
-      case AnalyticsPeriod.day:
-        final hour = data.busiestHour;
-        highlightText = hour != null 
-          ? "오늘 오후 ${hour > 12 ? hour - 12 : hour}시경이 가장 활기찼습니다."
-          : "차분한 하루였습니다. 연구에 집중하기 좋았네요.";
-        icon = Icons.access_time;
-        break;
       case AnalyticsPeriod.week:
         final dayNum = data.busiestDay;
         final days = ['월', '화', '수', '목', '금', '토', '일'];
@@ -377,12 +551,8 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
           : "이달은 새로운 시도가 많았던 시기였네요.";
         icon = Icons.star_border;
         break;
-      case AnalyticsPeriod.year:
-        final growth = data.salesChange;
-        highlightText = growth > 0
-          ? "작년보다 ${(growth * 100).toStringAsFixed(1)}% 성장했습니다. 장인의 땀방울이 맺힌 결과네요."
-          : "내실을 다지는 한 해였습니다. 내년의 도약이 기대됩니다.";
-        icon = Icons.trending_up;
+      default:
+        highlightText = "데이터를 분석 중입니다...";
         break;
     }
 
