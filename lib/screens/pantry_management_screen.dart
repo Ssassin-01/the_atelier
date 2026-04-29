@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
-import 'dart:io';
-import 'dart:ui' as ui;
-import 'package:flutter/rendering.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import '../theme/artisanal_theme.dart';
 import '../providers/pantry_provider.dart';
 import '../providers/transaction_provider.dart';
@@ -18,7 +12,6 @@ import '../widgets/pantry/inventory_tag.dart';
 import '../widgets/pantry/pantry_dashboard.dart';
 import '../widgets/staggered_drop_animation.dart';
 import '../services/pantry_report_service.dart';
-import '../widgets/sketch_area.dart';
 import '../providers/category_icons_provider.dart';
 
 class PantryManagementScreen extends ConsumerStatefulWidget {
@@ -37,7 +30,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -381,7 +373,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.78,
+        childAspectRatio: 1.1,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -409,89 +401,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     );
   }
 
-  Widget _buildIngredientImage(WidgetRef ref, String name, String category, [String? customImageUrl]) {
-    // Priority 1: User's custom image
-    if (customImageUrl != null && customImageUrl.isNotEmpty) {
-      if (customImageUrl.startsWith('http')) {
-        return Image.network(customImageUrl, fit: BoxFit.cover);
-      } else {
-        final file = File(customImageUrl);
-        if (file.existsSync()) {
-          return Image.file(file, fit: BoxFit.cover);
-        }
-      }
-    }
 
-    String assetPath = 'assets/images/categories/others.png';
-    final lowerName = name.toLowerCase();
-
-    // Priority 2: Name-based mapping
-    if (lowerName.contains('flour') || lowerName.contains('밀가루') || lowerName.contains('강력') || lowerName.contains('박력')) {
-      assetPath = 'assets/images/categories/flour.png';
-    } else if (lowerName.contains('salt') || lowerName.contains('소금')) {
-      assetPath = 'assets/images/categories/others.png';
-    } else if (lowerName.contains('butter') || lowerName.contains('버터')) {
-      assetPath = 'assets/images/categories/dairy_eggs.png';
-    } else if (lowerName.contains('sugar') || lowerName.contains('설탕')) {
-      assetPath = 'assets/images/categories/sweetener.png';
-    } else {
-      // Priority 3: Category-level custom icons
-      final categoryIcons = ref.watch(categoryIconsProvider);
-      if (categoryIcons.containsKey(category)) {
-        final catPath = categoryIcons[category]!;
-        if (catPath.startsWith('http')) {
-          return Image.network(catPath, fit: BoxFit.cover);
-        } else if (catPath.startsWith('assets/')) {
-          return Image.asset(catPath, fit: BoxFit.cover);
-        } else {
-          final file = File(catPath);
-          if (file.existsSync()) {
-            return Image.file(file, fit: BoxFit.cover);
-          }
-        }
-      }
-
-      // Priority 4: Category-based hardcoded defaults
-      switch (category) {
-        case 'Flour': assetPath = 'assets/images/categories/flour.png'; break;
-        case 'Dairy/Eggs': assetPath = 'assets/images/categories/dairy_eggs.png'; break;
-        case 'Sweetener': assetPath = 'assets/images/categories/sweetener.png'; break;
-        case 'Leavening': assetPath = 'assets/images/categories/leavening.png'; break;
-        case 'Add-in': assetPath = 'assets/images/categories/addin.png'; break;
-        default: assetPath = 'assets/images/categories/others.png'; break;
-      }
-    }
-
-    return Image.asset(assetPath, fit: BoxFit.cover);
-  }
-
-  Widget _buildDefaultIconPicker(BuildContext context, String label, String assetPath) {
-    return GestureDetector(
-      onTap: () => Navigator.pop(context, assetPath),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.1)),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2)),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(assetPath, fit: BoxFit.cover),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(label.toUpperCase(), style: ArtisanalTheme.note(fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-        ],
-      ),
-    );
-  }
 
   void _showRestockSheet(PantryItem item, AppLocalizations l10n) {
     final qtyController = TextEditingController();
@@ -555,17 +465,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                           const SizedBox(height: 2),
                           Text(l10n.restockIngredient(item.name), style: ArtisanalTheme.note(fontSize: 14, color: ArtisanalTheme.secondary.withValues(alpha: 0.7))),
                         ],
-                      ),
-                    ),
-                    Opacity(
-                      opacity: 0.8,
-                      child: SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: _buildIngredientImage(ref, item.name, item.category, item.imageUrl),
-                        ),
                       ),
                     ),
                   ],
@@ -665,91 +564,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     );
   }
 
-  Future<String?> _pickImage(ImageSource source) async {
-    try {
-      final XFile? photo = await _picker.pickImage(
-        source: source,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 80,
-      );
-      if (photo == null) return null;
-
-      final Directory appDir = await getApplicationDocumentsDirectory();
-      final String fileName = 'pantry_${DateTime.now().millisecondsSinceEpoch}${p.extension(photo.path)}';
-      final String localPath = p.join(appDir.path, fileName);
-
-      final File newImage = await File(photo.path).copy(localPath);
-      return newImage.path;
-    } catch (e) {
-      debugPrint("Error picking image: $e");
-      return null;
-    }
-  }
-
-  Future<String?> _showSketchDialog(AppLocalizations l10n) async {
-    if (!mounted) return null;
-    final boundaryKey = GlobalKey();
-    
-    // Ensure we are using the context safely
-    final result = await showDialog<String?>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFFFDFCFB),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        contentPadding: const EdgeInsets.all(16),
-        title: Text(l10n.sketch.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 20, fontWeight: FontWeight.bold)),
-        content: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.9,
-          height: 400,
-          child: SketchArea(canvasKey: boundaryKey),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel.toUpperCase(), style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final path = await _saveSketch(boundaryKey);
-              Navigator.pop(context, path);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ArtisanalTheme.ink,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: Text(l10n.saveChanges.toUpperCase(), style: ArtisanalTheme.hand(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-    return result;
-  }
-
-  Future<String?> _saveSketch(GlobalKey boundaryKey) async {
-    try {
-      final boundary = boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) return null;
-      
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return null;
-      
-      final buffer = byteData.buffer.asUint8List();
-      final Directory appDir = await getApplicationDocumentsDirectory();
-      final String fileName = 'sketch_${DateTime.now().millisecondsSinceEpoch}.png';
-      final String localPath = p.join(appDir.path, fileName);
-      
-      final file = File(localPath);
-      await file.writeAsBytes(buffer);
-      return file.path;
-    } catch (e) {
-      debugPrint("Error saving sketch: $e");
-      return null;
-    }
-  }
-
   void _showAddEditSheet(AppLocalizations l10n, [PantryItem? item]) {
     final nameController = TextEditingController(text: item?.name ?? '');
     final priceController = TextEditingController(text: item?.purchasePrice.toString() ?? '');
@@ -761,7 +575,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
 
     final categoryNotifier = ValueNotifier<String>(item?.category ?? (activeCategories.contains('Flour') ? 'Flour' : activeCategories.first));
     final unitNotifier = ValueNotifier<String>(item?.unit ?? 'g');
-    final imagePathNotifier = ValueNotifier<String?>(item?.imageUrl);
 
     showModalBottomSheet(
       context: context,
@@ -812,144 +625,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                   style: ArtisanalTheme.hand(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
               const SizedBox(height: 12),
               
-              ValueListenableBuilder<String?>(
-                valueListenable: imagePathNotifier,
-                builder: (context, path, _) => Center(
-                  child: GestureDetector(
-                    onTap: () async {
-                      final source = await showModalBottomSheet<dynamic>(
-                        context: context,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFDFCFB),
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: ArtisanalTheme.primary.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              ListTile(
-                                leading: const Icon(Icons.photo_library_outlined, color: ArtisanalTheme.ink),
-                                title: Text(l10n.gallery, style: ArtisanalTheme.hand(fontSize: 18)),
-                                onTap: () => Navigator.pop(context, ImageSource.gallery),
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.camera_alt_outlined, color: ArtisanalTheme.ink),
-                                title: Text(l10n.camera, style: ArtisanalTheme.hand(fontSize: 18)),
-                                onTap: () => Navigator.pop(context, ImageSource.camera),
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.palette_outlined, color: ArtisanalTheme.ink),
-                                title: Text(l10n.sketch, style: ArtisanalTheme.hand(fontSize: 18)),
-                                onTap: () => Navigator.pop(context, 'sketch'),
-                              ),
-                              if (path != null) 
-                                ListTile(
-                                  leading: const Icon(Icons.refresh, color: ArtisanalTheme.redInk),
-                                  title: Text("RESTORE DEFAULT", style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.redInk)),
-                                  onTap: () => Navigator.pop(context, 'reset'),
-                                ),
-                              const SizedBox(height: 12),
-                            ],
-                          ),
-                        ),
-                      );
-                        if (source != null) {
-                          String? newPath;
-                          if (source == 'sketch') {
-                            newPath = await _showSketchDialog(l10n);
-                          } else if (source == 'reset') {
-                            imagePathNotifier.value = null;
-                            return;
-                          } else if (source is ImageSource) {
-                            newPath = await _pickImage(source);
-                          }
-                          
-                          if (newPath != null) {
-                            imagePathNotifier.value = newPath;
-                          }
-                        }
-                    },
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 140,
-                          height: 110,
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(2),
-                                  child: _buildIngredientImage(ref, nameController.text, categoryNotifier.value, path),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Container(
-                                width: 20,
-                                height: 1,
-                                color: ArtisanalTheme.secondary.withValues(alpha: 0.1),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          right: -4,
-                          bottom: -4,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: ArtisanalTheme.ink,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                            child: const Icon(Icons.add_a_photo, color: Colors.white, size: 16),
-                          ),
-                        ),
-                        if (path != null)
-                          Positioned(
-                            left: -4,
-                            top: -4,
-                            child: GestureDetector(
-                              onTap: () => imagePathNotifier.value = null,
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: ArtisanalTheme.redInk,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                ),
-                                child: const Icon(Icons.close, color: Colors.white, size: 14),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
               
               Flexible(
                 child: SingleChildScrollView(
@@ -993,18 +669,16 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                               )
                                             ] : null,
                                           ),
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(10),
-                                            child: Stack(
-                                              fit: StackFit.expand,
-                                              children: [
-                                                _buildIngredientImage(ref, '', cat.$1),
-                                                if (isSelected)
-                                                  Container(
-                                                    color: ArtisanalTheme.primary.withValues(alpha: 0.2),
-                                                    child: const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                                                  ),
-                                              ],
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: isSelected ? ArtisanalTheme.primary.withValues(alpha: 0.1) : ArtisanalTheme.background,
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: Center(
+                                              child: Icon(
+                                                Icons.category_outlined,
+                                                color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.secondary.withValues(alpha: 0.3),
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -1065,7 +739,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                               unit: unitNotifier.value,
                               purchasePrice: double.tryParse(priceController.text) ?? 0,
                               lastUpdated: DateTime.now(),
-                              imageUrl: imagePathNotifier.value,
+                              imageUrl: '',
                             );
                             if (item == null) {
                               ref.read(pantryProvider.notifier).addItem(newItem);
@@ -1156,127 +830,15 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                         
                         return ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: GestureDetector(
-                            onTap: () async {
-                              final source = await showModalBottomSheet<dynamic>(
-                                context: context,
-                                backgroundColor: Colors.transparent,
-                                builder: (context) => Container(
-                                  padding: const EdgeInsets.all(24),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFFFDFCFB),
-                                    borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(l10n.selectSource.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 18, fontWeight: FontWeight.bold)),
-                                      const SizedBox(height: 16),
-                                      ListTile(
-                                        leading: const Icon(Icons.photo_library_outlined, color: ArtisanalTheme.ink),
-                                        title: Text(l10n.gallery, style: ArtisanalTheme.hand(fontSize: 18)),
-                                        onTap: () => Navigator.pop(context, ImageSource.gallery),
-                                      ),
-                                      ListTile(
-                                        leading: const Icon(Icons.camera_alt_outlined, color: ArtisanalTheme.ink),
-                                        title: Text(l10n.camera, style: ArtisanalTheme.hand(fontSize: 18)),
-                                        onTap: () => Navigator.pop(context, ImageSource.camera),
-                                      ),
-                                      ListTile(
-                                        leading: const Icon(Icons.edit_outlined, color: ArtisanalTheme.ink),
-                                        title: Text(l10n.sketch, style: ArtisanalTheme.hand(fontSize: 18)),
-                                        onTap: () => Navigator.pop(context, 'sketch'),
-                                      ),
-                                      ListTile(
-                                        leading: const Icon(Icons.auto_awesome_outlined, color: ArtisanalTheme.primary),
-                                        title: Text(l10n.restoreDefault.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.primary)),
-                                        onTap: () async {
-                                          final selectedAsset = await showModalBottomSheet<String>(
-                                            context: context,
-                                            backgroundColor: Colors.transparent,
-                                            builder: (context) => Container(
-                                              padding: const EdgeInsets.all(24),
-                                              decoration: const BoxDecoration(
-                                                color: Color(0xFFFDFCFB),
-                                                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                                              ),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Text("CHOOSE ARTISANAL DEFAULT", style: ArtisanalTheme.hand(fontSize: 18, fontWeight: FontWeight.bold)),
-                                                  const SizedBox(height: 20),
-                                                  GridView.count(
-                                                    shrinkWrap: true,
-                                                    crossAxisCount: 3,
-                                                    mainAxisSpacing: 12,
-                                                    crossAxisSpacing: 12,
-                                                    children: [
-                                                      _buildDefaultIconPicker(context, 'Flour', 'assets/images/categories/flour.png'),
-                                                      _buildDefaultIconPicker(context, 'Dairy', 'assets/images/categories/dairy_eggs.png'),
-                                                      _buildDefaultIconPicker(context, 'Sugar', 'assets/images/categories/sweetener.png'),
-                                                      _buildDefaultIconPicker(context, 'Yeast', 'assets/images/categories/leavening.png'),
-                                                      _buildDefaultIconPicker(context, 'Ad-in', 'assets/images/categories/addin.png'),
-                                                      _buildDefaultIconPicker(context, 'Other', 'assets/images/categories/others.png'),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 24),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                          if (selectedAsset != null) {
-                                            await ref.read(categoryIconsProvider.notifier).setIcon(c, selectedAsset);
-                                            if (context.mounted) Navigator.pop(context); // Close source selector
-                                          }
-                                        },
-                                      ),
-                                      const SizedBox(height: 12),
-                                    ],
-                                  ),
-                                ),
-                              );
-                              
-                              if (source != null) {
-                                String? newPath;
-                                if (source == 'sketch') {
-                                  newPath = await _showSketchDialog(l10n);
-                                } else if (source == 'reset') {
-                                  await ref.read(categoryIconsProvider.notifier).setIcon(c, null);
-                                  return;
-                                } else if (source is ImageSource) {
-                                  newPath = await _pickImage(source);
-                                }
-                                
-                                if (newPath != null) {
-                                  await ref.read(categoryIconsProvider.notifier).setIcon(c, newPath);
-                                }
-                              }
-                            },
-                            child: Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: ArtisanalTheme.primary.withValues(alpha: 0.05),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.1)),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Stack(
-                                  children: [
-                                    _buildIngredientImage(ref, "Category Icon", c),
-                                    Positioned(
-                                      right: 2,
-                                      bottom: 2,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: const BoxDecoration(color: ArtisanalTheme.ink, shape: BoxShape.circle),
-                                        child: const Icon(Icons.edit, color: Colors.white, size: 8),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                          leading: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: ArtisanalTheme.primary.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.category_outlined, color: ArtisanalTheme.primary, size: 20),
                             ),
                           ),
                           title: Text(

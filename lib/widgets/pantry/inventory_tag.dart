@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:io';
 import 'package:intl/intl.dart';
 import '../../theme/artisanal_theme.dart';
 import '../../models/pantry_item.dart';
 import '../../l10n/app_localizations.dart';
-
-
 import '../../widgets/custom_clippers.dart';
 import '../../widgets/masking_tape.dart';
-
-import '../../providers/category_icons_provider.dart';
 
 class InventoryTag extends ConsumerWidget {
   final PantryItem item;
@@ -21,61 +16,6 @@ class InventoryTag extends ConsumerWidget {
     required this.item,
     required this.onRestock,
   });
-
-  Widget _buildIngredientImage(WidgetRef ref, String name, String category, [String? customImageUrl]) {
-    // Priority 1: User's custom image for this item
-    if (customImageUrl != null && customImageUrl.isNotEmpty) {
-      if (customImageUrl.startsWith('http')) {
-        return Image.network(customImageUrl, fit: BoxFit.cover);
-      } else {
-        final file = File(customImageUrl);
-        if (file.existsSync()) {
-          return Image.file(file, fit: BoxFit.cover);
-        }
-      }
-    }
-
-    // Priority 2: Category-level custom icons
-    final categoryIcons = ref.watch(categoryIconsProvider);
-    if (categoryIcons.containsKey(category)) {
-      final catPath = categoryIcons[category]!;
-      if (catPath.startsWith('http')) {
-        return Image.network(catPath, fit: BoxFit.cover);
-      } else if (catPath.startsWith('assets/')) {
-        return Image.asset(catPath, fit: BoxFit.cover);
-      } else {
-        final file = File(catPath);
-        if (file.existsSync()) {
-          return Image.file(file, fit: BoxFit.cover);
-        }
-      }
-    }
-
-    String assetPath = 'assets/images/categories/others.png';
-    final lowerName = name.toLowerCase();
-
-    // Priority 3: Name-based mapping
-    if (lowerName.contains('flour') || lowerName.contains('밀가루') || lowerName.contains('강력') || lowerName.contains('박력')) {
-      assetPath = 'assets/images/categories/flour.png';
-    } else if (lowerName.contains('salt') || lowerName.contains('소금')) {
-      assetPath = 'assets/images/categories/others.png';
-    } else if (lowerName.contains('butter') || lowerName.contains('버터')) {
-      assetPath = 'assets/images/categories/dairy_eggs.png';
-    } else if (lowerName.contains('sugar') || lowerName.contains('설탕')) {
-      assetPath = 'assets/images/categories/sweetener.png';
-    } else {
-      switch (category) {
-        case 'Flour': assetPath = 'assets/images/categories/flour.png'; break;
-        case 'Dairy/Eggs': assetPath = 'assets/images/categories/dairy_eggs.png'; break;
-        case 'Sweetener': assetPath = 'assets/images/categories/sweetener.png'; break;
-        case 'Leavening': assetPath = 'assets/images/categories/leavening.png'; break;
-        case 'Add-in': assetPath = 'assets/images/categories/addin.png'; break;
-        default: assetPath = 'assets/images/categories/others.png'; break;
-      }
-    }
-
-    return Image.asset(assetPath, fit: BoxFit.cover);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -99,144 +39,129 @@ class InventoryTag extends ConsumerWidget {
           child: ClipPath(
             clipper: TornPaperClipper(intensity: 2.0, seed: item.id.hashCode),
             child: Container(
+              padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
               color: const Color(0xFFFDFCFB),
-              child: Stack(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Image Part - Looking like a Polaroid or pasted photo
                       Expanded(
-                        flex: 4,
-                        child: Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5F3F0),
-                            image: DecorationImage(
-                              image: const NetworkImage('https://www.transparenttextures.com/patterns/natural-paper.png'),
-                              opacity: 0.05,
-                              repeat: ImageRepeat.repeat,
-                            ),
+                        child: Text(
+                          item.name.toUpperCase(),
+                          style: ArtisanalTheme.hand(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: ArtisanalTheme.ink,
+                            letterSpacing: 0.5,
                           ),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Center(
-                                  child: _buildIngredientImage(ref, item.name, item.category, item.imageUrl),
-                                ),
-                              ),
-                              if (isLow)
-                                Positioned(
-                                  left: 8,
-                                  top: 8,
-                                  child: Transform.rotate(
-                                    angle: -0.15,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: ArtisanalTheme.redInk.withValues(alpha: 0.8),
-                                      ),
-                                      child: Text(
-                                        l10n.urgent.toUpperCase(),
-                                        style: ArtisanalTheme.hand(
-                                          color: Colors.white,
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      
-                      // Info Part
+                      const SizedBox(width: 4),
+                      if (isLow)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: ArtisanalTheme.redInk.withValues(alpha: 0.8),
+                          ),
+                          child: Text(
+                            l10n.urgent.toUpperCase(),
+                            style: ArtisanalTheme.hand(
+                              color: Colors.white,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.category.toUpperCase(),
+                    style: ArtisanalTheme.hand(
+                      fontSize: 9,
+                      color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
                       Expanded(
-                        flex: 4,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.name.toUpperCase(),
-                                style: ArtisanalTheme.hand(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: ArtisanalTheme.ink,
-                                  letterSpacing: 0.5,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.lastRestocked(DateFormat('MM.dd').format(item.lastUpdated)),
+                              style: ArtisanalTheme.hand(
+                                fontSize: 8,
+                                color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
                               ),
-                              Text(
-                                l10n.lastRestocked(DateFormat('MM.dd').format(item.lastUpdated)),
-                                style: ArtisanalTheme.hand(
-                                  fontSize: 9,
-                                  color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            ),
+                            const SizedBox(height: 2),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
                                     "${item.currentStock.toInt()}${item.unit == 'g' ? l10n.unitG : l10n.unitPcs}",
                                     style: ArtisanalTheme.hand(
-                                      fontSize: 13,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: isLow ? ArtisanalTheme.redInk : ArtisanalTheme.primary,
                                     ),
                                   ),
                                   Text(
-                                    "/ ${item.targetQuantity.toInt()}",
+                                    " / ${item.targetQuantity.toInt()}",
                                     style: ArtisanalTheme.hand(
                                       fontSize: 11,
-                                      color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
+                                      color: ArtisanalTheme.secondary.withValues(alpha: 0.3),
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-                              Container(
-                                height: 2,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE5E0D8),
-                                  borderRadius: BorderRadius.circular(1),
-                                ),
-                                child: FractionallySizedBox(
-                                  alignment: Alignment.centerLeft,
-                                  widthFactor: stockPercent,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: isLow ? ArtisanalTheme.redInk : ArtisanalTheme.primary,
-                                      borderRadius: BorderRadius.circular(1),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: onRestock,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.1)),
+                            borderRadius: BorderRadius.circular(6),
                           ),
+                          child: Icon(Icons.add_shopping_cart, 
+                            color: ArtisanalTheme.ink.withValues(alpha: 0.4), size: 16),
                         ),
                       ),
                     ],
                   ),
-                  
-                  // Action Button
-                  Positioned(
-                    right: 4,
-                    top: 4,
-                    child: GestureDetector(
-                      onTap: onRestock,
+                  const Spacer(),
+                  const SizedBox(height: 4),
+                  Container(
+                    height: 2,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5E0D8),
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: stockPercent,
                       child: Container(
-                        padding: const EdgeInsets.all(6),
-                        child: Icon(Icons.add_shopping_cart, 
-                          color: ArtisanalTheme.ink.withValues(alpha: 0.3), size: 16),
+                        decoration: BoxDecoration(
+                          color: isLow ? ArtisanalTheme.redInk : ArtisanalTheme.primary,
+                          borderRadius: BorderRadius.circular(1),
+                        ),
                       ),
                     ),
                   ),
@@ -245,7 +170,6 @@ class InventoryTag extends ConsumerWidget {
             ),
           ),
         ),
-        // Adding Masking Tape at the top to make it look "pasted"
         Positioned(
           top: -6,
           left: 0,
@@ -253,7 +177,7 @@ class InventoryTag extends ConsumerWidget {
           child: Center(
             child: MaskingTape(
               width: 50,
-              rotation: (item.id.hashCode % 10 - 5) / 50, // Subtle random rotation
+              rotation: (item.id.hashCode % 10 - 5) / 50,
               color: const Color(0xFFE2DCC8).withValues(alpha: 0.2),
             ),
           ),
