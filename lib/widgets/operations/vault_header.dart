@@ -88,16 +88,16 @@ class VaultHeader extends StatelessWidget {
                 children: [
                   _buildMiniStat(
                     context, 
-                    l10n.addSale, 
-                    currencyFormat.format(totalSales), 
-                    ArtisanalTheme.primary.withValues(alpha: 0.8)
+                    l10n.totalRevenue, 
+                    "+${currencyFormat.format(totalSales)}", 
+                    ArtisanalTheme.greenInk.withValues(alpha: 0.9)
                   ),
                   const SizedBox(width: 24),
                   _buildMiniStat(
                     context, 
                     l10n.totalExpensesLabel, 
                     "-${currencyFormat.format(totalExpenses)}", 
-                    ArtisanalTheme.redInk.withValues(alpha: 0.7)
+                    ArtisanalTheme.redInk.withValues(alpha: 0.9)
                   ),
                 ],
               ),

@@ -6,7 +6,17 @@ import 'package:intl/intl.dart';
 
 class PantryReportService {
   static Future<void> generateAndPrintReport(List<PantryItem> items) async {
-    final pdf = pw.Document();
+    // Load Korean font to support Unicode characters
+    final font = await PdfGoogleFonts.nanumGothicRegular();
+    final boldFont = await PdfGoogleFonts.nanumGothicBold();
+    
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(
+        base: font,
+        bold: boldFont,
+      ),
+    );
+
     final now = DateTime.now();
     final dateStr = DateFormat('yyyy. MM. dd').format(now);
 
@@ -37,7 +47,7 @@ class PantryReportService {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Text(
-          'MASTER PANTRY LEDGER',
+          '식재료 관리 대장',
           style: pw.TextStyle(
             fontSize: 24,
             fontWeight: pw.FontWeight.bold,
@@ -52,7 +62,7 @@ class PantryReportService {
         pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text('OFFICIAL INVENTORY CERTIFICATE', style: const pw.TextStyle(fontSize: 10)),
+            pw.Text('공방 공식 재고 증명서', style: const pw.TextStyle(fontSize: 10)),
             pw.Text(dateStr, style: const pw.TextStyle(fontSize: 10)),
           ],
         ),
@@ -72,9 +82,9 @@ class PantryReportService {
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
         children: [
-          _buildSummaryStat('TOTAL ITEMS', items.length.toString()),
-          _buildSummaryStat('URGENT RESTOCK', lowStockCount.toString()),
-          _buildSummaryStat('TOTAL ASSETS', 'KW ${NumberFormat('#,###').format(totalValue)}'),
+          _buildSummaryStat('전체 품목수', items.length.toString()),
+          _buildSummaryStat('보충 필요', lowStockCount.toString()),
+          _buildSummaryStat('총 자산 가치', '₩ ${NumberFormat('#,###').format(totalValue)}'),
         ],
       ),
     );
@@ -96,14 +106,14 @@ class PantryReportService {
       headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
       cellStyle: const pw.TextStyle(fontSize: 9),
       headerDecoration: const pw.BoxDecoration(color: PdfColors.grey200),
-      headers: ['INGREDIENT', 'CATEGORY', 'CURRENT', 'GOAL', 'STATUS'],
+      headers: ['재료명', '카테고리', '현재 재고', '목표 재고', '상태'],
       data: items.map((item) {
         final stockPercent = (item.currentStock / (item.targetQuantity > 0 ? item.targetQuantity : 1)).clamp(0.0, 1.0);
-        final status = stockPercent < 0.2 ? 'URGENT' : (stockPercent < 0.5 ? 'LOW' : 'GOOD');
+        final status = stockPercent < 0.2 ? '보충필요' : (stockPercent < 0.5 ? '낮음' : '안정');
         
         return [
-          item.name.toUpperCase(),
-          item.category.toUpperCase(),
+          item.name,
+          item.category,
           '${item.currentStock.toInt()}${item.unit}',
           '${item.targetQuantity.toInt()}${item.unit}',
           status,
@@ -120,7 +130,7 @@ class PantryReportService {
         pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text('ARTISANAL BAKERY MANAGEMENT SYSTEM', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey500)),
+            pw.Text('MY ATELIER - ARTISANAL MANAGEMENT SYSTEM', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey500)),
             pw.Text('PAGE 1 OF 1', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey500)),
           ],
         ),

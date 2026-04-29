@@ -97,15 +97,6 @@ class BusinessLedgerScreen extends ConsumerWidget {
             
             // 3. Operational Alerts
             LowStockPannel(items: pantryItems),
-            
-            const SizedBox(height: 40),
-            
-            // 4. Detailed History Card
-            SerratedLedgerCard(
-              totalExpenses: txNotifier.getTotal('expense'),
-              transactions: transactions,
-              onHistoryTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpenseHistoryScreen())),
-            ),
           ],
         ),
       ),

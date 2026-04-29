@@ -126,7 +126,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get businessOperations => '운영 및 관리';
 
   @override
-  String get manageDatabase => '재료 데이터\n관리';
+  String get manageDatabase => '재료 관리';
 
   @override
   String get cloudSync => '클라우드\n동기화';
@@ -711,7 +711,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get analytics => '분석';
 
   @override
-  String get businessAnalytics => '아뜰리에 경영 분석';
+  String get businessAnalytics => '분석';
 
   @override
   String get inventoryDistribution => '분류별 재고 구성';

@@ -6,8 +6,18 @@ import '../models/transaction.dart';
 
 class PdfService {
   static Future<void> generateFinancialReport(List<BusinessTransaction> transactions, String title) async {
-    final pdf = pw.Document();
-    final currencyFormat = NumberFormat.currency(symbol: 'W', decimalDigits: 0);
+    // Load Korean font to support Unicode characters
+    final font = await PdfGoogleFonts.nanumGothicRegular();
+    final boldFont = await PdfGoogleFonts.nanumGothicBold();
+    
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(
+        base: font,
+        bold: boldFont,
+      ),
+    );
+    
+    final currencyFormat = NumberFormat.currency(symbol: '₩', decimalDigits: 0);
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
     // Filter to last 30 days
@@ -37,9 +47,9 @@ class PdfService {
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
             children: [
-              _buildSummaryBox('Total Sales', currencyFormat.format(totalSales), PdfColors.green),
-              _buildSummaryBox('Total Expenses', currencyFormat.format(totalExpenses), PdfColors.red),
-              _buildSummaryBox('Balance', currencyFormat.format(totalSales - totalExpenses), PdfColors.blue),
+              _buildSummaryBox('총 매출액', currencyFormat.format(totalSales), PdfColors.green),
+              _buildSummaryBox('총 지출액', currencyFormat.format(totalExpenses), PdfColors.red),
+              _buildSummaryBox('정산 순수익', currencyFormat.format(totalSales - totalExpenses), PdfColors.blue),
             ],
           ),
           pw.SizedBox(height: 30),
@@ -48,10 +58,10 @@ class PdfService {
             headerDecoration: const pw.BoxDecoration(color: PdfColors.blueGrey800),
             rowDecoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300))),
             cellAlignment: pw.Alignment.centerLeft,
-            headers: ['Date', 'Type', 'Description', 'Amount'],
+            headers: ['날짜', '구분', '내용', '금액'],
             data: recentTxs.map((tx) => [
               DateFormat('MM-dd').format(tx.date),
-              tx.type.toUpperCase(),
+              tx.type == 'sale' ? '매출' : '지출',
               tx.description,
               currencyFormat.format(tx.amount),
             ]).toList(),
