@@ -18,9 +18,24 @@ class FinancialTrendChart extends ConsumerWidget {
     
     final maxVal = _calculateMaxY(salesMap, expensesMap);
     final l10n = AppLocalizations.of(context);
+    final double cleanInterval = (maxVal > 0) ? (((maxVal / 4) / 50000).ceil() * 50000).toDouble() : 50000.0;
     
     return Column(
       children: [
+        // Unit Indicator (Moved to the left above Y-axis)
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8, bottom: 8),
+            child: Text(
+              "(단위: 만원)",
+              style: ArtisanalTheme.receipt(
+                fontSize: 9,
+                color: ArtisanalTheme.ink.withValues(alpha: 0.4),
+              ),
+            ),
+          ),
+        ),
         SizedBox(
           height: 220,
           child: LineChart(
@@ -32,7 +47,7 @@ class FinancialTrendChart extends ConsumerWidget {
                     return touchedSpots.map((spot) {
                       final isSales = spot.barIndex == 0;
                       return LineTooltipItem(
-                        "${isSales ? l10n.revenue : l10n.expense}\n${NumberFormat.compactCurrency(symbol: '₩', decimalDigits: 0).format(spot.y)}",
+                        "${isSales ? l10n.revenue : l10n.expense}\n${NumberFormat.simpleCurrency(locale: 'ko_KR', decimalDigits: 0).format(spot.y)}",
                         ArtisanalTheme.hand(color: Colors.white, fontSize: 12),
                       );
                     }).toList();
@@ -42,14 +57,14 @@ class FinancialTrendChart extends ConsumerWidget {
               gridData: FlGridData(
                 show: true,
                 drawVerticalLine: true,
-                horizontalInterval: maxVal > 0 ? maxVal / 4 : 10000,
+                horizontalInterval: cleanInterval, 
                 verticalInterval: 1,
                 getDrawingHorizontalLine: (value) => FlLine(
-                  color: const Color(0xFFE1F5FE), // Graph paper blue
+                  color: ArtisanalTheme.ink.withValues(alpha: 0.05), // Subtle ink line
                   strokeWidth: 1,
                 ),
                 getDrawingVerticalLine: (value) => FlLine(
-                  color: const Color(0xFFE1F5FE), // Graph paper blue
+                  color: ArtisanalTheme.ink.withValues(alpha: 0.05), // Subtle ink line
                   strokeWidth: 1,
                 ),
               ),
@@ -59,13 +74,14 @@ class FinancialTrendChart extends ConsumerWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     reservedSize: 30,
-                    interval: 1, // Added to prevent duplicate labels
+                    interval: 1, 
                     getTitlesWidget: (value, meta) {
                       if (value.toInt() >= 0 && value.toInt() < dates.length) {
+                        String label = dates[value.toInt()];
                         return Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
-                            dates[value.toInt()],
+                            label,
                             style: ArtisanalTheme.receipt(
                               fontSize: 9,
                               color: ArtisanalTheme.ink.withValues(alpha: 0.4),
@@ -80,11 +96,18 @@ class FinancialTrendChart extends ConsumerWidget {
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 45,
+                    reservedSize: 40,
+                    interval: cleanInterval, 
                     getTitlesWidget: (value, meta) {
-                      return Text(
-                        NumberFormat.compactCurrency(symbol: '₩', decimalDigits: 0).format(value),
-                        style: ArtisanalTheme.receipt(fontSize: 8, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
+                      // Format to "Man-won" (10,000 KRW)
+                      final manWon = (value / 10000).toInt();
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          "$manWon",
+                          style: ArtisanalTheme.receipt(fontSize: 9, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
+                          textAlign: TextAlign.right,
+                        ),
                       );
                     },
                   ),
@@ -94,12 +117,12 @@ class FinancialTrendChart extends ConsumerWidget {
               ),
               borderData: FlBorderData(
                 show: true,
-                border: Border.all(color: const Color(0xFFE1F5FE), width: 1),
+                border: Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.05), width: 1),
               ),
               minX: 0,
               maxX: (dates.length - 1).toDouble(),
               minY: 0,
-              maxY: maxVal,
+              maxY: ((maxVal / cleanInterval).ceil() * cleanInterval).toDouble(), // Snap maxY to interval
               lineBarsData: [
                 // Revenue Line (Hand-drawn feel)
                 LineChartBarData(
@@ -202,6 +225,9 @@ class FinancialTrendChart extends ConsumerWidget {
     for (final v in expenses.values) {
       if (v > maxValue) maxValue = v;
     }
-    return maxValue * 1.2;
+    
+    // Round up to nearest 50,000 for clean intervals
+    double result = maxValue * 1.2;
+    return (result / 50000).ceil() * 50000;
   }
 }

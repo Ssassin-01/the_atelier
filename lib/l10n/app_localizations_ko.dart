@@ -662,7 +662,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get totalRevenue => '총 매출액';
 
   @override
-  String get financialTrends => '공방 손익 추이';
+  String get financialTrends => '손익 분석 리포트';
 
   @override
   String get addTransactionShort => '기록 추가';
@@ -711,7 +711,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get analytics => '분석';
 
   @override
-  String get businessAnalytics => '작업실 분석';
+  String get businessAnalytics => '아뜰리에 경영 분석';
 
   @override
   String get inventoryDistribution => '분류별 재고 구성';
@@ -735,7 +735,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get dataCurated => '아뜰리에의 기록들이 정갈하게 정리되었습니다.';
 
   @override
-  String get trends => '트렌드';
+  String get trends => '운영 실적';
 
   @override
   String get inventory => '창고 현황';
@@ -823,7 +823,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vsPrevious => '이전 기간 대비';
 
   @override
-  String get businessJournalTitle => '아뜰리에 비즈니스 저널';
+  String get businessJournalTitle => '공방 경영 장부';
 
   @override
   String get totalExpensesLabel => '총 지출';

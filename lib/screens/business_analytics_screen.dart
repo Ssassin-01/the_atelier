@@ -124,7 +124,9 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
               AnimatedContainer(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeInOut,
-                height: _activeInsightPage == 0 ? 800 : 1250, // Increased heights to prevent overflow
+                height: _activeInsightPage == 1 
+                    ? 1600 // Extra generous Journal height
+                    : (analytics.period == AnalyticsPeriod.month ? 1350 : 1050), // Significantly increased for non-scrollable Trends
                 child: PageView(
                   controller: _insightPageController,
                   clipBehavior: Clip.none, 
@@ -136,10 +138,6 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                   ],
                 ),
               ),
-              
-              const SizedBox(height: 32),
-              
-              _buildInsightSection(analytics.getInsight()),
             ],
           ),
         ),
@@ -167,15 +165,29 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
       child: Opacity(
         opacity: opacity,
         child: Padding(
-          padding: EdgeInsets.only(top: index == 0 ? 24 : 10),
+          padding: EdgeInsets.only(top: index == 0 ? 32 : 10),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 12),
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: index == 0 
-                  ? _buildVisualAnalyticsSection(analytics, l10n)
-                  : _buildSummarySection(context, analytics, l10n),
-            ),
+            child: index == 0
+                ? Column(
+                    children: [
+                      _buildVisualAnalyticsSection(analytics, l10n),
+                      const SizedBox(height: 24),
+                      _buildInsightSection(analytics.getInsight()),
+                      const SizedBox(height: 20),
+                    ],
+                  )
+                : SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        _buildSummarySection(context, analytics, l10n),
+                        const SizedBox(height: 24),
+                        _buildInsightSection(analytics.getInsight()),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
           ),
         ),
       ),

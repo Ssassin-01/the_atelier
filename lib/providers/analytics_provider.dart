@@ -144,7 +144,7 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
     case AnalyticsPeriod.month:
       steps = 6;
       startDate = DateTime(now.year, now.month - steps + 1, 1);
-      labelFormat = DateFormat('MMM');
+      labelFormat = DateFormat('M월'); // Changed from MMM to M월 for Korean users
       break;
     case AnalyticsPeriod.year:
       steps = 3;
