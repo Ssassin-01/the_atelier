@@ -35,26 +35,46 @@ class InventoryTag extends ConsumerWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
+        // Subtle Edge Curl Shadow
+        Positioned(
+          bottom: 2,
+          right: 4,
+          child: Container(
+            width: 40,
+            height: 20,
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                  offset: const Offset(4, 4),
+                ),
+              ],
+            ),
+          ),
+        ),
+        
         // Post-it Body
         Transform.rotate(
-          angle: (item.id.hashCode % 10 - 5) / 150, // Subtle random tilt
+          angle: (item.id.hashCode % 10 - 5) / 180, // Subtle random tilt
           child: Container(
             margin: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: noteColor,
               borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(item.id.hashCode % 2 == 0 ? 24 : 4),
+                bottomRight: Radius.circular(item.id.hashCode % 2 == 0 ? 20 : 2),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 8,
-                  offset: const Offset(2, 4),
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 4,
+                  offset: const Offset(1, 2),
                 ),
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -65,7 +85,7 @@ class InventoryTag extends ConsumerWidget {
                     child: Text(
                       item.name.toUpperCase(),
                       style: ArtisanalTheme.hand(
-                        fontSize: 15, // Slightly smaller
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: ArtisanalTheme.ink,
                         letterSpacing: 0.5,
@@ -77,15 +97,15 @@ class InventoryTag extends ConsumerWidget {
                   Text(
                     "#${item.category}",
                     style: ArtisanalTheme.hand(
-                      fontSize: 8, // Slightly smaller
-                      color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                      fontSize: 8,
+                      color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
                       fontStyle: FontStyle.italic,
                     ),
                   ),
                   
-                  const SizedBox(height: 2), // Smaller
+                  const SizedBox(height: 4),
                   
-                  // Stock Info in Hand-drawn style
+                  // Stock Info
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -105,33 +125,28 @@ class InventoryTag extends ConsumerWidget {
                             "/ ${item.targetQuantity.toInt()}${item.unit}",
                             style: ArtisanalTheme.hand(
                               fontSize: 10,
-                              color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
+                              color: ArtisanalTheme.secondary.withValues(alpha: 0.3),
                             ),
                           ),
                         ],
                       ),
                       
-                      // Urgent Marker
-                      if (isLow)
-                        _buildUrgentMarker(l10n),
+                      if (isLow) _buildUrgentMarker(l10n),
                     ],
                   ),
                   
-                  const SizedBox(height: 4), // Smaller
-                  
-                  // Hand-drawn like progress bar
+                  const SizedBox(height: 6),
                   _buildHandDrawnProgress(stockPercent, isLow),
                   
-                  const SizedBox(height: 1), // Smaller
+                  const SizedBox(height: 2),
                   
-                  // Tiny Action Indicator
                   Align(
                     alignment: Alignment.bottomRight,
                     child: GestureDetector(
                       onTap: onRestock,
                       child: Opacity(
-                        opacity: 0.4,
-                        child: Icon(Icons.edit_note, size: 14, color: ArtisanalTheme.ink), // Smaller
+                        opacity: 0.3,
+                        child: Icon(Icons.edit_note, size: 14, color: ArtisanalTheme.ink),
                       ),
                     ),
                   ),
@@ -141,54 +156,38 @@ class InventoryTag extends ConsumerWidget {
           ),
         ),
         
-        // Magnet on top
+        // Masking Tape on top
         Positioned(
-          top: -4,
+          top: -8,
           left: 0,
           right: 0,
           child: Center(
-            child: _buildMagnet(item.id.hashCode),
+            child: _buildMaskingTape(item.id.hashCode),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildMagnet(int seed) {
-    final magnetColors = [
-      const Color(0xFF455A64), // Dark Grey
-      const Color(0xFFD32F2F), // Red
-      const Color(0xFF1976D2), // Blue
-      const Color(0xFF388E3C), // Green
-    ];
-    final color = magnetColors[seed % magnetColors.length];
-
-    return Container(
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 3,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        gradient: RadialGradient(
-          center: const Alignment(-0.3, -0.3),
-          colors: [
-            Colors.white.withValues(alpha: 0.3),
-            color,
+  Widget _buildMaskingTape(int seed) {
+    return Transform.rotate(
+      angle: (seed % 10 - 5) / 100,
+      child: Container(
+        width: 50,
+        height: 18,
+        decoration: BoxDecoration(
+          color: const Color(0xFFFDF5E6).withValues(alpha: 0.7), // Semi-transparent paper tape
+          border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            ),
           ],
         ),
-      ),
-      child: Center(
-        child: Icon(
-          seed % 2 == 0 ? Icons.star : Icons.cookie,
-          size: 10,
-          color: Colors.white.withValues(alpha: 0.5),
+        child: CustomPaint(
+          painter: TapeTexturePainter(),
         ),
       ),
     );
@@ -201,7 +200,7 @@ class InventoryTag extends ConsumerWidget {
         "!!!",
         style: ArtisanalTheme.hand(
           color: ArtisanalTheme.redInk,
-          fontSize: 24,
+          fontSize: 22,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -260,4 +259,21 @@ class ScribblePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant ScribblePainter oldDelegate) => false;
+}
+
+class TapeTexturePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black.withValues(alpha: 0.03)
+      ..strokeWidth = 0.5;
+
+    // Horizontal lines for paper fiber look
+    for (double y = 2; y < size.height; y += 3) {
+      canvas.drawLine(Offset(2, y), Offset(size.width - 2, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

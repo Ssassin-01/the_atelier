@@ -29,10 +29,10 @@ class _StaggeredDropAnimationState extends State<StaggeredDropAnimation> with Si
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 300),
     );
 
-    _slideAnimation = Tween<double>(begin: -30.0, end: 0.0).animate(
+    _slideAnimation = Tween<double>(begin: -20.0, end: 0.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic)),
     );
 
@@ -48,9 +48,18 @@ class _StaggeredDropAnimationState extends State<StaggeredDropAnimation> with Si
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.4, curve: Curves.easeIn)),
     );
 
-    final randomJitter = Duration(milliseconds: math.Random().nextInt(40));
-    final calculatedDelay = widget.delayBase * (widget.index % 10); // Use modulo to keep stagger tight
-    Future.delayed(calculatedDelay + randomJitter, () {
+    // Optimized Delay Logic:
+    // 1. For initial items (0-7), use index-based stagger for a rhythmic entry.
+    // 2. For items appearing during scroll (>7), use a minimal fixed jitter to feel responsive.
+    Duration delay;
+    if (widget.index <= 7) {
+      delay = widget.delayBase * widget.index;
+    } else {
+      // Small random jitter for items that appear while scrolling
+      delay = Duration(milliseconds: 30 + math.Random().nextInt(40));
+    }
+
+    Future.delayed(delay, () {
       if (mounted) _controller.forward();
     });
   }
