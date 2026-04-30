@@ -228,6 +228,21 @@ class _JournalPage extends StatelessWidget {
                             ),
                           ),
                         ),
+                        if (recipe?.description != null && recipe!.description!.isNotEmpty) ...[
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: Text(
+                              recipe!.description!,
+                              textAlign: TextAlign.justify,
+                              style: ArtisanalTheme.hand(
+                                fontSize: 18,
+                                height: 1.8,
+                                color: ArtisanalTheme.ink.withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 36),
                         // Hero Image
                         Center(

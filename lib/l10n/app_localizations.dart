@@ -1490,6 +1490,18 @@ abstract class AppLocalizations {
   /// **'entries'**
   String get entries;
 
+  /// No description provided for @recipeDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the story or unique characteristics of this recipe...'**
+  String get recipeDescriptionHint;
+
+  /// No description provided for @artisanalNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get artisanalNotes;
+
   /// No description provided for @seedTooltip.
   ///
   /// In en, this message translates to:

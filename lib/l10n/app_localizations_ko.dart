@@ -711,7 +711,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get entry => '개';
 
   @override
-  String get entries => '개';
+  String get entries => '건';
+
+  @override
+  String get recipeDescriptionHint => '이 레시피에 얽린 이야기나 특징을 적어주세요...';
+
+  @override
+  String get artisanalNotes => '설명';
 
   @override
   String get seedTooltip => '샘플 데이터 생성';

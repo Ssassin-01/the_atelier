@@ -243,6 +243,8 @@
   "deskHeader": "Atelier Log",
   "entry": "entry",
   "entries": "entries",
+  "recipeDescriptionHint": "Write the story or unique characteristics of this recipe...",
+  "artisanalNotes": "Description",
   "seedTooltip": "Seed Test Data",
   "dataCurated": "Artisanal data curated successfully!",
   "trends": "TRENDS",

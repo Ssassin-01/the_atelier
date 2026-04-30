@@ -725,6 +725,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get entries => 'entries';
 
   @override
+  String get recipeDescriptionHint =>
+      'Write the story or unique characteristics of this recipe...';
+
+  @override
+  String get artisanalNotes => 'Description';
+
+  @override
   String get seedTooltip => 'Seed Test Data';
 
   @override

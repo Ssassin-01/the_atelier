@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/polaroid_card.dart';
 import '../widgets/artisanal_image.dart';
 import '../widgets/crumple_effect.dart';
+import '../widgets/masking_tape.dart';
 import '../models/recipe.dart';
 import '../models/component.dart';
 import '../services/recipe_service.dart';
@@ -260,14 +261,21 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
                         ),
   
                         const SizedBox(height: 60),
-  
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 0),
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Column(
                             children: [
                               ...recipe.components.map(
-                                (comp) => AnimatedRecipePostIt(component: comp),
+                                (comp) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 32),
+                                  child: AnimatedRecipePostIt(component: comp),
+                                ),
                               ),
+                              if (recipe.description != null && recipe.description!.isNotEmpty) ...[
+                                const SizedBox(height: 10),
+                                _DescriptionCard(description: recipe.description!),
+                                const SizedBox(height: 32),
+                              ],
                             ],
                           ),
                         ),
@@ -655,6 +663,73 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
             ),
         ],
       ),
+    );
+  }
+}
+class _DescriptionCard extends StatelessWidget {
+  final String description;
+  const _DescriptionCard({required this.description});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Transform.rotate(
+            angle: 0.01,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(28, 40, 28, 32),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFDF5), // Warm parchment
+                borderRadius: BorderRadius.circular(2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 15,
+                    offset: const Offset(2, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.artisanalNotes,
+                    style: ArtisanalTheme.hand(
+                      fontSize: 14,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.bold,
+                      color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    description,
+                    style: ArtisanalTheme.hand(
+                      fontSize: 17,
+                      height: 1.8,
+                      color: ArtisanalTheme.ink.withValues(alpha: 0.8),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Opacity(
+                      opacity: 0.1,
+                      child: Icon(Icons.auto_stories, color: ArtisanalTheme.primary, size: 32),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        MaskingTape(width: 100),
+      ],
     );
   }
 }

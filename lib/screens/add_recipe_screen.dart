@@ -68,11 +68,13 @@ class RecipeComponentDraft {
 
 class RecipeDraft {
   String name;
+  String description;
   String? mainImagePath;
   List<RecipeComponentDraft> components;
   
   RecipeDraft({
     this.name = '',
+    this.description = '',
     this.mainImagePath,
     List<RecipeComponentDraft>? components,
   }) : components = components ?? [
@@ -84,6 +86,7 @@ class RecipeDraft {
   static RecipeDraft fromModel(model.Recipe recipe) {
     return RecipeDraft(
       name: recipe.name,
+      description: recipe.description ?? '',
       mainImagePath: recipe.mainImageUrl,
       components: recipe.components.map((c) => RecipeComponentDraft(
         id: DateTime.now().millisecondsSinceEpoch.toString() + c.title,
@@ -117,6 +120,7 @@ class AddRecipeScreen extends ConsumerStatefulWidget {
 
 class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, GlobalKey> _photoKeys = {};
 
@@ -134,6 +138,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _descController.dispose();
     for (var c in _controllers.values) {
       c.dispose();
     }
@@ -150,6 +155,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
         if (existing != null) {
           final draft = RecipeDraft.fromModel(existing);
           _nameController.text = draft.name;
+          _descController.text = draft.description;
           ref.read(recipeDraftProvider.notifier).state = draft;
         }
       });
@@ -157,6 +163,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
       Future.microtask(() {
         ref.invalidate(recipeDraftProvider);
         _nameController.clear();
+        _descController.clear();
       });
     }
   }
@@ -178,7 +185,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
             elevation: 0,
             floating: true,
             leading: IconButton(
-              icon: const Icon(Icons.close, color: ArtisanalTheme.ink),
+              icon: const Icon(Icons.arrow_back, color: ArtisanalTheme.ink),
               onPressed: () {
                 if (widget.onBack != null) {
                   widget.onBack!();
@@ -231,7 +238,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: _buildPhotoSelector(context, draft.mainImagePath, (path) {
-                        notifier.update((s) => RecipeDraft(name: s.name, mainImagePath: path, components: s.components));
+                        notifier.update((s) => RecipeDraft(name: s.name, description: s.description, mainImagePath: path, components: s.components));
                       }, height: 280, label: l10n.addCoverMedia),
                     ),
                     const MaskingTape(width: 140, label: "MAIN VIEW"),
@@ -239,11 +246,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 ),
 
                 const SizedBox(height: 32),
-                
                 TextField(
                   onChanged: (val) {
                     _triggerFeedback();
-                    notifier.update((s) => RecipeDraft(name: val, mainImagePath: s.mainImagePath, components: s.components));
+                    notifier.update((s) => RecipeDraft(name: val, description: s.description, mainImagePath: s.mainImagePath, components: s.components));
                   },
                   controller: _nameController,
                   decoration: InputDecoration(
@@ -267,6 +273,77 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       fontSize: 26,
                       fontStyle: FontStyle.italic,
                       color: ArtisanalTheme.ink),
+                ),
+                
+                // ── Description (Artisanal Notes) Section ──────────────────────────
+                const SizedBox(height: 48),
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFDFBF7), // Creamy paper color
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.edit_note,
+                            size: 18,
+                            color: ArtisanalTheme.primary.withValues(alpha: 0.4),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.artisanalNotes.toUpperCase(),
+                            style: ArtisanalTheme.hand(
+                              fontSize: 13,
+                              letterSpacing: 2,
+                              fontWeight: FontWeight.bold,
+                              color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        onChanged: (val) {
+                          _triggerFeedback();
+                          notifier.update((s) => RecipeDraft(
+                              name: s.name,
+                              description: val,
+                              mainImagePath: s.mainImagePath,
+                              components: s.components));
+                        },
+                        controller: _descController,
+                        maxLines: null,
+                        minLines: 3,
+                        decoration: InputDecoration(
+                          hintText: l10n.recipeDescriptionHint,
+                          hintStyle: ArtisanalTheme.hand(
+                              fontSize: 16,
+                              color: ArtisanalTheme.ink.withValues(alpha: 0.15)),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        style: ArtisanalTheme.hand(
+                          fontSize: 17,
+                          height: 1.6,
+                          color: ArtisanalTheme.ink,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 48),
@@ -317,7 +394,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       notifier.update((s) {
                         final newComps = List<RecipeComponentDraft>.from(s.components)
                           ..add(RecipeComponentDraft(id: DateTime.now().toString()));
-                        return RecipeDraft(name: s.name, mainImagePath: s.mainImagePath, components: newComps);
+                        return RecipeDraft(name: s.name, description: s.description, mainImagePath: s.mainImagePath, components: newComps);
                       });
                     },
                     icon: const Icon(Icons.library_add_outlined),
@@ -395,6 +472,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     final newRecipe = model.Recipe(
       id: widget.editingRecipeId ?? DateTime.now().millisecondsSinceEpoch.toString(),
       name: draft.name,
+      description: draft.description,
       mainImageUrl: draft.mainImagePath,
       createdAt: DateTime.now(),
       components: draft.components.map((c) => model.RecipeComponent(

@@ -118,7 +118,7 @@ class _JournalPagePreview extends StatelessWidget {
                         ),
                         const SizedBox(height: 36),
                         // Main Hero Photo with Polaroid styling
-                        if (draft.mainImagePath != null)
+                        if (draft.mainImagePath != null) ...[
                           Center(
                             child: Transform.rotate(
                               angle: 0.017,
@@ -146,7 +146,26 @@ class _JournalPagePreview extends StatelessWidget {
                               ),
                             ),
                           ),
-                        const SizedBox(height: 80),
+                          const SizedBox(height: 48),
+                        ],
+
+                        if (draft.description.isNotEmpty) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              draft.description,
+                              textAlign: TextAlign.justify,
+                              style: ArtisanalTheme.hand(
+                                fontSize: 18,
+                                height: 1.8,
+                                color: ArtisanalTheme.ink.withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 36),
+                        ],
+
+                        const SizedBox(height: 32),
 
                         // Draft Components
                         ...draft.components.map((comp) => _ComponentPreview(component: comp)),
