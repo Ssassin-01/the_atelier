@@ -1,57 +1,102 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../l10n/app_localizations.dart';
 
-final pantryCategoriesProvider = StateNotifierProvider<PantryCategoriesNotifier, List<String>>((ref) {
+// We'll store a Map of String (category name) to int (color value)
+final pantryCategoriesProvider = StateNotifierProvider<PantryCategoriesNotifier, Map<String, int>>((ref) {
   return PantryCategoriesNotifier();
 });
 
-class PantryCategoriesNotifier extends StateNotifier<List<String>> {
-  PantryCategoriesNotifier() : super(['All', 'Flour', 'Dairy/Eggs', 'Sweetener', 'Leavening', 'Add-in', 'Others']) {
+class PantryCategoriesNotifier extends StateNotifier<Map<String, int>> {
+  PantryCategoriesNotifier() : super({}) {
     _loadCategories();
   }
 
   Box<dynamic> get _box => Hive.box('settings');
 
+  // Default Palette for Post-its
+  static const Map<String, int> defaultCategories = {
+    'All': 0xFFFAF9F6,      // Paper White
+    'Flour': 0xFFFFF9C4,    // Pastel Yellow
+    'Dairy/Eggs': 0xFFFFE0B2, // Pastel Orange
+    'Sweetener': 0xFFF8BBD0, // Pastel Pink
+    'Leavening': 0xFFE1F5FE, // Pastel Blue
+    'Add-in': 0xFFC8E6C9,    // Pastel Green
+    'Others': 0xFFF3E5F5,    // Pastel Purple
+  };
+
   void _loadCategories() {
-    final saved = _box.get('pantry_categories');
-    List<String> loaded = saved != null && saved is List ? List<String>.from(saved) : ['All', 'Flour', 'Dairy/Eggs', 'Sweetener', 'Leavening', 'Add-in', 'Others'];
-    
-    // Sort logic: All first, mid categories alphabetical, Others last
-    loaded.remove('All');
-    loaded.remove('Others');
-    loaded.sort();
-    
-    state = ['All', ...loaded, 'Others'];
+    final saved = _box.get('pantry_categories_map');
+    if (saved != null && saved is Map) {
+      state = Map<String, int>.from(saved);
+    } else {
+      state = Map<String, int>.from(defaultCategories);
+    }
   }
 
-  Future<void> addCategory(String category) async {
-    if (!state.contains(category)) {
-      final List<String> newList = [...state];
-      newList.add(category);
-      // Re-sort
-      newList.remove('All');
-      newList.remove('Others');
-      newList.sort();
-      state = ['All', ...newList, 'Others'];
-      await _box.put('pantry_categories', state);
+  Future<void> addCategory(String category, int color) async {
+    if (!state.containsKey(category)) {
+      final newState = Map<String, int>.from(state);
+      final othersColor = newState.remove('Others');
+      
+      newState[category] = color;
+      
+      if (othersColor != null) {
+        newState['Others'] = othersColor;
+      }
+      
+      state = newState;
+      await _box.put('pantry_categories_map', state);
     }
   }
 
   Future<void> removeCategory(String category) async {
     if (category != 'All' && category != 'Others') {
-      state = state.where((c) => c != category).toList();
-      await _box.put('pantry_categories', state);
+      final newState = Map<String, int>.from(state);
+      newState.remove(category);
+      state = newState;
+      await _box.put('pantry_categories_map', state);
     }
   }
 
   Future<void> renameCategory(String oldName, String newName) async {
     if (oldName == 'All' || oldName == 'Others') return;
-    final List<String> newList = state.map((c) => c == oldName ? newName : c).toList();
-    // Re-sort
-    newList.remove('All');
-    newList.remove('Others');
-    newList.sort();
-    state = ['All', ...newList, 'Others'];
-    await _box.put('pantry_categories', state);
+    if (state.containsKey(oldName)) {
+      final Map<String, int> newState = {};
+      for (final entry in state.entries) {
+        if (entry.key == oldName) {
+          newState[newName] = entry.value;
+        } else {
+          newState[entry.key] = entry.value;
+        }
+      }
+      
+      state = newState;
+      await _box.put('pantry_categories_map', state);
+    }
+  }
+
+  Future<void> reorderCategories(int oldIndex, int newIndex) async {
+    final keys = state.keys.toList();
+    final item = keys.removeAt(oldIndex);
+    keys.insert(newIndex, item);
+    
+    final Map<String, int> newState = {};
+    for (final key in keys) {
+      newState[key] = state[key]!;
+    }
+    
+    state = newState;
+    await _box.put('pantry_categories_map', state);
+  }
+
+  Future<void> updateColor(String category, int color) async {
+    if (state.containsKey(category)) {
+      final newState = Map<String, int>.from(state);
+      newState[category] = color;
+      state = newState;
+      await _box.put('pantry_categories_map', state);
+    }
   }
 }
+

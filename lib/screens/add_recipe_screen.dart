@@ -536,7 +536,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     final Map<String, String> selectedCategories = {
       for (var name in names) name: 'Others'
     };
-    final categories = ref.read(pantryCategoriesProvider).where((c) => c != 'All').toList();
+    final categories = ref.read(pantryCategoriesProvider).keys.where((c) => c != 'All').toList();
 
     return showDialog<List<({String name, String category})>>(
       context: context,

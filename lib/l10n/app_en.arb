@@ -316,5 +316,17 @@
   "expense": "Expense",
   "balance": "Balance",
   "entriesRecordedLabel": "ENTRIES RECORDED",
-  "noEntriesOnSelectedDate": "No records found for the selected date."
+  "noEntriesOnSelectedDate": "No records found for the selected date.",
+  "studioIndexBook": "Category Management",
+  "customizeLabelsDescription": "Customize your pantry labels & colors",
+  "writeNewLabelHint": "Write a new label name...",
+  "itemsCountSuffix": "{count} ITEMS",
+  "newLabel": "NEW",
+  "labelColor": "LABEL COLOR",
+  "selectLabelColor": "SELECT LABEL COLOR",
+  "deleteCategoryConfirm": "Delete this category?\nItems will move to 'Others'.",
+  "reorderInstruction": "Long press and drag post-its to reorder.",
+  "renameCategoryTitle": "RENAME CATEGORY",
+  "save": "SAVE"
 }
+

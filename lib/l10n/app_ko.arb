@@ -313,5 +313,16 @@
   "expense": "지출",
   "balance": "잔고",
   "entriesRecordedLabel": "개의 기록이 등록됨",
-  "noEntriesOnSelectedDate": "선택한 날짜의 기록이 없습니다."
+  "noEntriesOnSelectedDate": "선택한 날짜의 기록이 없습니다.",
+  "studioIndexBook": "카테고리 관리",
+  "customizeLabelsDescription": "창고 라벨과 색상을 직접 꾸며보세요",
+  "writeNewLabelHint": "새 라벨 이름을 입력하세요...",
+  "itemsCountSuffix": "{count}개 항목",
+  "newLabel": "신규",
+  "labelColor": "라벨 색상",
+  "selectLabelColor": "라벨 색상 선택",
+  "deleteCategoryConfirm": "이 카테고리를 삭제하시겠습니까?\n포함된 품목은 '기타'로 이동됩니다.",
+  "reorderInstruction": "포스트잇을 길게 눌러서 순서를 바꿀 수 있어요.",
+  "renameCategoryTitle": "카테고리 이름 변경",
+  "save": "저장"
 }

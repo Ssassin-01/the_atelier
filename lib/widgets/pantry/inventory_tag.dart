@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_atelier/providers/pantry_categories_provider.dart';
 import '../../theme/artisanal_theme.dart';
 import '../../models/pantry_item.dart';
 import '../../l10n/app_localizations.dart';
@@ -14,23 +15,16 @@ class InventoryTag extends ConsumerWidget {
     required this.onRestock,
   });
 
-  Color _getPostItColor(String category) {
-    switch (category) {
-      case 'Flour': return const Color(0xFFFFF9C4); // Yellow
-      case 'Dairy/Eggs': return const Color(0xFFF8BBD0); // Pink
-      case 'Sweetener': return const Color(0xFFB3E5FC); // Blue
-      case 'Leavening': return const Color(0xFFC8E6C9); // Green
-      case 'Add-in': return const Color(0xFFFFCCBC); // Orange
-      default: return const Color(0xFFE1BEE7); // Purple
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final categoriesMap = ref.watch(pantryCategoriesProvider);
     final stockPercent = (item.currentStock / (item.targetQuantity > 0 ? item.targetQuantity : 1)).clamp(0.0, 1.0);
     final isLow = stockPercent < 0.2;
-    final noteColor = _getPostItColor(item.category);
+    
+    // Get Dynamic Post-it Color from Provider
+    final noteColorValue = categoriesMap[item.category] ?? 0xFFFFF9C4; // Fallback to Yellow
+    final noteColor = Color(noteColorValue);
 
     return Stack(
       clipBehavior: Clip.none,
