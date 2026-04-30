@@ -981,7 +981,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get snapOrSketch => 'Snap or Sketch';
 
   @override
-  String get snapOfTheDay => '오늘의 찰나';
+  String get snapOfTheDay => 'Snap or Sketch';
 
   @override
   String get handDrawnSketch => '손으로 그린 구상';

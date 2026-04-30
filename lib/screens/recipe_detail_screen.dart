@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'dart:math' as math;
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
@@ -146,7 +147,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 80),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
@@ -170,7 +171,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
                               imagePath: recipe.mainImageUrl,
                               fit: BoxFit.cover,
                             ),
-                            title: l10n.autumnMenu24,
+                            title: DateFormat('yyyy.MM.dd').format(recipe.createdAt),
                           ),
                         ),
                       ],
@@ -445,7 +446,6 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
             style: ArtisanalTheme.hand(fontSize: 26, color: ArtisanalTheme.ink)
                 .copyWith(
                   fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.underline,
                 ),
             maxLines: 2,
           ),

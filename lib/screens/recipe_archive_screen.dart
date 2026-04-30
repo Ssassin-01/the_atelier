@@ -16,6 +16,37 @@ class RecipeArchiveScreen extends ConsumerStatefulWidget {
 
 class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
   String _searchQuery = '';
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _searchFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.removeListener(_onFocusChange);
+    _searchFocusNode.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (_searchFocusNode.hasFocus) {
+      // Small delay to ensure keyboard starts appearing or layout stabilizes
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            160.0, // Height of the SliverAppBar
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOutCubic,
+          );
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,45 +81,62 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
           ),
         ),
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: [
             SliverAppBar(
-              expandedHeight: 180,
-              floating: true,
-              snap: true,
-              pinned: true,
+              expandedHeight: 160,
+              floating: false,
+              snap: false,
+              pinned: false,
               backgroundColor: ArtisanalTheme.background,
               elevation: 0,
+              surfaceTintColor: Colors.transparent,
+              leadingWidth: 0,
+              automaticallyImplyLeading: false,
               flexibleSpace: FlexibleSpaceBar(
-                expandedTitleScale: 1.2,
-                titlePadding: const EdgeInsets.only(left: 28, bottom: 20),
-                title: Text(
-                  l10n.myRecipes,
-                  style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(
-                    fontSize: 24,
-                    color: ArtisanalTheme.ink,
-                  ),
-                ),
+                expandedTitleScale: 1,
                 background: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(28, 20, 28, 0),
+                    padding: const EdgeInsets.fromLTRB(28, 40, 28, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: ArtisanalTheme.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.2)),
-                          ),
-                          child: Text(
-                            l10n.rndArchive.toUpperCase(),
-                            style: ArtisanalTheme.receipt(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              color: ArtisanalTheme.primary,
-                              letterSpacing: 1.5,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: ArtisanalTheme.primary.withValues(alpha: 0.15),
+                                border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.3)),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: Text(
+                                l10n.rndArchive.toUpperCase(),
+                                style: ArtisanalTheme.receipt(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  color: ArtisanalTheme.primary,
+                                  letterSpacing: 2.0,
+                                ),
+                              ),
                             ),
+                            const Spacer(),
+                            Text(
+                              "VOL. ${DateTime.now().year}",
+                              style: ArtisanalTheme.receipt(
+                                fontSize: 10,
+                                color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          l10n.myRecipes,
+                          style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(
+                            fontSize: 32,
+                            color: ArtisanalTheme.ink,
+                            letterSpacing: -0.5,
                           ),
                         ),
                       ],
@@ -98,35 +146,55 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
               ),
             ),
 
-            // Elegant Search Row
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(28, 12, 28, 0),
-                child: _SearchBar(
-                  hint: l10n.searchRecipes,
-                  onChanged: (v) => setState(() => _searchQuery = v),
+            // Pinned Search Bar
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _SliverSearchDelegate(
+                child: Container(
+                  color: ArtisanalTheme.background,
+                  padding: const EdgeInsets.fromLTRB(28, 20, 28, 12),
+                  child: _SearchBar(
+                    hint: l10n.searchRecipes,
+                    focusNode: _searchFocusNode,
+                    onChanged: (v) => setState(() => _searchQuery = v),
+                  ),
                 ),
               ),
             ),
 
+
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(28, 40, 28, 0),
+                padding: const EdgeInsets.fromLTRB(28, 24, 28, 0),
                 child: Row(
                   children: [
-                    Text(
-                      '${filtered.length} ${filtered.length == 1 ? l10n.entry : l10n.entries}',
-                      style: ArtisanalTheme.hand(
-                        fontSize: 16,
-                        color:
-                            ArtisanalTheme.secondary.withValues(alpha: 0.55),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '${filtered.length} ${filtered.length == 1 ? l10n.entry : l10n.entries}',
+                        style: ArtisanalTheme.receipt(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Divider(
-                        color: ArtisanalTheme.ink.withValues(alpha: 0.1),
-                        thickness: 1,
+                      child: Container(
+                        height: 1,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              ArtisanalTheme.ink.withValues(alpha: 0.1),
+                              ArtisanalTheme.ink.withValues(alpha: 0.0),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -191,44 +259,62 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
   }
 }
 
+class _SliverSearchDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+
+  _SliverSearchDelegate({required this.child});
+
+  @override
+  double get minExtent => 80;
+  @override
+  double get maxExtent => 80;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return child;
+  }
+
+  @override
+  bool shouldRebuild(_SliverSearchDelegate oldDelegate) {
+    return false;
+  }
+}
+
 class _SearchBar extends StatelessWidget {
   final String hint;
   final ValueChanged<String> onChanged;
+  final FocusNode? focusNode;
 
-  const _SearchBar({required this.hint, required this.onChanged});
+  const _SearchBar({required this.hint, required this.onChanged, this.focusNode});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 52,
+      height: 48,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(2), // Sharp card style
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: ArtisanalTheme.background.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: ArtisanalTheme.ink.withValues(alpha: 0.08),
+          width: 1,
         ),
       ),
       child: TextField(
         onChanged: onChanged,
+        focusNode: focusNode,
+        cursorColor: ArtisanalTheme.primary,
         decoration: InputDecoration(
-          hintText: hint.toUpperCase(),
-          hintStyle: ArtisanalTheme.receipt(
-            fontSize: 10,
-            color: ArtisanalTheme.ink.withValues(alpha: 0.3),
-            letterSpacing: 1.2,
+          hintText: hint,
+          hintStyle: ArtisanalTheme.hand(
+            fontSize: 16,
+            color: ArtisanalTheme.ink.withValues(alpha: 0.25),
           ),
           prefixIcon: const Icon(Icons.search, color: ArtisanalTheme.primary, size: 18),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
         ),
-        style: ArtisanalTheme.hand(fontSize: 18),
+        style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink),
       ),
     );
   }
