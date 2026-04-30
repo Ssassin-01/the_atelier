@@ -1981,6 +1981,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Baker\'s Philosophy'**
   String get quote8Author;
+
+  /// No description provided for @bakerPercentageTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Press the button next to the flour ingredient to set the base (100%) and calculate baker\'s percentages automatically.'**
+  String get bakerPercentageTip;
+
+  /// No description provided for @addAnotherComponent.
+  ///
+  /// In en, this message translates to:
+  /// **'ADD ANOTHER COMPONENT'**
+  String get addAnotherComponent;
+
+  /// No description provided for @snapOrSketch.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap or Sketch'**
+  String get snapOrSketch;
+
+  /// No description provided for @snapOfTheDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap of the day'**
+  String get snapOfTheDay;
+
+  /// No description provided for @handDrawnSketch.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand-drawn sketch'**
+  String get handDrawnSketch;
+
+  /// No description provided for @estWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'EST. WEIGHT:'**
+  String get estWeight;
+
+  /// No description provided for @previewInJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview in Journal'**
+  String get previewInJournal;
+
+  /// No description provided for @nameYourMasterpiece.
+  ///
+  /// In en, this message translates to:
+  /// **'Please name your masterpiece first!'**
+  String get nameYourMasterpiece;
+
+  /// No description provided for @addStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Step'**
+  String get addStep;
+
+  /// No description provided for @addCoverMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Cover Media'**
+  String get addCoverMedia;
+
+  /// No description provided for @stepContentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Mix warm water and yeast...'**
+  String get stepContentHint;
 }
 
 class _AppLocalizationsDelegate

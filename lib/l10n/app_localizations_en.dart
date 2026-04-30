@@ -990,4 +990,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quote8Author => 'Baker\'s Philosophy';
+
+  @override
+  String get bakerPercentageTip =>
+      'Tip: Press the button next to the flour ingredient to set the base (100%) and calculate baker\'s percentages automatically.';
+
+  @override
+  String get addAnotherComponent => 'ADD ANOTHER COMPONENT';
+
+  @override
+  String get snapOrSketch => 'Snap or Sketch';
+
+  @override
+  String get snapOfTheDay => 'Snap of the day';
+
+  @override
+  String get handDrawnSketch => 'Hand-drawn sketch';
+
+  @override
+  String get estWeight => 'EST. WEIGHT:';
+
+  @override
+  String get previewInJournal => 'Preview in Journal';
+
+  @override
+  String get nameYourMasterpiece => 'Please name your masterpiece first!';
+
+  @override
+  String get addStep => 'Add Step';
+
+  @override
+  String get addCoverMedia => 'Add Cover Media';
+
+  @override
+  String get stepContentHint => 'e.g. Mix warm water and yeast...';
 }

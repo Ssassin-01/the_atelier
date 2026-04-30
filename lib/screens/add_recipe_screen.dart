@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/pantry_categories_provider.dart';
 import '../theme/artisanal_theme.dart';
@@ -55,8 +56,8 @@ class RecipeComponentDraft {
     List<IngredientEntry>? ingredients,
     List<RecipeStepDraft>? steps,
   }) : title = title ?? '',
-       ingredients = ingredients ?? [IngredientEntry(id: 'i1')],
-       steps = steps ?? [RecipeStepDraft(id: 's1')];
+       ingredients = ingredients ?? [IngredientEntry(id: 'i_${DateTime.now().millisecondsSinceEpoch}_1')],
+       steps = steps ?? [RecipeStepDraft(id: 's_${DateTime.now().millisecondsSinceEpoch}_1')];
 
   double get totalFlour => ingredients
       .where((e) => e.isFlour)
@@ -75,7 +76,7 @@ class RecipeDraft {
     this.mainImagePath,
     List<RecipeComponentDraft>? components,
   }) : components = components ?? [
-    RecipeComponentDraft(id: 'c1')
+    RecipeComponentDraft(id: 'c_${DateTime.now().millisecondsSinceEpoch}')
   ];
 
   double get totalWeight => components.fold(0.0, (sum, c) => sum + c.totalWeight);
@@ -117,6 +118,7 @@ class AddRecipeScreen extends ConsumerStatefulWidget {
 class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   final TextEditingController _nameController = TextEditingController();
   final Map<String, TextEditingController> _controllers = {};
+  final Map<String, GlobalKey> _photoKeys = {};
 
   void _triggerFeedback() {
     HapticFeedback.lightImpact();
@@ -193,7 +195,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               IconButton(
                 padding: const EdgeInsets.only(right: 8),
                 icon: const Icon(Icons.auto_stories_outlined, color: ArtisanalTheme.primary),
-                tooltip: "Preview in Journal",
+                tooltip: l10n.previewInJournal,
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
@@ -230,7 +232,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       padding: const EdgeInsets.only(top: 20),
                       child: _buildPhotoSelector(context, draft.mainImagePath, (path) {
                         notifier.update((s) => RecipeDraft(name: s.name, mainImagePath: path, components: s.components));
-                      }, height: 280, label: "Add Cover Media"),
+                      }, height: 280, label: l10n.addCoverMedia),
                     ),
                     const MaskingTape(width: 140, label: "MAIN VIEW"),
                   ],
@@ -273,7 +275,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text("EST. WEIGHT:", style: ArtisanalTheme.hand(fontSize: 12, color: ArtisanalTheme.secondary)),
+                    Text(l10n.estWeight, style: ArtisanalTheme.hand(fontSize: 12, color: ArtisanalTheme.secondary)),
                     const SizedBox(width: 8),
                     Text("${draft.totalWeight.toStringAsFixed(0)}G", style: GoogleFonts.notoSerif(fontSize: 14, fontWeight: FontWeight.bold, color: ArtisanalTheme.secondary)),
                   ],
@@ -296,7 +298,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              "Master's Tip: 가루류 재료 옆의 🌿 아이콘을 눌러 기준(100%)을 정하면 배합비(%)가 자동으로 계산됩니다.",
+                              l10n.bakerPercentageTip,
                               style: ArtisanalTheme.hand(fontSize: 14, color: ArtisanalTheme.ink.withValues(alpha: 0.7)),
                             ),
                           ),
@@ -319,7 +321,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       });
                     },
                     icon: const Icon(Icons.library_add_outlined),
-                    label: Text("ADD ANOTHER COMPONENT",
+                    label: Text(l10n.addAnotherComponent,
                         style: ArtisanalTheme.hand(fontSize: 18)),
                     style: TextButton.styleFrom(
                       foregroundColor: ArtisanalTheme.secondary,
@@ -343,10 +345,11 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   }
 
   Future<void> _saveRecipe(BuildContext context, WidgetRef ref, RecipeDraft draft) async {
+    final l10n = AppLocalizations.of(context);
     if (draft.name.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Please name your masterpiece first!", style: ArtisanalTheme.hand(color: Colors.white)),
+          content: Text(l10n.nameYourMasterpiece, style: ArtisanalTheme.hand(color: Colors.white)),
           backgroundColor: ArtisanalTheme.redInk,
         ),
       );
@@ -431,9 +434,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
       {double height = 200,
       String label = "Add Photo",
       bool fullWidth = true}) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: GestureDetector(
-        onTap: () {}, // Image picker placeholder
+        onTap: () => _pickImage(context, ImageSource.gallery, onSelected), // Default to gallery on main tap
         child: Container(
           width: fullWidth ? double.infinity : 260,
           height: height,
@@ -489,7 +493,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _mediaActionBtn(Icons.photo_library, () {}),
+                                _mediaActionBtn(Icons.camera_alt, () => _pickImage(context, ImageSource.camera, onSelected)),
+                                const SizedBox(width: 8),
+                                _mediaActionBtn(Icons.photo_library, () => _pickImage(context, ImageSource.gallery, onSelected)),
                                 const SizedBox(width: 8),
                                 _mediaActionBtn(Icons.brush, () async {
                                   final sketchPath =
@@ -527,7 +533,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  path != null && path.contains('sketch') ? "Hand-drawn sketch" : "Snap of the day",
+                  path != null && path.contains('sketch') ? l10n.handDrawnSketch : l10n.snapOfTheDay,
                   style: ArtisanalTheme.hand(
                       fontSize: 12, color: Colors.black26),
                 ),
@@ -693,15 +699,15 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     );
   }
 
-  Widget _buildComponentSection(
-      BuildContext context, WidgetRef ref, RecipeComponentDraft component, int index, AppLocalizations l10n) {
+  Widget _buildComponentSection(BuildContext context, WidgetRef ref, RecipeComponentDraft component, int index, AppLocalizations l10n) {
     final notifier = ref.read(recipeDraftProvider.notifier);
+    final photoKey = _photoKeys.putIfAbsent(component.id, () => GlobalKey());
 
     return Container(
       margin: const EdgeInsets.only(bottom: 40),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white, // Reverted to white for component cards
+        color: ArtisanalTheme.background, // Reverted to original theme color
         borderRadius: BorderRadius.circular(8),
         border:
             Border.all(color: ArtisanalTheme.outline.withValues(alpha: 0.12)),
@@ -768,6 +774,18 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                                 name: s.name,
                                 mainImagePath: s.mainImagePath,
                                 components: s.components);
+                          });
+                          // Give a small delay for the widget to appear then scroll
+                          Future.delayed(const Duration(milliseconds: 150), () {
+                             final currentContext = photoKey.currentContext;
+                             if (currentContext != null && currentContext.mounted) {
+                               Scrollable.ensureVisible(
+                                 currentContext, 
+                                 duration: const Duration(milliseconds: 600), 
+                                 curve: Curves.easeInOutCubic,
+                                 alignment: 0.5, // Center in screen
+                               );
+                             }
                           });
                         },
                 ),
@@ -836,7 +854,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 });
               },
               icon: const Icon(Icons.add, size: 14),
-              label: Text("${l10n.tabMethods.substring(0, 2)} 단계 추가",
+              label: Text(l10n.addStep,
                   style: ArtisanalTheme.hand(fontSize: 14)),
               style: TextButton.styleFrom(
                 foregroundColor: ArtisanalTheme.secondary,
@@ -850,6 +868,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
             if (component.imagePath != null) ...[
               const SizedBox(height: 48),
               Center(
+                key: photoKey,
                 child: SizedBox(
                   width: 260,
                   child: Stack(
@@ -871,7 +890,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           });
                         },
                         height: 280,
-                        label: "Snap or Sketch",
+                        label: l10n.snapOrSketch,
                         fullWidth: true,
                       ),
                       const Positioned(
@@ -1131,7 +1150,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               style:
                   ArtisanalTheme.hand(fontSize: 17, color: ArtisanalTheme.ink),
               decoration: InputDecoration(
-                hintText: "예: 따뜻한 물과 효모를 섞습니다...",
+                hintText: l10n.stepContentHint,
                 hintStyle: ArtisanalTheme.hand(fontSize: 17, color: ArtisanalTheme.outline.withValues(alpha: 0.3)),
                 border: const UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.black12, width: 0.5),
@@ -1160,5 +1179,26 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _pickImage(BuildContext context, ImageSource source, Function(String?) onSelected) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 1200,
+        maxHeight: 1200,
+        imageQuality: 85,
+      );
+      if (pickedFile != null) {
+        onSelected(pickedFile.path);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to pick image: $e")),
+        );
+      }
+    }
   }
 }

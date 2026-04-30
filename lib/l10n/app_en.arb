@@ -338,5 +338,16 @@
   "quote7": "With every degree of temperature change, the soul of the bread breathes too.",
   "quote7Author": "Artisanal Proverb",
   "quote8": "We are not just making bread; we are baking warm comfort for someone's morning.",
-  "quote8Author": "Baker's Philosophy"
+  "quote8Author": "Baker's Philosophy",
+  "bakerPercentageTip": "Tip: Press the button next to the flour ingredient to set the base (100%) and calculate baker's percentages automatically.",
+  "addAnotherComponent": "ADD ANOTHER COMPONENT",
+  "snapOrSketch": "Snap or Sketch",
+  "snapOfTheDay": "Snap of the day",
+  "handDrawnSketch": "Hand-drawn sketch",
+  "estWeight": "EST. WEIGHT:",
+  "previewInJournal": "Preview in Journal",
+  "nameYourMasterpiece": "Please name your masterpiece first!",
+  "addStep": "Add Step",
+  "addCoverMedia": "Add Cover Media",
+  "stepContentHint": "e.g. Mix warm water and yeast..."
 }

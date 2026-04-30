@@ -969,4 +969,38 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get quote8Author => '아티잔 베이커의 철학';
+
+  @override
+  String get bakerPercentageTip =>
+      'Tip: 가루류 재료 옆의 버튼을 눌러 기준(100%)을 정하면 배합비(%)가 자동으로 계산됩니다.';
+
+  @override
+  String get addAnotherComponent => '구성 요소 추가';
+
+  @override
+  String get snapOrSketch => 'Snap or Sketch';
+
+  @override
+  String get snapOfTheDay => '오늘의 찰나';
+
+  @override
+  String get handDrawnSketch => '손으로 그린 구상';
+
+  @override
+  String get estWeight => '예상 총 무게:';
+
+  @override
+  String get previewInJournal => '연구 요약 보기';
+
+  @override
+  String get nameYourMasterpiece => '먼저 연구의 이름을 지어주세요!';
+
+  @override
+  String get addStep => '단계 추가';
+
+  @override
+  String get addCoverMedia => '커버 이미지 추가';
+
+  @override
+  String get stepContentHint => '예: 따뜻한 물과 효모를 섞습니다...';
 }
