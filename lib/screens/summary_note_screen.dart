@@ -47,7 +47,7 @@ class _SummaryNoteScreenState extends ConsumerState<SummaryNoteScreen> with Sing
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFFFDFBF7),
+        backgroundColor: ArtisanalTheme.background,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(l10n.deleteRecord.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
         content: Text(l10n.removeMediaConfirm, style: ArtisanalTheme.hand(fontSize: 18)),
@@ -115,7 +115,7 @@ class _SummaryNoteScreenState extends ConsumerState<SummaryNoteScreen> with Sing
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F3F0),
+      backgroundColor: ArtisanalTheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -175,7 +175,7 @@ class _JournalPage extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFFDFBF7),
+        color: ArtisanalTheme.background,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.12),
@@ -472,7 +472,7 @@ class _BusinessInsightsCard extends ConsumerWidget {
               constraints: const BoxConstraints(maxWidth: 500),
               padding: const EdgeInsets.fromLTRB(24, 30, 24, 40),
               decoration: const BoxDecoration(
-                color: Color(0xFFFDFCFB),
+                color: ArtisanalTheme.background,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black12,

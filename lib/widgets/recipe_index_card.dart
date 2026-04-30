@@ -49,18 +49,18 @@ class _RecipeIndexCardState extends State<RecipeIndexCard> with SingleTickerProv
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFFFDFBF7),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("DELETE ENTRY?", style: ArtisanalTheme.hand(fontSize: 22, fontWeight: FontWeight.bold)),
-        content: Text("This will permanently remove this recipe from your collection.", style: ArtisanalTheme.hand(fontSize: 18)),
+        backgroundColor: ArtisanalTheme.background,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), // Sharp artisanal style
+        title: Text("DELETE RECORD?", style: ArtisanalTheme.receipt(fontSize: 16, fontWeight: FontWeight.w900, color: ArtisanalTheme.redInk)),
+        content: Text("This will permanently remove this entry from your archive drawer.", style: ArtisanalTheme.hand(fontSize: 18)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text("CANCEL", style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+            child: Text("CANCEL", style: ArtisanalTheme.receipt(color: ArtisanalTheme.ink.withValues(alpha: 0.4), fontSize: 12, fontWeight: FontWeight.bold)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text("REMOVE", style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
+            child: Text("REMOVE", style: ArtisanalTheme.receipt(color: ArtisanalTheme.redInk, fontWeight: FontWeight.w900, fontSize: 12)),
           ),
         ],
       ),
@@ -86,89 +86,97 @@ class _RecipeIndexCardState extends State<RecipeIndexCard> with SingleTickerProv
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(4), // More rectangular for index card feel
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 2,
+                offset: const Offset(0, 1),
               ),
             ],
+            border: Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.05)),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Stack(
                 clipBehavior: Clip.none,
                 children: [
                   ClipRRect(
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      bottomLeft: Radius.circular(16),
+                      topLeft: Radius.circular(4),
+                      topRight: Radius.circular(4),
                     ),
                     child: ArtisanalImage(
                       imagePath: widget.recipe.mainImageUrl,
-                      width: 110,
-                      height: 120,
+                      width: double.infinity,
+                      height: 120, // Reduced from 140
                       fit: BoxFit.cover,
                     ),
                   ),
                   const Positioned(
-                    top: -6,
+                    top: -8,
                     left: 20,
                     child: MaskingTape(
-                        width: 56, rotation: -0.04),
+                        width: 60, rotation: -0.05),
                   ),
                 ],
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(12.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        widget.recipe.name,
-                        style: ArtisanalTheme.hand(
-                          fontSize: 22,
-                          color: ArtisanalTheme.ink,
-                        ).copyWith(fontWeight: FontWeight.bold),
+                      Flexible( // Wrapped in Flexible to prevent overflow
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              widget.recipe.name,
+                              style: ArtisanalTheme.hand(
+                                fontSize: 17, // Reduced from 18
+                                color: ArtisanalTheme.ink,
+                              ).copyWith(fontWeight: FontWeight.bold),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            if (widget.recipe.description != null &&
+                                (widget.recipe.description as String).isNotEmpty)
+                              Text(
+                                widget.recipe.description,
+                                style: ArtisanalTheme.hand(
+                                  fontSize: 12,
+                                  color: ArtisanalTheme.ink.withValues(alpha: 0.45),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 4),
-                      if (widget.recipe.description != null &&
-                          (widget.recipe.description as String).isNotEmpty)
-                        Text(
-                          widget.recipe.description,
-                          style: ArtisanalTheme.hand(
-                            fontSize: 16,
-                            color:
-                                ArtisanalTheme.ink.withValues(alpha: 0.55),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 14,
-                        runSpacing: 4,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _MetaItem(
                               icon: Icons.calendar_today_outlined,
                               label: dateStr),
-                          _MetaItem(
-                              icon: Icons.layers_outlined,
-                              label:
-                                  '${widget.recipe.components.length} components'),
+                          if (widget.recipe.sketchImageUrl != null)
+                            const Icon(Icons.edit_note_rounded, size: 14, color: ArtisanalTheme.primary),
                         ],
                       ),
                     ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-                child: Icon(Icons.arrow_forward_ios_rounded,
-                    size: 14,
-                    color: ArtisanalTheme.outline.withValues(alpha: 0.6)),
               ),
             ],
           ),

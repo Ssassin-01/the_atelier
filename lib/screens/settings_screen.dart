@@ -100,7 +100,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget _buildProfileHeader(AppLocalizations l10n) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: ArtisanalTheme.background,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -112,7 +112,7 @@ class SettingsScreen extends ConsumerWidget {
       child: ClipPath(
         clipper: ScallopedClipper(),
         child: Container(
-          color: Colors.white,
+          color: ArtisanalTheme.background,
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 44),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -244,7 +244,7 @@ class SettingsScreen extends ConsumerWidget {
         ClipPath(
           clipper: ScallopedClipper(),
           child: Container(
-            color: Colors.white,
+            color: ArtisanalTheme.background,
             padding: const EdgeInsets.only(bottom: 20),
             child: Column(
               children: items,

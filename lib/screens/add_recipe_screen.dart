@@ -54,8 +54,8 @@ class RecipeComponentDraft {
     this.imagePath,
     List<IngredientEntry>? ingredients,
     List<RecipeStepDraft>? steps,
-  }) : title = title ?? 'New Component',
-       ingredients = ingredients ?? [],
+  }) : title = title ?? '',
+       ingredients = ingredients ?? [IngredientEntry(id: 'i1')],
        steps = steps ?? [RecipeStepDraft(id: 's1')];
 
   double get totalFlour => ingredients
@@ -75,10 +75,7 @@ class RecipeDraft {
     this.mainImagePath,
     List<RecipeComponentDraft>? components,
   }) : components = components ?? [
-    RecipeComponentDraft(id: 'c1', title: 'Main Dough', ingredients: [
-      IngredientEntry(id: 'i1', name: 'Bread Flour', weight: 500, isFlour: true),
-      IngredientEntry(id: 'i2', name: 'Water', weight: 350),
-    ])
+    RecipeComponentDraft(id: 'c1')
   ];
 
   double get totalWeight => components.fold(0.0, (sum, c) => sum + c.totalWeight);
@@ -118,26 +115,46 @@ class AddRecipeScreen extends ConsumerStatefulWidget {
 }
 
 class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final Map<String, TextEditingController> _controllers = {};
+
   void _triggerFeedback() {
     HapticFeedback.lightImpact();
+  }
+
+  TextEditingController _getController(String id, String initialText) {
+    if (!_controllers.containsKey(id)) {
+      _controllers[id] = TextEditingController(text: initialText);
+    }
+    return _controllers[id]!;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    for (var c in _controllers.values) {
+      c.dispose();
+    }
+    super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
     if (widget.editingRecipeId != null) {
-      // Defer state update to next frame to avoid build-phase exceptions
       Future.microtask(() {
         final recipes = ref.read(recipeListProvider);
         final existing = recipes.where((r) => r.id == widget.editingRecipeId).firstOrNull;
         if (existing != null) {
-          ref.read(recipeDraftProvider.notifier).state = RecipeDraft.fromModel(existing);
+          final draft = RecipeDraft.fromModel(existing);
+          _nameController.text = draft.name;
+          ref.read(recipeDraftProvider.notifier).state = draft;
         }
       });
     } else {
-      // CLEAR DRAFT for new recipe to avoid bug where last edited recipe remains
       Future.microtask(() {
         ref.invalidate(recipeDraftProvider);
+        _nameController.clear();
       });
     }
   }
@@ -148,17 +165,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     final draft = ref.watch(recipeDraftProvider);
     final notifier = ref.read(recipeDraftProvider.notifier);
     
-    // Patch default titles if they are the English defaults
-    if (draft.components.length == 1 && draft.components[0].title == 'Main Dough') {
-       draft.components[0].title = l10n.mainDough;
-       if (draft.components[0].ingredients.length == 2 && draft.components[0].ingredients[0].name == 'Bread Flour') {
-         draft.components[0].ingredients[0].name = l10n.breadFlour;
-         draft.components[0].ingredients[1].name = l10n.water;
-       }
-    }
+    // Remove English patching logic to respect user request and l10n
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFDFBF7),
+      backgroundColor: const Color(0xFFFAF9F6), // Reverted to original Linen White
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -229,17 +239,15 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 const SizedBox(height: 32),
                 
                 TextField(
-                  enableSuggestions: false,
-                  autocorrect: false,
                   onChanged: (val) {
                     _triggerFeedback();
                     notifier.update((s) => RecipeDraft(name: val, mainImagePath: s.mainImagePath, components: s.components));
                   },
-                  controller: TextEditingController(text: draft.name)..selection = TextSelection.collapsed(offset: draft.name.length),
+                  controller: _nameController,
                   decoration: InputDecoration(
                     hintText: l10n.recipeNameHint,
                     hintStyle: GoogleFonts.notoSerif(
-                        fontSize: 34,
+                        fontSize: 26,
                         fontStyle: FontStyle.italic,
                         color: ArtisanalTheme.ink.withValues(alpha: 0.1)),
                     border: const UnderlineInputBorder(
@@ -254,7 +262,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     ),
                   ),
                   style: GoogleFonts.notoSerif(
-                      fontSize: 34,
+                      fontSize: 26,
                       fontStyle: FontStyle.italic,
                       color: ArtisanalTheme.ink),
                 ),
@@ -272,7 +280,32 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                ...draft.components.asMap().entries.map((entry) => _buildComponentSection(context, ref, entry.value, entry.key)),
+                if (draft.components.any((c) => c.ingredients.isNotEmpty && c.totalFlour == 0))
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 24, left: 4),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: ArtisanalTheme.primary.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.1)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.lightbulb_outline, size: 18, color: ArtisanalTheme.primary),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              "Master's Tip: 가루류 재료 옆의 🌿 아이콘을 눌러 기준(100%)을 정하면 배합비(%)가 자동으로 계산됩니다.",
+                              style: ArtisanalTheme.hand(fontSize: 14, color: ArtisanalTheme.ink.withValues(alpha: 0.7)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                ...draft.components.asMap().entries.map((entry) => _buildComponentSection(context, ref, entry.value, entry.key, l10n)),
 
                 const SizedBox(height: 24),
                 Center(
@@ -661,14 +694,14 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   }
 
   Widget _buildComponentSection(
-      BuildContext context, WidgetRef ref, RecipeComponentDraft component, int index) {
+      BuildContext context, WidgetRef ref, RecipeComponentDraft component, int index, AppLocalizations l10n) {
     final notifier = ref.read(recipeDraftProvider.notifier);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 40),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFFDF9F3), // Linen Beige background instead of white
+        color: Colors.white, // Reverted to white for component cards
         borderRadius: BorderRadius.circular(8),
         border:
             Border.all(color: ArtisanalTheme.outline.withValues(alpha: 0.12)),
@@ -695,11 +728,12 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       _triggerFeedback();
                       component.title = val;
                     },
-                    controller: TextEditingController(text: component.title)..selection = TextSelection.collapsed(offset: component.title.length),
+                    controller: _getController("${component.id}_title", component.title),
                     style: ArtisanalTheme.hand(
-                        fontSize: 22, color: ArtisanalTheme.primary),
-                    decoration: const InputDecoration(
-                      hintText: "Component Name...",
+                        fontSize: 20, color: ArtisanalTheme.primary),
+                    decoration: InputDecoration(
+                      hintText: l10n.newComponent, // "새 컴포넌트" or "구성 요소 이름..."
+                      hintStyle: ArtisanalTheme.hand(fontSize: 20, color: ArtisanalTheme.outline.withValues(alpha: 0.3)),
                       border: UnderlineInputBorder(
                         borderSide: BorderSide(color: Colors.black12, width: 1),
                       ),
@@ -750,12 +784,12 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                   ),
               ],
             ),
-            const Divider(height: 1, color: ArtisanalTheme.outline),
+            const SizedBox(height: 8),
             const SizedBox(height: 20),
             Column(
               children: [
                 ...component.ingredients.asMap().entries.map((entry) =>
-                    _buildIngredientRow(ref, component, entry.value, entry.key)),
+                    _buildIngredientRow(ref, component, entry.value, entry.key, l10n)),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
@@ -773,7 +807,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       });
                     },
                     icon: const Icon(Icons.add, size: 14),
-                    label: Text("Add Ingredient",
+                    label: Text(l10n.addIngredient,
                         style: ArtisanalTheme.hand(fontSize: 14)),
                     style: TextButton.styleFrom(
                       foregroundColor: ArtisanalTheme.secondary,
@@ -790,9 +824,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
             ),
 
             const SizedBox(height: 24),
-            Text("PROCESS FOR THIS PART", style: ArtisanalTheme.hand(fontSize: 11, color: ArtisanalTheme.secondary, letterSpacing: 1)),
+            Text(l10n.tabMethods.toUpperCase(), style: ArtisanalTheme.receipt(fontSize: 10, fontWeight: FontWeight.w900, color: ArtisanalTheme.secondary, letterSpacing: 1.5)),
             const SizedBox(height: 12),
-            ...component.steps.asMap().entries.map((stepEntry) => _buildStepRow(ref, component, stepEntry.value, stepEntry.key)),
+            ...component.steps.asMap().entries.map((stepEntry) => _buildStepRow(ref, component, stepEntry.value, stepEntry.key, l10n)),
             TextButton.icon(
               onPressed: () {
                 _triggerFeedback();
@@ -802,7 +836,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 });
               },
               icon: const Icon(Icons.add, size: 14),
-              label: Text("Add Process Step",
+              label: Text("${l10n.tabMethods.substring(0, 2)} 단계 추가",
                   style: ArtisanalTheme.hand(fontSize: 14)),
               style: TextButton.styleFrom(
                 foregroundColor: ArtisanalTheme.secondary,
@@ -858,7 +892,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     );
   }
 
-  Widget _buildIngredientRow(WidgetRef ref, RecipeComponentDraft component, IngredientEntry entry, int index) {
+  Widget _buildIngredientRow(WidgetRef ref, RecipeComponentDraft component, IngredientEntry entry, int index, AppLocalizations l10n) {
     final notifier = ref.read(recipeDraftProvider.notifier);
     final totalFlour = component.totalFlour;
     final percentage = (totalFlour > 0) ? (entry.weight / totalFlour) * 100 : 0.0;
@@ -867,28 +901,27 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         crossAxisAlignment:
-            CrossAxisAlignment.start, // Align to top for predictable baseline
+            CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0), // Align icon with text
-            child: GestureDetector(
-              onTap: () {
-                _triggerFeedback();
-                notifier.update((s) {
-                  entry.isFlour = !entry.isFlour;
-                  return RecipeDraft(
-                      name: s.name,
-                      mainImagePath: s.mainImagePath,
-                      components: s.components);
-                });
-              },
-              child: Icon(
-                Icons.grass_outlined,
-                size: 16,
-                color: entry.isFlour
-                    ? ArtisanalTheme.primary
-                    : ArtisanalTheme.outline.withValues(alpha: 0.1),
-              ),
+          // Icon alignment with toggle functionality
+          GestureDetector(
+            onTap: () {
+              _triggerFeedback();
+              notifier.update((s) {
+                entry.isFlour = !entry.isFlour;
+                return RecipeDraft(
+                    name: s.name,
+                    mainImagePath: s.mainImagePath,
+                    components: s.components);
+              });
+            },
+            child: Icon(
+              Icons.grass_outlined,
+              size: 16,
+              color: entry.isFlour
+                  ? ArtisanalTheme.primary
+                  : ArtisanalTheme.outline.withValues(alpha: 0.1),
             ),
           ),
           const SizedBox(width: 8),
@@ -921,8 +954,6 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     return TextField(
                       focusNode: focusNode,
                       controller: controller,
-                      enableSuggestions: false,
-                      autocorrect: false,
                       textInputAction: TextInputAction.next,
                       onChanged: (val) {
                         _triggerFeedback();
@@ -932,9 +963,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                         onFieldSubmitted();
                       },
                       style: ArtisanalTheme.hand(fontSize: 18),
-                      decoration: const InputDecoration(
-                        hintText: "Ingredient name...",
-                        border: UnderlineInputBorder(
+                      decoration: InputDecoration(
+                        hintText: l10n.ingredientNameHint, // "예: 유기농 호밀가루"
+                        hintStyle: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.outline.withValues(alpha: 0.3)),
+                        border: const UnderlineInputBorder(
                           borderSide: BorderSide(color: Colors.black12, width: 1.0),
                         ),
                         focusedBorder: UnderlineInputBorder(
@@ -945,7 +977,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           borderSide: BorderSide(color: Colors.black12, width: 1.0),
                         ),
                         isDense: true,
-                        contentPadding: EdgeInsets.symmetric(vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                     );
                   },
@@ -977,8 +1009,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     );
                   },
                 ),
-                // Mirror the height of percentage text to keep underlines aligned
-                const SizedBox(height: 15),
+                // Align height with percentage block on the right (approx 19-23px)
+                const SizedBox(height: 23),
               ],
             ),
           ),
@@ -1004,17 +1036,12 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           components: s.components);
                     });
                   },
-                  controller: TextEditingController(
-                      text: entry.weight == 0 ? '' : entry.weight.toStringAsFixed(0))
-                    ..selection = TextSelection.collapsed(
-                        offset: (entry.weight == 0
-                                ? ''
-                                : entry.weight.toStringAsFixed(0))
-                            .length),
-                  style: GoogleFonts.notoSerif(fontSize: 16),
-                  decoration: const InputDecoration(
+                  controller: _getController("${entry.id}_weight", entry.weight == 0 ? '' : entry.weight.toStringAsFixed(0)),
+                  style: GoogleFonts.notoSerif(fontSize: 18), // Match font size for alignment
+                  decoration: InputDecoration(
                     hintText: "0",
-                    border: UnderlineInputBorder(
+                    hintStyle: GoogleFonts.notoSerif(fontSize: 16, color: ArtisanalTheme.outline.withValues(alpha: 0.2)),
+                    border: const UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.black12, width: 1.0),
                     ),
                     focusedBorder: UnderlineInputBorder(
@@ -1025,9 +1052,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       borderSide: BorderSide(color: Colors.black12, width: 1.0),
                     ),
                     suffixText: "g",
-                    suffixStyle: TextStyle(fontSize: 12, color: Colors.black38),
+                    suffixStyle: const TextStyle(fontSize: 12, color: Colors.black38),
                     isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
                   ),
                 ),
                 if (entry.weight > 0 && totalFlour > 0)
@@ -1063,29 +1090,27 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0), // Match icon with top text
-            child: GestureDetector(
-              onTap: () {
-                _triggerFeedback();
-                notifier.update((s) {
-                  component.ingredients.removeAt(index);
-                  return RecipeDraft(
-                      name: s.name,
-                      mainImagePath: s.mainImagePath,
-                      components: s.components);
-                });
-              },
-              child: const Icon(Icons.close,
-                  size: 16, color: ArtisanalTheme.outline),
-            ),
+          // Delete button
+          GestureDetector(
+            onTap: () {
+              _triggerFeedback();
+              notifier.update((s) {
+                component.ingredients.removeAt(index);
+                return RecipeDraft(
+                    name: s.name,
+                    mainImagePath: s.mainImagePath,
+                    components: s.components);
+              });
+            },
+            child: const Icon(Icons.close,
+                size: 16, color: ArtisanalTheme.outline),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStepRow(WidgetRef ref, RecipeComponentDraft component, RecipeStepDraft step, int index) {
+  Widget _buildStepRow(WidgetRef ref, RecipeComponentDraft component, RecipeStepDraft step, int index, AppLocalizations l10n) {
     final notifier = ref.read(recipeDraftProvider.notifier);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -1101,15 +1126,14 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                  _triggerFeedback();
                  step.content = val;
               },
-              controller: TextEditingController(text: step.content)
-                ..selection =
-                    TextSelection.collapsed(offset: step.content.length),
+              controller: _getController(step.id, step.content),
               maxLines: null,
               style:
                   ArtisanalTheme.hand(fontSize: 17, color: ArtisanalTheme.ink),
-              decoration: const InputDecoration(
-                hintText: "Write process step here...",
-                border: UnderlineInputBorder(
+              decoration: InputDecoration(
+                hintText: "예: 따뜻한 물과 효모를 섞습니다...",
+                hintStyle: ArtisanalTheme.hand(fontSize: 17, color: ArtisanalTheme.outline.withValues(alpha: 0.3)),
+                border: const UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.black12, width: 0.5),
                 ),
                 focusedBorder: UnderlineInputBorder(

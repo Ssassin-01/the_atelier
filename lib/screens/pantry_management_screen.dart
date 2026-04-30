@@ -106,7 +106,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF9F6), // Professional Off-white paper color
+      backgroundColor: ArtisanalTheme.background,
       body: Column(
         children: [
           AppBar(

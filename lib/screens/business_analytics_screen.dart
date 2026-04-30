@@ -52,6 +52,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     _insightPageController.dispose();
     super.dispose();
   }
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final analytics = ref.watch(analyticsProvider);
@@ -89,57 +90,43 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
           const SizedBox(width: 8),
         ],
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: const NetworkImage('https://www.transparenttextures.com/patterns/paper-fibers.png'),
-            repeat: ImageRepeat.repeat,
-            colorFilter: ColorFilter.mode(
-              Colors.black.withValues(alpha: 0.05),
-              BlendMode.dstATop,
-            ),
-          ),
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 80),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPeriodSelector(ref, l10n),
-              const SizedBox(height: 24),
-              
-              // 1. Action Buttons Row
-              _buildTransactionActionButtons(context, l10n),
-              
-              const SizedBox(height: 32),
-              
-              // 2. Insight Header / Indicator
-              _buildInsightNavigator(l10n),
-              
-              const SizedBox(height: 16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 80),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildPeriodSelector(ref, l10n),
+            const SizedBox(height: 24),
+            
+            // 1. Action Buttons Row
+            _buildTransactionActionButtons(context, l10n),
+            
+            const SizedBox(height: 32),
+            
+            // 2. Insight Header / Indicator
+            _buildInsightNavigator(l10n),
+            
+            const SizedBox(height: 16),
 
-              // 3. Horizontal Deck (Charts & Receipt)
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 400),
-                curve: Curves.easeInOut,
-                height: _activeInsightPage == 1 
-                    ? 1600 // Extra generous Journal height
-                    : (analytics.period == AnalyticsPeriod.month ? 1350 : 1050), // Significantly increased for non-scrollable Trends
-                child: PageView(
-                  controller: _insightPageController,
-                  clipBehavior: Clip.none, 
-                  physics: const BouncingScrollPhysics(),
-                  onPageChanged: (idx) => setState(() => _activeInsightPage = idx),
-                  children: [
-                    _buildAnimatedPage(0, analytics, l10n),
-                    _buildAnimatedPage(1, analytics, l10n),
-                  ],
-                ),
+            // 3. Horizontal Deck (Charts & Receipt)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+              height: _activeInsightPage == 1 
+                  ? 1600 // Extra generous Journal height
+                  : (analytics.period == AnalyticsPeriod.month ? 1350 : 1050), // Significantly increased for non-scrollable Trends
+              child: PageView(
+                controller: _insightPageController,
+                clipBehavior: Clip.none, 
+                physics: const BouncingScrollPhysics(),
+                onPageChanged: (idx) => setState(() => _activeInsightPage = idx),
+                children: [
+                  _buildAnimatedPage(0, analytics, l10n),
+                  _buildAnimatedPage(1, analytics, l10n),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -158,8 +145,8 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     return Transform(
       transform: Matrix4.identity()
         ..setEntry(3, 2, 0.001) // Perspective
-        ..translate(translation)
-        ..scale(scale)
+        ..multiply(Matrix4.translationValues(translation, 0, 0))
+        ..multiply(Matrix4.diagonal3Values(scale, scale, 1.0))
         ..rotateY(rotation),
       alignment: relativePos > 0 ? Alignment.centerLeft : Alignment.centerRight,
       child: Opacity(
@@ -633,21 +620,13 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(32, 56, 32, 48),
                   decoration: BoxDecoration(
-                    color: data.period == AnalyticsPeriod.year ? const Color(0xFFFAF9F6) : Colors.white,
+                    color: ArtisanalTheme.background,
                     borderRadius: data.period == AnalyticsPeriod.month || data.period == AnalyticsPeriod.year
                       ? BorderRadius.circular(4)
                       : null,
                     border: data.period == AnalyticsPeriod.year 
                       ? Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.1), width: 1)
                       : null,
-                    image: DecorationImage(
-                      image: const NetworkImage('https://www.transparenttextures.com/patterns/paper-fibers.png'),
-                      repeat: ImageRepeat.repeat,
-                      colorFilter: ColorFilter.mode(
-                        Colors.black.withValues(alpha: 0.03),
-                        BlendMode.dstATop,
-                      ),
-                    ),
                   ),
                   child: Column(
                     children: [

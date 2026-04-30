@@ -47,7 +47,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFFFDFBF7),
+        backgroundColor: ArtisanalTheme.background,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(l10n.deleteRecord.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
         content: Text(l10n.removeMediaConfirm, style: ArtisanalTheme.hand(fontSize: 18)),
@@ -187,7 +187,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
               controller: _crumpleController,
               child: Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFBF9F6),
+                  color: ArtisanalTheme.background,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(36),
                     topRight: Radius.circular(36),

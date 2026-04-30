@@ -16,20 +16,12 @@ class RecipeArchiveScreen extends ConsumerStatefulWidget {
 
 class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
   String _searchQuery = '';
-  String? _selectedCategory; // null = All
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final recipes = ref.watch(recipeListProvider);
 
-    final List<(String, String)> categories = [
-      ('All', l10n.all),
-      ('Sourdough', l10n.collectionSourdough),
-      ('Desserts', l10n.collectionDesserts),
-      ('Pastry', l10n.collectionPastry),
-      ('Cookies', l10n.collectionCookies),
-    ];
 
     final filtered = recipes.where((r) {
       final matchesSearch = _searchQuery.isEmpty ||
@@ -39,15 +31,7 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                   .contains(_searchQuery.toLowerCase()) ??
               false);
 
-      final matchesCategory = _selectedCategory == null ||
-          _selectedCategory == 'All' ||
-          r.name.toLowerCase().contains(_selectedCategory!.toLowerCase()) ||
-          (r.description
-                  ?.toLowerCase()
-                  .contains(_selectedCategory!.toLowerCase()) ??
-              false);
-
-      return matchesSearch && matchesCategory;
+      return matchesSearch;
     }).toList();
 
     return Scaffold(
@@ -68,42 +52,44 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
         child: CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 160,
+              expandedHeight: 180,
               floating: true,
               snap: true,
-              pinned: false,
-              backgroundColor: Colors.transparent,
+              pinned: true,
+              backgroundColor: ArtisanalTheme.background,
               elevation: 0,
               flexibleSpace: FlexibleSpaceBar(
+                expandedTitleScale: 1.2,
+                titlePadding: const EdgeInsets.only(left: 28, bottom: 20),
+                title: Text(
+                  l10n.myRecipes,
+                  style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(
+                    fontSize: 24,
+                    color: ArtisanalTheme.ink,
+                  ),
+                ),
                 background: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(28, 16, 28, 0),
+                    padding: const EdgeInsets.fromLTRB(28, 20, 28, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                           decoration: BoxDecoration(
-                            border: Border.all(
-                                color: ArtisanalTheme.primary
-                                    .withValues(alpha: 0.4),
-                                width: 1.5),
+                            color: ArtisanalTheme.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.2)),
                           ),
                           child: Text(
                             l10n.rndArchive.toUpperCase(),
-                            style: ArtisanalTheme.hand(
-                              fontSize: 14,
-                              color: ArtisanalTheme.primary
-                                  .withValues(alpha: 0.6),
-                            ).copyWith(letterSpacing: 1.5),
+                            style: ArtisanalTheme.receipt(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: ArtisanalTheme.primary,
+                              letterSpacing: 1.5,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.myRecipes,
-                          style: ArtisanalTheme.lightTheme.textTheme.displayMedium,
                         ),
                       ],
                     ),
@@ -112,36 +98,13 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
               ),
             ),
 
+            // Elegant Search Row
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(28, 8, 28, 0),
+                padding: const EdgeInsets.fromLTRB(28, 12, 28, 0),
                 child: _SearchBar(
                   hint: l10n.searchRecipes,
                   onChanged: (v) => setState(() => _searchQuery = v),
-                ),
-              ),
-            ),
-
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(28, 20, 0, 0),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: categories.map((cat) {
-                      final isSelected = (_selectedCategory == null &&
-                               cat.$1 == 'All') ||
-                          cat.$1 == _selectedCategory;
-                      return _CategoryChip(
-                        label: cat.$2,
-                        isSelected: isSelected,
-                        onTap: () => setState(() {
-                          _selectedCategory =
-                              cat.$1 == 'All' ? null : cat.$1;
-                        }),
-                      );
-                    }).toList(),
-                  ),
                 ),
               ),
             ),
@@ -195,26 +158,30 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                     ),
                   )
                 : SliverPadding(
-                    padding:
-                        const EdgeInsets.fromLTRB(28, 20, 28, 120),
-                    sliver: SliverList.separated(
-                      itemCount: filtered.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 16),
-                      itemBuilder: (context, index) {
-                        final recipe = filtered[index];
-                        return RecipeIndexCard(
-                          recipe: recipe,
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  RecipeDetailScreen(recipe: recipe),
+                    padding: const EdgeInsets.fromLTRB(28, 20, 28, 120),
+                    sliver: SliverGrid(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 20,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: 0.65, // More vertical space to prevent overflow
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final recipe = filtered[index];
+                          return RecipeIndexCard(
+                            recipe: recipe,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RecipeDetailScreen(recipe: recipe),
+                              ),
                             ),
-                          ),
-                          onDelete: () => ref.read(recipeListProvider.notifier).removeRecipe(recipe.id),
-                        );
-                      },
+                            onDelete: () => ref.read(recipeListProvider.notifier).removeRecipe(recipe.id),
+                          );
+                        },
+                        childCount: filtered.length,
+                      ),
                     ),
                   ),
           ],
@@ -233,21 +200,33 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 48,
+      height: 52,
       decoration: BoxDecoration(
-        color: ArtisanalTheme.secondary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(2), // Sharp card style
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
         border: Border.all(
-          color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+          color: ArtisanalTheme.ink.withValues(alpha: 0.08),
         ),
       ),
       child: TextField(
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: hint,
-          prefixIcon: const Icon(Icons.search, color: ArtisanalTheme.secondary),
+          hintText: hint.toUpperCase(),
+          hintStyle: ArtisanalTheme.receipt(
+            fontSize: 10,
+            color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+            letterSpacing: 1.2,
+          ),
+          prefixIcon: const Icon(Icons.search, color: ArtisanalTheme.primary, size: 18),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(vertical: 16),
         ),
         style: ArtisanalTheme.hand(fontSize: 18),
       ),
@@ -255,40 +234,3 @@ class _SearchBar extends StatelessWidget {
   }
 }
 
-class _CategoryChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _CategoryChip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? ArtisanalTheme.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.outline.withValues(alpha: 0.3),
-          ),
-        ),
-        child: Text(
-          label.toUpperCase(),
-          style: ArtisanalTheme.hand(
-            fontSize: 13,
-            color: isSelected ? Colors.white : ArtisanalTheme.secondary,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ).copyWith(letterSpacing: 1),
-        ),
-      ),
-    );
-  }
-}
