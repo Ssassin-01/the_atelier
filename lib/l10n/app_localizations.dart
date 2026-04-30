@@ -1145,31 +1145,31 @@ abstract class AppLocalizations {
   /// No description provided for @categoryFlour.
   ///
   /// In en, this message translates to:
-  /// **'Flour'**
+  /// **'Flours'**
   String get categoryFlour;
 
   /// No description provided for @categoryDairy.
   ///
   /// In en, this message translates to:
-  /// **'Dairy/Eggs'**
+  /// **'Dairy & Eggs'**
   String get categoryDairy;
 
   /// No description provided for @categorySweetener.
   ///
   /// In en, this message translates to:
-  /// **'Sweetener'**
+  /// **'Sugars & Syrups'**
   String get categorySweetener;
 
   /// No description provided for @categoryLeavening.
   ///
   /// In en, this message translates to:
-  /// **'Leavening'**
+  /// **'Yeast & Leavening'**
   String get categoryLeavening;
 
   /// No description provided for @categoryAddIn.
   ///
   /// In en, this message translates to:
-  /// **'Add-in'**
+  /// **'Add-ins'**
   String get categoryAddIn;
 
   /// No description provided for @categoryOthers.
@@ -1177,36 +1177,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Others'**
   String get categoryOthers;
-
-  /// No description provided for @quote1.
-  ///
-  /// In en, this message translates to:
-  /// **'\"The scent of wood and fresh sourdough—a master’s morning.\"'**
-  String get quote1;
-
-  /// No description provided for @quote2.
-  ///
-  /// In en, this message translates to:
-  /// **'\"Every crumb tells the story of the grain’s journey.\"'**
-  String get quote2;
-
-  /// No description provided for @quote3.
-  ///
-  /// In en, this message translates to:
-  /// **'\"Precision is key, but intuition is most important.\"'**
-  String get quote3;
-
-  /// No description provided for @quote4.
-  ///
-  /// In en, this message translates to:
-  /// **'\"The best flour is the one that still feels like life.\"'**
-  String get quote4;
-
-  /// No description provided for @quote5.
-  ///
-  /// In en, this message translates to:
-  /// **'\"Warmth, patience, and time: the true artisan tools.\"'**
-  String get quote5;
 
   /// No description provided for @mon.
   ///
@@ -1505,7 +1475,7 @@ abstract class AppLocalizations {
   /// No description provided for @deskHeader.
   ///
   /// In en, this message translates to:
-  /// **'From the Flour-dusted Desk'**
+  /// **'Atelier Log'**
   String get deskHeader;
 
   /// No description provided for @entry.
@@ -1849,6 +1819,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No records found for the selected date.'**
   String get noEntriesOnSelectedDate;
+
+  /// No description provided for @studioIndexBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Management'**
+  String get studioIndexBook;
+
+  /// No description provided for @customizeLabelsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize your pantry labels & colors'**
+  String get customizeLabelsDescription;
+
+  /// No description provided for @writeNewLabelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a new label name...'**
+  String get writeNewLabelHint;
+
+  /// No description provided for @itemsCountSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ITEMS'**
+  String itemsCountSuffix(Object count);
+
+  /// No description provided for @newLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW'**
+  String get newLabel;
+
+  /// No description provided for @labelColor.
+  ///
+  /// In en, this message translates to:
+  /// **'LABEL COLOR'**
+  String get labelColor;
+
+  /// No description provided for @selectLabelColor.
+  ///
+  /// In en, this message translates to:
+  /// **'SELECT LABEL COLOR'**
+  String get selectLabelColor;
+
+  /// No description provided for @deleteCategoryConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this category?\nItems will move to \'Others\'.'**
+  String get deleteCategoryConfirm;
+
+  /// No description provided for @reorderInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Long press and drag post-its to reorder.'**
+  String get reorderInstruction;
+
+  /// No description provided for @renameCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'RENAME CATEGORY'**
+  String get renameCategoryTitle;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'SAVE'**
+  String get save;
+
+  /// No description provided for @quote1.
+  ///
+  /// In en, this message translates to:
+  /// **'Baking bread is not just a skill, it is a process of patience dealing with living organisms.'**
+  String get quote1;
+
+  /// No description provided for @quote1Author.
+  ///
+  /// In en, this message translates to:
+  /// **'Raymond Calvel'**
+  String get quote1Author;
+
+  /// No description provided for @quote2.
+  ///
+  /// In en, this message translates to:
+  /// **'Good bread starts with honest ingredients and the sincere touch of a baker.'**
+  String get quote2;
+
+  /// No description provided for @quote2Author.
+  ///
+  /// In en, this message translates to:
+  /// **'Richard Bertinet'**
+  String get quote2Author;
+
+  /// No description provided for @quote3.
+  ///
+  /// In en, this message translates to:
+  /// **'Flour is the baker\'s canvas, and yeast is the paint that breathes life into it.'**
+  String get quote3;
+
+  /// No description provided for @quote3Author.
+  ///
+  /// In en, this message translates to:
+  /// **'Chad Robertson'**
+  String get quote3Author;
+
+  /// No description provided for @quote4.
+  ///
+  /// In en, this message translates to:
+  /// **'The crackle of a perfect crust is the most beautiful compliment the oven gives to the baker.'**
+  String get quote4;
+
+  /// No description provided for @quote4Author.
+  ///
+  /// In en, this message translates to:
+  /// **'Jeffrey Hamelman'**
+  String get quote4Author;
+
+  /// No description provided for @quote5.
+  ///
+  /// In en, this message translates to:
+  /// **'In slowly fermented bread, there is a deep flavor that only time can create.'**
+  String get quote5;
+
+  /// No description provided for @quote5Author.
+  ///
+  /// In en, this message translates to:
+  /// **'Ken Forkish'**
+  String get quote5Author;
+
+  /// No description provided for @quote6.
+  ///
+  /// In en, this message translates to:
+  /// **'Baking begins with science and finishes as an art form.'**
+  String get quote6;
+
+  /// No description provided for @quote6Author.
+  ///
+  /// In en, this message translates to:
+  /// **'Peter Reinhart'**
+  String get quote6Author;
+
+  /// No description provided for @quote7.
+  ///
+  /// In en, this message translates to:
+  /// **'With every degree of temperature change, the soul of the bread breathes too.'**
+  String get quote7;
+
+  /// No description provided for @quote7Author.
+  ///
+  /// In en, this message translates to:
+  /// **'Artisanal Proverb'**
+  String get quote7Author;
+
+  /// No description provided for @quote8.
+  ///
+  /// In en, this message translates to:
+  /// **'We are not just making bread; we are baking warm comfort for someone\'s morning.'**
+  String get quote8;
+
+  /// No description provided for @quote8Author.
+  ///
+  /// In en, this message translates to:
+  /// **'Baker\'s Philosophy'**
+  String get quote8Author;
 }
 
 class _AppLocalizationsDelegate

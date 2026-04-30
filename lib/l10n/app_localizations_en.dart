@@ -545,41 +545,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get purchasePriceLabel => 'Purchase Price';
 
   @override
-  String get categoryFlour => 'Flour';
+  String get categoryFlour => 'Flours';
 
   @override
-  String get categoryDairy => 'Dairy/Eggs';
+  String get categoryDairy => 'Dairy & Eggs';
 
   @override
-  String get categorySweetener => 'Sweetener';
+  String get categorySweetener => 'Sugars & Syrups';
 
   @override
-  String get categoryLeavening => 'Leavening';
+  String get categoryLeavening => 'Yeast & Leavening';
 
   @override
-  String get categoryAddIn => 'Add-in';
+  String get categoryAddIn => 'Add-ins';
 
   @override
   String get categoryOthers => 'Others';
-
-  @override
-  String get quote1 =>
-      '\"The scent of wood and fresh sourdough—a master’s morning.\"';
-
-  @override
-  String get quote2 =>
-      '\"Every crumb tells the story of the grain’s journey.\"';
-
-  @override
-  String get quote3 => '\"Precision is key, but intuition is most important.\"';
-
-  @override
-  String get quote4 =>
-      '\"The best flour is the one that still feels like life.\"';
-
-  @override
-  String get quote5 =>
-      '\"Warmth, patience, and time: the true artisan tools.\"';
 
   @override
   String get mon => 'Mon';
@@ -735,7 +716,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verified => 'VERIFIED';
 
   @override
-  String get deskHeader => 'From the Flour-dusted Desk';
+  String get deskHeader => 'Atelier Log';
 
   @override
   String get entry => 'entry';
@@ -916,4 +897,97 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noEntriesOnSelectedDate =>
       'No records found for the selected date.';
+
+  @override
+  String get studioIndexBook => 'Category Management';
+
+  @override
+  String get customizeLabelsDescription =>
+      'Customize your pantry labels & colors';
+
+  @override
+  String get writeNewLabelHint => 'Write a new label name...';
+
+  @override
+  String itemsCountSuffix(Object count) {
+    return '$count ITEMS';
+  }
+
+  @override
+  String get newLabel => 'NEW';
+
+  @override
+  String get labelColor => 'LABEL COLOR';
+
+  @override
+  String get selectLabelColor => 'SELECT LABEL COLOR';
+
+  @override
+  String get deleteCategoryConfirm =>
+      'Delete this category?\nItems will move to \'Others\'.';
+
+  @override
+  String get reorderInstruction => 'Long press and drag post-its to reorder.';
+
+  @override
+  String get renameCategoryTitle => 'RENAME CATEGORY';
+
+  @override
+  String get save => 'SAVE';
+
+  @override
+  String get quote1 =>
+      'Baking bread is not just a skill, it is a process of patience dealing with living organisms.';
+
+  @override
+  String get quote1Author => 'Raymond Calvel';
+
+  @override
+  String get quote2 =>
+      'Good bread starts with honest ingredients and the sincere touch of a baker.';
+
+  @override
+  String get quote2Author => 'Richard Bertinet';
+
+  @override
+  String get quote3 =>
+      'Flour is the baker\'s canvas, and yeast is the paint that breathes life into it.';
+
+  @override
+  String get quote3Author => 'Chad Robertson';
+
+  @override
+  String get quote4 =>
+      'The crackle of a perfect crust is the most beautiful compliment the oven gives to the baker.';
+
+  @override
+  String get quote4Author => 'Jeffrey Hamelman';
+
+  @override
+  String get quote5 =>
+      'In slowly fermented bread, there is a deep flavor that only time can create.';
+
+  @override
+  String get quote5Author => 'Ken Forkish';
+
+  @override
+  String get quote6 =>
+      'Baking begins with science and finishes as an art form.';
+
+  @override
+  String get quote6Author => 'Peter Reinhart';
+
+  @override
+  String get quote7 =>
+      'With every degree of temperature change, the soul of the bread breathes too.';
+
+  @override
+  String get quote7Author => 'Artisanal Proverb';
+
+  @override
+  String get quote8 =>
+      'We are not just making bread; we are baking warm comfort for someone\'s morning.';
+
+  @override
+  String get quote8Author => 'Baker\'s Philosophy';
 }

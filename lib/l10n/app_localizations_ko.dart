@@ -207,7 +207,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get classicFrenchBaguette => '클래식 프랑스 바게트';
 
   @override
-  String get classicFrenchBaguetteDesc => '풀리쉬 반죽, 스팀 오븐 베이킹';
+  String get classicFrenchBaguetteDesc => '풀리쉬 반죽을 사용한 전통 방식의 프랑스 바게트입니다.';
 
   @override
   String get rosemaryOliveOilCake => '로즈마리 올리브 오일 케이크';
@@ -382,7 +382,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchRecipes => '레시피를 검색하세요...';
 
   @override
-  String get recentlyBaked => '최근 구운 품목';
+  String get recentlyBaked => '최근 구워낸 기록들';
 
   @override
   String get emptyState => '기록된 레시피가 없습니다. 첫 연구를 시작해보세요!';
@@ -554,21 +554,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryOthers => '기타 품목';
 
   @override
-  String get quote1 => '\"나무 향기와 갓 피어난 발효종 — 장인의 아침은 여기서 시작됩니다.\"';
-
-  @override
-  String get quote2 => '\"빵의 기공은 밀이 거쳐온 시간과 여정을 말해줍니다.\"';
-
-  @override
-  String get quote3 => '\"정교함은 필수이나, 마지막을 완성하는 것은 장인의 직관입니다.\"';
-
-  @override
-  String get quote4 => '\"가장 좋은 재료란, 생명력이 여전히 머물러 있는 종류를 뜻합니다.\"';
-
-  @override
-  String get quote5 => '\"따스함, 인내, 그리고 시간 — 이것이야말로 진정한 장인의 도구입니다.\"';
-
-  @override
   String get mon => '월';
 
   @override
@@ -720,7 +705,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get verified => '검증됨';
 
   @override
-  String get deskHeader => '밀가루 묻은 책상에서 온 편지';
+  String get deskHeader => '아뜰리에의 기록';
 
   @override
   String get entry => '개';
@@ -900,4 +885,88 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get noEntriesOnSelectedDate => '선택한 날짜의 기록이 없습니다.';
+
+  @override
+  String get studioIndexBook => '카테고리 관리';
+
+  @override
+  String get customizeLabelsDescription => '창고 라벨과 색상을 직접 꾸며보세요';
+
+  @override
+  String get writeNewLabelHint => '새 라벨 이름을 입력하세요...';
+
+  @override
+  String itemsCountSuffix(Object count) {
+    return '$count개 항목';
+  }
+
+  @override
+  String get newLabel => '신규';
+
+  @override
+  String get labelColor => '라벨 색상';
+
+  @override
+  String get selectLabelColor => '라벨 색상 선택';
+
+  @override
+  String get deleteCategoryConfirm =>
+      '이 카테고리를 삭제하시겠습니까?\n포함된 품목은 \'기타\'로 이동됩니다.';
+
+  @override
+  String get reorderInstruction => '포스트잇을 길게 눌러서 순서를 바꿀 수 있어요.';
+
+  @override
+  String get renameCategoryTitle => '카테고리 이름 변경';
+
+  @override
+  String get save => '저장';
+
+  @override
+  String get quote1 => '빵을 굽는 것은 단순한 기술이 아니라, 살아있는 생명을 다루는 인내의 과정입니다.';
+
+  @override
+  String get quote1Author => '레이몽 칼벨 (Raymond Calvel)';
+
+  @override
+  String get quote2 => '좋은 빵은 정직한 재료와 제빵사의 성실한 손길에서 시작됩니다.';
+
+  @override
+  String get quote2Author => '리처드 버티넷 (Richard Bertinet)';
+
+  @override
+  String get quote3 => '밀가루는 제빵사의 캔버스이고, 효모는 그 위에 생명을 불어넣는 물감입니다.';
+
+  @override
+  String get quote3Author => '채드 로버트슨 (Chad Robertson)';
+
+  @override
+  String get quote4 => '완벽한 크러스트의 바스락거림은 오븐이 제빵사에게 건네는 가장 아름다운 찬사입니다.';
+
+  @override
+  String get quote4Author => '제프리 하멜만 (Jeffrey Hamelman)';
+
+  @override
+  String get quote5 => '천천히 발효된 빵 속에는 시간만이 만들어낼 수 있는 깊은 풍미가 깃들어 있습니다.';
+
+  @override
+  String get quote5Author => '켄 포키쉬 (Ken Forkish)';
+
+  @override
+  String get quote6 => '제빵은 과학으로 시작해서 예술로 완성되는 여정입니다.';
+
+  @override
+  String get quote6Author => '피터 라인하트 (Peter Reinhart)';
+
+  @override
+  String get quote7 => '온도가 1도 변할 때마다 빵의 영혼도 함께 숨을 쉽니다.';
+
+  @override
+  String get quote7Author => '모스크바의 제빵사 격언';
+
+  @override
+  String get quote8 => '우리는 빵을 만드는 것이 아니라, 누군가의 아침에 따스한 위로를 굽는 것입니다.';
+
+  @override
+  String get quote8Author => '아티잔 베이커의 철학';
 }

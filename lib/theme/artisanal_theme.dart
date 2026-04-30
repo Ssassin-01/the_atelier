@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class ArtisanalTheme {
   // Color Palette
-  static const Color background = Color(0xFFFAF8F5);
-  static const Color surface = Color(0xFFFDFDFD);
+  static const Color background = Color(0xFFFCF8F2); // Bright Cream Beige
+  static const Color surface = Color(0xFFFFFFFF);
   static const Color primary = Color(0xFF804E2E);
   static const Color primaryContainer = Color(0xFF9C6644);
   static const Color secondary = Color(0xFF6C5B51);
