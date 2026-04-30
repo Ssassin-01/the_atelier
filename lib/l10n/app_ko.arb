@@ -12,10 +12,10 @@
     "description": "고정된 항목 라벨"
   },
   "appTitle": "아뜰리에",
-  "dashboard": "작업실 홈",
-  "journal": "연구 저널",
+  "dashboard": "홈",
+  "journal": "레시피",
   "create": "새 연구 기록",
-  "pantry": "아뜰리에 창고",
+  "pantry": "분석",
   "profile": "프로필",
   "settings": "설정",
   "logout": "로그아웃",

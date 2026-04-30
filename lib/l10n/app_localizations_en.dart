@@ -21,16 +21,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'The Atelier';
 
   @override
-  String get dashboard => 'Dashboard';
+  String get dashboard => 'Home';
 
   @override
-  String get journal => 'Journal';
+  String get journal => 'Recipe';
 
   @override
   String get create => 'Create';
 
   @override
-  String get pantry => 'Pantry';
+  String get pantry => 'Analytics';
 
   @override
   String get profile => 'Profile';

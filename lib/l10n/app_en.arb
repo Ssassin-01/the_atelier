@@ -15,10 +15,10 @@
   "@appTitle": {
     "description": "The title of the application"
   },
-  "dashboard": "Dashboard",
-  "journal": "Journal",
+  "dashboard": "Home",
+  "journal": "Recipe",
   "create": "Create",
-  "pantry": "Pantry",
+  "pantry": "Analytics",
   "profile": "Profile",
   "settings": "Settings",
   "logout": "Log Out",

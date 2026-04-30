@@ -21,16 +21,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appTitle => '아뜰리에';
 
   @override
-  String get dashboard => '작업실 홈';
+  String get dashboard => '홈';
 
   @override
-  String get journal => '연구 저널';
+  String get journal => '레시피';
 
   @override
   String get create => '새 연구 기록';
 
   @override
-  String get pantry => '아뜰리에 창고';
+  String get pantry => '분석';
 
   @override
   String get profile => '프로필';

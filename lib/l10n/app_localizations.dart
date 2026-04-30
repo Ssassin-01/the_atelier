@@ -125,13 +125,13 @@ abstract class AppLocalizations {
   /// No description provided for @dashboard.
   ///
   /// In en, this message translates to:
-  /// **'Dashboard'**
+  /// **'Home'**
   String get dashboard;
 
   /// No description provided for @journal.
   ///
   /// In en, this message translates to:
-  /// **'Journal'**
+  /// **'Recipe'**
   String get journal;
 
   /// No description provided for @create.
@@ -143,7 +143,7 @@ abstract class AppLocalizations {
   /// No description provided for @pantry.
   ///
   /// In en, this message translates to:
-  /// **'Pantry'**
+  /// **'Analytics'**
   String get pantry;
 
   /// No description provided for @profile.
