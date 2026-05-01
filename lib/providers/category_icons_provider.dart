@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-final categoryIconsProvider = StateNotifierProvider<CategoryIconsNotifier, Map<String, String>>((ref) {
-  return CategoryIconsNotifier();
-});
+final categoryIconsProvider =
+    StateNotifierProvider<CategoryIconsNotifier, Map<String, String>>((ref) {
+      return CategoryIconsNotifier();
+    });
 
 class CategoryIconsNotifier extends StateNotifier<Map<String, String>> {
   CategoryIconsNotifier() : super({}) {

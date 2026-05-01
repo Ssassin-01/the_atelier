@@ -5,11 +5,7 @@ class VerifiedStamp extends StatelessWidget {
   final double size;
   final double rotation;
 
-  const VerifiedStamp({
-    super.key,
-    this.size = 80,
-    this.rotation = -0.15,
-  });
+  const VerifiedStamp({super.key, this.size = 80, this.rotation = -0.15});
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +28,7 @@ class VerifiedStamp extends StatelessWidget {
               style: ArtisanalTheme.hand(
                 fontSize: size * 0.2,
                 color: ArtisanalTheme.redInk.withValues(alpha: 0.6),
-              ).copyWith(
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2.0,
-              ),
+              ).copyWith(fontWeight: FontWeight.bold, letterSpacing: 2.0),
             ),
             Container(
               height: 1.5,
@@ -61,11 +54,7 @@ class CircularVerifiedStamp extends StatelessWidget {
   final double size;
   final double rotation;
 
-  const CircularVerifiedStamp({
-    super.key,
-    this.size = 70,
-    this.rotation = 0.2,
-  });
+  const CircularVerifiedStamp({super.key, this.size = 70, this.rotation = 0.2});
 
   @override
   Widget build(BuildContext context) {

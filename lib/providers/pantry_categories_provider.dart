@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../l10n/app_localizations.dart';
 
 // We'll store a Map of String (category name) to int (color value)
-final pantryCategoriesProvider = StateNotifierProvider<PantryCategoriesNotifier, Map<String, int>>((ref) {
-  return PantryCategoriesNotifier();
-});
+final pantryCategoriesProvider =
+    StateNotifierProvider<PantryCategoriesNotifier, Map<String, int>>((ref) {
+      return PantryCategoriesNotifier();
+    });
 
 class PantryCategoriesNotifier extends StateNotifier<Map<String, int>> {
   PantryCategoriesNotifier() : super({}) {
@@ -16,13 +16,13 @@ class PantryCategoriesNotifier extends StateNotifier<Map<String, int>> {
 
   // Default Palette for Post-its
   static const Map<String, int> defaultCategories = {
-    'All': 0xFFFAF9F6,      // Paper White
-    'Flour': 0xFFFFF9C4,    // Pastel Yellow
+    'All': 0xFFFAF9F6, // Paper White
+    'Flour': 0xFFFFF9C4, // Pastel Yellow
     'Dairy/Eggs': 0xFFFFE0B2, // Pastel Orange
     'Sweetener': 0xFFF8BBD0, // Pastel Pink
     'Leavening': 0xFFE1F5FE, // Pastel Blue
-    'Add-in': 0xFFC8E6C9,    // Pastel Green
-    'Others': 0xFFF3E5F5,    // Pastel Purple
+    'Add-in': 0xFFC8E6C9, // Pastel Green
+    'Others': 0xFFF3E5F5, // Pastel Purple
   };
 
   void _loadCategories() {
@@ -38,13 +38,13 @@ class PantryCategoriesNotifier extends StateNotifier<Map<String, int>> {
     if (!state.containsKey(category)) {
       final newState = Map<String, int>.from(state);
       final othersColor = newState.remove('Others');
-      
+
       newState[category] = color;
-      
+
       if (othersColor != null) {
         newState['Others'] = othersColor;
       }
-      
+
       state = newState;
       await _box.put('pantry_categories_map', state);
     }
@@ -70,7 +70,7 @@ class PantryCategoriesNotifier extends StateNotifier<Map<String, int>> {
           newState[entry.key] = entry.value;
         }
       }
-      
+
       state = newState;
       await _box.put('pantry_categories_map', state);
     }
@@ -80,12 +80,12 @@ class PantryCategoriesNotifier extends StateNotifier<Map<String, int>> {
     final keys = state.keys.toList();
     final item = keys.removeAt(oldIndex);
     keys.insert(newIndex, item);
-    
+
     final Map<String, int> newState = {};
     for (final key in keys) {
       newState[key] = state[key]!;
     }
-    
+
     state = newState;
     await _box.put('pantry_categories_map', state);
   }
@@ -99,4 +99,3 @@ class PantryCategoriesNotifier extends StateNotifier<Map<String, int>> {
     }
   }
 }
-

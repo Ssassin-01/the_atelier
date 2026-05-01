@@ -116,6 +116,12 @@ abstract class AppLocalizations {
   /// **'FIXED'**
   String get fixedLabel;
 
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
   /// The title of the application
   ///
   /// In en, this message translates to:
@@ -157,6 +163,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
+
+  /// No description provided for @measurementUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement Unit'**
+  String get measurementUnit;
+
+  /// No description provided for @googleDriveBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive Backup'**
+  String get googleDriveBackup;
+
+  /// No description provided for @googleDriveRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from Google Drive'**
+  String get googleDriveRestore;
+
+  /// No description provided for @resetAllData.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset All Data'**
+  String get resetAllData;
 
   /// No description provided for @logout.
   ///
@@ -458,11 +488,65 @@ abstract class AppLocalizations {
   /// **'All'**
   String get all;
 
-  /// No description provided for @pumpkinPuree.
+  /// No description provided for @wonName.
   ///
   /// In en, this message translates to:
-  /// **'Pumpkin Puree'**
-  String get pumpkinPuree;
+  /// **'South Korean Won'**
+  String get wonName;
+
+  /// No description provided for @dollarName.
+  ///
+  /// In en, this message translates to:
+  /// **'US Dollar'**
+  String get dollarName;
+
+  /// No description provided for @euroName.
+  ///
+  /// In en, this message translates to:
+  /// **'Euro'**
+  String get euroName;
+
+  /// No description provided for @yenName.
+  ///
+  /// In en, this message translates to:
+  /// **'Japanese Yen'**
+  String get yenName;
+
+  /// No description provided for @refreshExchangeRates.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh Exchange Rates'**
+  String get refreshExchangeRates;
+
+  /// No description provided for @refreshRatesInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange rates are automatically updated once a day. Press this button if you want to sync the latest rates immediately.'**
+  String get refreshRatesInfo;
+
+  /// No description provided for @gramName.
+  ///
+  /// In en, this message translates to:
+  /// **'Gram (Standard)'**
+  String get gramName;
+
+  /// No description provided for @kilogramName.
+  ///
+  /// In en, this message translates to:
+  /// **'Kilogram'**
+  String get kilogramName;
+
+  /// No description provided for @ounceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Ounce'**
+  String get ounceName;
+
+  /// No description provided for @poundName.
+  ///
+  /// In en, this message translates to:
+  /// **'Pound'**
+  String get poundName;
 
   /// No description provided for @miniRiceBalls.
   ///
@@ -1328,12 +1412,6 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get close;
 
-  /// No description provided for @ok.
-  ///
-  /// In en, this message translates to:
-  /// **'OK'**
-  String get ok;
-
   /// No description provided for @add.
   ///
   /// In en, this message translates to:
@@ -1531,6 +1609,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'MONTHLY OVERVIEW'**
   String get monthlyOverview;
+
+  /// No description provided for @currencySymbolLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency Symbol'**
+  String get currencySymbolLabel;
 
   /// No description provided for @currencySymbol.
   ///
@@ -2059,6 +2143,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'e.g. Mix warm water and yeast...'**
   String get stepContentHint;
+
+  /// No description provided for @privacyPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Permissions'**
+  String get privacyPermissions;
+
+  /// No description provided for @appPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'App Permissions'**
+  String get appPermissions;
+
+  /// No description provided for @cameraAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera Access'**
+  String get cameraAccess;
+
+  /// No description provided for @galleryAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery Access'**
+  String get galleryAccess;
+
+  /// No description provided for @cameraAccessDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'We use the camera to let you take photos of your recipes and ingredients directly within the app.'**
+  String get cameraAccessDesc;
+
+  /// No description provided for @galleryAccessDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Used to import your masterpiece photos. On modern devices, you can pick photos safely even without full access.'**
+  String get galleryAccessDesc;
+
+  /// No description provided for @systemSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'System Settings'**
+  String get systemSettings;
+
+  /// No description provided for @iUnderstand.
+  ///
+  /// In en, this message translates to:
+  /// **'I Understand'**
+  String get iUnderstand;
 }
 
 class _AppLocalizationsDelegate

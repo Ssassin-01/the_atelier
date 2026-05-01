@@ -60,7 +60,7 @@ class _TapeEdgeClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     var path = Path();
     path.lineTo(0, size.height);
-    
+
     // Zigzag left edge
     double x = 0;
     while (x < size.height) {
@@ -68,9 +68,9 @@ class _TapeEdgeClipper extends CustomClipper<Path> {
       path.lineTo(0, x + 4);
       x += 4;
     }
-    
+
     path.lineTo(size.width, size.height);
-    
+
     // Zigzag right edge
     x = size.height;
     while (x > 0) {
@@ -78,7 +78,7 @@ class _TapeEdgeClipper extends CustomClipper<Path> {
       path.lineTo(size.width, x - 4);
       x -= 4;
     }
-    
+
     path.close();
     return path;
   }

@@ -23,7 +23,7 @@ class FullScreenSketchEditor extends StatefulWidget {
 class _FullScreenSketchEditorState extends State<FullScreenSketchEditor> {
   final List<List<DrawingPoint>> _paths = [];
   final GlobalKey _canvasKey = GlobalKey();
-  
+
   Color _currentColor = ArtisanalTheme.ink;
   double _currentWidth = 2.0;
   bool _isEraser = false;
@@ -37,7 +37,7 @@ class _FullScreenSketchEditorState extends State<FullScreenSketchEditor> {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
         ..blendMode = _isEraser ? BlendMode.clear : BlendMode.srcOver;
-        
+
       _paths.add([DrawingPoint(offset: details.localPosition, paint: paint)]);
     });
   }
@@ -46,14 +46,21 @@ class _FullScreenSketchEditorState extends State<FullScreenSketchEditor> {
     setState(() {
       if (_paths.isNotEmpty) {
         final lastPath = _paths.last;
-        lastPath.add(DrawingPoint(offset: details.localPosition, paint: lastPath.first.paint));
+        lastPath.add(
+          DrawingPoint(
+            offset: details.localPosition,
+            paint: lastPath.first.paint,
+          ),
+        );
       }
     });
   }
 
   Future<void> _saveSketch() async {
     try {
-      final boundary = _canvasKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary =
+          _canvasKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
       if (boundary == null) return;
 
       final image = await boundary.toImage(pixelRatio: 3.0);
@@ -85,7 +92,14 @@ class _FullScreenSketchEditorState extends State<FullScreenSketchEditor> {
         actions: [
           TextButton(
             onPressed: _saveSketch,
-            child: Text("DONE", style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(
+              "DONE",
+              style: ArtisanalTheme.hand(
+                color: ArtisanalTheme.primary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           const SizedBox(width: 8),
         ],
@@ -100,7 +114,10 @@ class _FullScreenSketchEditorState extends State<FullScreenSketchEditor> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20),
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 20,
+                    ),
                   ],
                 ),
                 child: ClipRRect(
@@ -166,7 +183,8 @@ class _FullScreenSketchEditorState extends State<FullScreenSketchEditor> {
           const VerticalDivider(color: Colors.white24, width: 32),
           IconButton(
             icon: const Icon(Icons.undo, color: Colors.white70),
-            onPressed: () => setState(() => _paths.isNotEmpty ? _paths.removeLast() : null),
+            onPressed: () =>
+                setState(() => _paths.isNotEmpty ? _paths.removeLast() : null),
           ),
         ],
       ),
@@ -200,7 +218,10 @@ class _FullScreenSketchEditorState extends State<FullScreenSketchEditor> {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          border: Border.all(color: isSelected ? Colors.white : Colors.transparent, width: 2),
+          border: Border.all(
+            color: isSelected ? Colors.white : Colors.transparent,
+            width: 2,
+          ),
         ),
       ),
     );
@@ -214,13 +235,13 @@ class SmoothPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), Paint());
-    
+
     for (var path in paths) {
       if (path.isEmpty) continue;
-      
+
       final dPath = Path();
       dPath.moveTo(path.first.offset.dx, path.first.offset.dy);
-      
+
       for (int i = 0; i < path.length - 1; i++) {
         final p1 = path[i].offset;
         final p2 = path[i + 1].offset;
@@ -232,13 +253,13 @@ class SmoothPainter extends CustomPainter {
           (p1.dy + p2.dy) / 2,
         );
       }
-      
+
       // Add the last point
       dPath.lineTo(path.last.offset.dx, path.last.offset.dy);
-      
+
       canvas.drawPath(dPath, path.first.paint);
     }
-    
+
     canvas.restore();
   }
 

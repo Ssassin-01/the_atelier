@@ -52,7 +52,9 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
               controller: _editController,
               decoration: InputDecoration(
                 hintText: l10n.newName,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               autofocus: true,
             ),
@@ -62,14 +64,19 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(l10n.cancel, style: ArtisanalTheme.hand(color: Colors.black54)),
+                  child: Text(
+                    l10n.cancel,
+                    style: ArtisanalTheme.hand(color: Colors.black54),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
                     final newName = _editController.text.trim();
                     if (newName.isNotEmpty && newName != oldName) {
-                      ref.read(pantryCategoriesProvider.notifier).renameCategory(oldName, newName);
+                      ref
+                          .read(pantryCategoriesProvider.notifier)
+                          .renameCategory(oldName, newName);
                       HapticFeedback.mediumImpact();
                     }
                     Navigator.pop(context);
@@ -77,7 +84,9 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: Text(l10n.save),
                 ),
@@ -96,7 +105,10 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFFFDFCFB),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(l10n.manageCategories.toUpperCase(), style: ArtisanalTheme.hand(fontWeight: FontWeight.bold)),
+        title: Text(
+          l10n.manageCategories.toUpperCase(),
+          style: ArtisanalTheme.hand(fontWeight: FontWeight.bold),
+        ),
         content: Text(l10n.deleteCategoryConfirm, style: ArtisanalTheme.hand()),
         actions: [
           TextButton(
@@ -108,8 +120,12 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
           ),
           TextButton(
             onPressed: () {
-              ref.read(pantryCategoriesProvider.notifier).removeCategory(category);
-              ref.read(pantryProvider.notifier).bulkUpdateCategory(category, 'Others');
+              ref
+                  .read(pantryCategoriesProvider.notifier)
+                  .removeCategory(category);
+              ref
+                  .read(pantryProvider.notifier)
+                  .bulkUpdateCategory(category, 'Others');
               Navigator.pop(context);
               HapticFeedback.mediumImpact();
             },
@@ -204,7 +220,9 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                               final isSelected = currentColor == c;
                               return GestureDetector(
                                 onTap: () {
-                                  ref.read(pantryCategoriesProvider.notifier).updateColor(category, c);
+                                  ref
+                                      .read(pantryCategoriesProvider.notifier)
+                                      .updateColor(category, c);
                                   HapticFeedback.selectionClick();
                                   Navigator.pop(context);
                                 },
@@ -215,11 +233,19 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                                     color: Color(c),
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: isSelected ? Colors.black : Colors.black12,
+                                      color: isSelected
+                                          ? Colors.black
+                                          : Colors.black12,
                                       width: isSelected ? 2 : 1,
                                     ),
                                   ),
-                                  child: isSelected ? const Icon(Icons.check, size: 16, color: Colors.black87) : null,
+                                  child: isSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          size: 16,
+                                          color: Colors.black87,
+                                        )
+                                      : null,
                                 ),
                               );
                             }).toList(),
@@ -245,14 +271,21 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     final categories = categoriesMap.keys.toList();
-    final customCategories = categories.where((c) => c != 'All' && c != 'Others').toList();
+    final customCategories = categories
+        .where((c) => c != 'All' && c != 'Others')
+        .toList();
 
-    Widget buildStickerBody(String category, int index, bool isLocked, {bool isPreview = false}) {
+    Widget buildStickerBody(
+      String category,
+      int index,
+      bool isLocked, {
+      bool isPreview = false,
+    }) {
       final colorValue = categoriesMap[category] ?? 0xFFFFF9C4;
       final count = category == 'All'
           ? pantryItems.length
           : pantryItems.where((item) => item.category == category).length;
-      
+
       return Stack(
         children: [
           Container(
@@ -294,7 +327,7 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                   ),
                   const Spacer(),
                   const Divider(color: Colors.black12, height: 12),
-                  
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -320,7 +353,11 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.black12),
                             ),
-                            child: const Icon(Icons.palette_outlined, size: 12, color: Colors.black38),
+                            child: const Icon(
+                              Icons.palette_outlined,
+                              size: 12,
+                              color: Colors.black38,
+                            ),
                           ),
                         ),
                     ],
@@ -329,14 +366,10 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
               ),
             ),
           ),
-          
+
           // Masking Tape
-          const Positioned(
-            top: -12,
-            left: 20,
-            child: MaskingTape(width: 40),
-          ),
-          
+          const Positioned(top: -12, left: 20, child: MaskingTape(width: 40)),
+
           if (isLocked)
             Positioned(
               top: 10,
@@ -375,7 +408,11 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                     onTap: () => _showRenameDialog(context, category),
                     child: const Padding(
                       padding: EdgeInsets.all(4),
-                      child: Icon(Icons.edit_outlined, size: 14, color: Colors.black26),
+                      child: Icon(
+                        Icons.edit_outlined,
+                        size: 14,
+                        color: Colors.black26,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 0), // Absolute zero gap
@@ -383,7 +420,11 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                     onTap: () => _confirmDelete(context, category),
                     child: const Padding(
                       padding: EdgeInsets.all(4),
-                      child: Icon(Icons.delete_outline, size: 14, color: Colors.black26),
+                      child: Icon(
+                        Icons.delete_outline,
+                        size: 14,
+                        color: Colors.black26,
+                      ),
                     ),
                   ),
                 ],
@@ -452,7 +493,7 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Post-it style Add Field
                   Stack(
                     clipBehavior: Clip.none,
@@ -487,7 +528,8 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                                     decoration: InputDecoration(
                                       hintText: l10n.writeNewLabelHint,
                                       hintStyle: ArtisanalTheme.hand(
-                                        color: ArtisanalTheme.secondary.withValues(alpha: 0.2),
+                                        color: ArtisanalTheme.secondary
+                                            .withValues(alpha: 0.2),
                                       ),
                                       border: InputBorder.none,
                                       isDense: true,
@@ -495,10 +537,18 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.add_circle_outline, color: ArtisanalTheme.secondary, size: 24),
+                                  icon: const Icon(
+                                    Icons.add_circle_outline,
+                                    color: ArtisanalTheme.secondary,
+                                    size: 24,
+                                  ),
                                   onPressed: () {
                                     if (_addController.text.trim().isNotEmpty) {
-                                      ref.read(pantryCategoriesProvider.notifier).addCategory(
+                                      ref
+                                          .read(
+                                            pantryCategoriesProvider.notifier,
+                                          )
+                                          .addCategory(
                                             _addController.text.trim(),
                                             _selectedAddColor,
                                           );
@@ -516,38 +566,47 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  ...postItColors.map((c) => GestureDetector(
-                                        onTap: () {
-                                          setState(() => _selectedAddColor = c);
-                                          HapticFeedback.selectionClick();
-                                        },
-                                        child: Container(
-                                          width: 24,
-                                          height: 24,
-                                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                                          decoration: BoxDecoration(
-                                            color: Color(c),
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: _selectedAddColor == c ? Colors.black : Colors.black12,
-                                              width: _selectedAddColor == c ? 1.5 : 1,
-                                            ),
-                                          ),
-                                          child: _selectedAddColor == c
-                                              ? const Icon(Icons.check, size: 12, color: Colors.black)
-                                              : null,
+                                  ...postItColors.map(
+                                    (c) => GestureDetector(
+                                      onTap: () {
+                                        setState(() => _selectedAddColor = c);
+                                        HapticFeedback.selectionClick();
+                                      },
+                                      child: Container(
+                                        width: 24,
+                                        height: 24,
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 4,
                                         ),
-                                      )),
+                                        decoration: BoxDecoration(
+                                          color: Color(c),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: _selectedAddColor == c
+                                                ? Colors.black
+                                                : Colors.black12,
+                                            width: _selectedAddColor == c
+                                                ? 1.5
+                                                : 1,
+                                          ),
+                                        ),
+                                        child: _selectedAddColor == c
+                                            ? const Icon(
+                                                Icons.check,
+                                                size: 12,
+                                                color: Colors.black,
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const Positioned(
-                        top: -12,
-                        child: MaskingTape(width: 60),
-                      ),
+                      const Positioned(top: -12, child: MaskingTape(width: 60)),
                     ],
                   ),
                 ],
@@ -557,14 +616,15 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
             Expanded(
               child: ReorderableGridView.count(
                 onReorder: (oldIndex, newIndex) {
-                  ref.read(pantryCategoriesProvider.notifier).reorderCategories(oldIndex + 1, newIndex + 1);
+                  ref
+                      .read(pantryCategoriesProvider.notifier)
+                      .reorderCategories(oldIndex + 1, newIndex + 1);
                   HapticFeedback.lightImpact();
                 },
-                header: [
-                  buildSticker('All', 0, true),
-                ],
+                header: [buildSticker('All', 0, true)],
                 footer: [
-                  if (categories.contains('Others')) buildSticker('Others', categories.length - 1, true),
+                  if (categories.contains('Others'))
+                    buildSticker('Others', categories.length - 1, true),
                 ],
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
                 crossAxisCount: 2,
@@ -572,7 +632,11 @@ class _CategoryManagerSheetState extends ConsumerState<CategoryManagerSheet> {
                 crossAxisSpacing: 20,
                 childAspectRatio: 1.0,
                 children: List.generate(customCategories.length, (index) {
-                  return buildSticker(customCategories[index], index + 1, false);
+                  return buildSticker(
+                    customCategories[index],
+                    index + 1,
+                    false,
+                  );
                 }),
               ),
             ),

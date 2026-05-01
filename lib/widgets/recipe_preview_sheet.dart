@@ -109,10 +109,14 @@ class _JournalPagePreview extends StatelessWidget {
                             child: Text(
                               title,
                               textAlign: TextAlign.center,
-                              style: ArtisanalTheme.hand(
-                                fontSize: 48,
-                                color: ArtisanalTheme.ink,
-                              ).copyWith(fontWeight: FontWeight.bold, height: 1.1),
+                              style:
+                                  ArtisanalTheme.hand(
+                                    fontSize: 48,
+                                    color: ArtisanalTheme.ink,
+                                  ).copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    height: 1.1,
+                                  ),
                             ),
                           ),
                         ),
@@ -127,11 +131,17 @@ class _JournalPagePreview extends StatelessWidget {
                                   color: Colors.white,
                                   boxShadow: [
                                     BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.15),
-                                        blurRadius: 16,
-                                        offset: const Offset(0, 6)),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 6),
+                                    ),
                                   ],
-                                  border: Border.all(color: Colors.white, width: 8),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 8,
+                                  ),
                                 ),
                                 child: SizedBox(
                                   width: 380,
@@ -158,7 +168,9 @@ class _JournalPagePreview extends StatelessWidget {
                               style: ArtisanalTheme.hand(
                                 fontSize: 18,
                                 height: 1.8,
-                                color: ArtisanalTheme.ink.withValues(alpha: 0.8),
+                                color: ArtisanalTheme.ink.withValues(
+                                  alpha: 0.8,
+                                ),
                               ),
                             ),
                           ),
@@ -168,7 +180,9 @@ class _JournalPagePreview extends StatelessWidget {
                         const SizedBox(height: 32),
 
                         // Draft Components
-                        ...draft.components.map((comp) => _ComponentPreview(component: comp)),
+                        ...draft.components.map(
+                          (comp) => _ComponentPreview(component: comp),
+                        ),
                       ],
                     ),
                   ),
@@ -203,15 +217,17 @@ class _ComponentPreview extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     component.title.isEmpty ? "COMPONENT" : component.title,
-                    style: ArtisanalTheme.hand(fontSize: 28, color: ink).copyWith(
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
-                    ),
+                    style: ArtisanalTheme.hand(fontSize: 28, color: ink)
+                        .copyWith(
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
                   ),
                 ],
               ),
             ),
-            if (component.imagePath != null && component.imagePath != 'placeholder') ...[
+            if (component.imagePath != null &&
+                component.imagePath != 'placeholder') ...[
               const SizedBox(width: 16),
               Transform.rotate(
                 angle: 0.05,
@@ -225,9 +241,10 @@ class _ComponentPreview extends StatelessWidget {
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 6,
-                              offset: const Offset(2, 2)),
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 6,
+                            offset: const Offset(2, 2),
+                          ),
                         ],
                       ),
                       child: SizedBox(
@@ -241,10 +258,7 @@ class _ComponentPreview extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const Positioned(
-                      top: -10,
-                      child: MaskingTape(width: 60),
-                    ),
+                    const Positioned(top: -10, child: MaskingTape(width: 60)),
                   ],
                 ),
               ),
@@ -264,23 +278,31 @@ class _ComponentPreview extends StatelessWidget {
                   .fold(0.0, (sum, ing) => sum + ing.weight);
 
               return component.ingredients.map((ing) {
-                final percentage =
-                    totalFlour > 0 ? (ing.weight / totalFlour) * 100 : 0.0;
+                final percentage = totalFlour > 0
+                    ? (ing.weight / totalFlour) * 100
+                    : 0.0;
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Row(
                     children: [
-                      Text('• ${ing.name}',
-                          style: ArtisanalTheme.hand(fontSize: 19, color: ink)),
+                      Text(
+                        '• ${ing.name}',
+                        style: ArtisanalTheme.hand(fontSize: 19, color: ink),
+                      ),
                       const SizedBox(width: 8),
                       if (totalFlour > 0)
-                        Text('${percentage.toStringAsFixed(0)}%',
-                            style: ArtisanalTheme.hand(
-                                fontSize: 15,
-                                color: ink.withValues(alpha: 0.4))),
+                        Text(
+                          '${percentage.toStringAsFixed(0)}%',
+                          style: ArtisanalTheme.hand(
+                            fontSize: 15,
+                            color: ink.withValues(alpha: 0.4),
+                          ),
+                        ),
                       const Spacer(),
-                      Text("${ing.weight.toStringAsFixed(0)}g",
-                          style: ArtisanalTheme.hand(fontSize: 19, color: ink)),
+                      Text(
+                        "${ing.weight.toStringAsFixed(0)}g",
+                        style: ArtisanalTheme.hand(fontSize: 19, color: ink),
+                      ),
                     ],
                   ),
                 );
@@ -288,23 +310,29 @@ class _ComponentPreview extends StatelessWidget {
             }(),
             const SizedBox(height: 16),
             // Steps
-            ...component.steps.asMap().entries.map((entry) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${entry.key + 1}. ',
-                          style: ArtisanalTheme.hand(
-                              fontSize: 18, color: ink.withValues(alpha: 0.6))),
-                      Expanded(
-                        child: Text(
-                          entry.value.content,
-                          style: ArtisanalTheme.hand(fontSize: 18, color: ink),
-                        ),
+            ...component.steps.asMap().entries.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${entry.key + 1}. ',
+                      style: ArtisanalTheme.hand(
+                        fontSize: 18,
+                        color: ink.withValues(alpha: 0.6),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                    Expanded(
+                      child: Text(
+                        entry.value.content,
+                        style: ArtisanalTheme.hand(fontSize: 18, color: ink),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 60),

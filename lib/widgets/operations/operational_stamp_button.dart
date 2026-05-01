@@ -19,7 +19,8 @@ class OperationalStampButton extends StatefulWidget {
   State<OperationalStampButton> createState() => _OperationalStampButtonState();
 }
 
-class _OperationalStampButtonState extends State<OperationalStampButton> with SingleTickerProviderStateMixin {
+class _OperationalStampButtonState extends State<OperationalStampButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -30,9 +31,10 @@ class _OperationalStampButtonState extends State<OperationalStampButton> with Si
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.92).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.92,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override

@@ -47,7 +47,7 @@ class _WashiPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final path = Path();
-    
+
     // Left torn edge
     path.moveTo(math.sin(0) * 2, 0);
     for (double i = 0; i <= size.height; i += 2) {
@@ -80,7 +80,7 @@ class _WashiPainter extends CustomPainter {
     final linePaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.12)
       ..strokeWidth = 1.0;
-    
+
     for (double i = 4; i < size.width; i += 8) {
       canvas.drawLine(Offset(i, 0), Offset(i, size.height), linePaint);
     }
@@ -114,7 +114,12 @@ class PolaroidCard extends StatelessWidget {
       angle: rotation,
       child: Container(
         width: width ?? 250,
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 28), // Reduced from 40 to prevent overflow
+        padding: const EdgeInsets.fromLTRB(
+          12,
+          12,
+          12,
+          28,
+        ), // Reduced from 40 to prevent overflow
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: Colors.black.withValues(alpha: 0.03)),
@@ -148,7 +153,10 @@ class PolaroidCard extends StatelessWidget {
                 const SizedBox(height: 12), // Reduced from 16
                 Text(
                   title,
-                  style: ArtisanalTheme.note(fontSize: 22, color: Colors.black87), // Slightly smaller font
+                  style: ArtisanalTheme.note(
+                    fontSize: 22,
+                    color: Colors.black87,
+                  ), // Slightly smaller font
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -156,11 +164,12 @@ class PolaroidCard extends StatelessWidget {
                   const SizedBox(height: 2), // Reduced from 4
                   Text(
                     subtitle!.toUpperCase(),
-                    style: ArtisanalTheme.lightTheme.textTheme.labelLarge?.copyWith(
-                      fontSize: 10,
-                      letterSpacing: -0.5,
-                      color: Colors.black38,
-                    ),
+                    style: ArtisanalTheme.lightTheme.textTheme.labelLarge
+                        ?.copyWith(
+                          fontSize: 10,
+                          letterSpacing: -0.5,
+                          color: Colors.black38,
+                        ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -171,9 +180,7 @@ class PolaroidCard extends StatelessWidget {
               top: -24,
               left: 0,
               right: 0,
-              child: Center(
-                child: WashiTape(color: tapeColor),
-              ),
+              child: Center(child: WashiTape(color: tapeColor)),
             ),
           ],
         ),

@@ -24,7 +24,9 @@ class RecipeService {
   }
 }
 
-final recipeListProvider = StateNotifierProvider<RecipeNotifier, List<Recipe>>((ref) {
+final recipeListProvider = StateNotifierProvider<RecipeNotifier, List<Recipe>>((
+  ref,
+) {
   return RecipeNotifier(ref.read(recipeServiceProvider));
 });
 

@@ -14,19 +14,21 @@ import '../widgets/custom_clippers.dart';
 import '../widgets/sales_slip_sheet.dart';
 import '../widgets/masking_tape.dart';
 import '../widgets/artisanal_barcode.dart';
-import '../widgets/analytics/hourly_pattern_chart.dart';
 import '../widgets/analytics/weekly_distribution_chart.dart';
 import '../widgets/analytics/monthly_cost_analysis.dart';
 import '../widgets/analytics/popular_items_list.dart';
+import '../providers/settings_provider.dart';
 
 class BusinessAnalyticsScreen extends ConsumerStatefulWidget {
   const BusinessAnalyticsScreen({super.key});
 
   @override
-  ConsumerState<BusinessAnalyticsScreen> createState() => _BusinessAnalyticsScreenState();
+  ConsumerState<BusinessAnalyticsScreen> createState() =>
+      _BusinessAnalyticsScreenState();
 }
 
-class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScreen> {
+class _BusinessAnalyticsScreenState
+    extends ConsumerState<BusinessAnalyticsScreen> {
   int _activeChartIndex = 0; // 0: Financial, 1: Inventory
   int _activeInsightPage = 0; // 0: Charts, 1: Receipt Summary
   late PageController _insightPageController;
@@ -35,16 +37,14 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
   @override
   void initState() {
     super.initState();
-    _insightPageController = PageController(
-      initialPage: 0,
-      viewportFraction: 1.0,
-    )..addListener(() {
-      if (_insightPageController.hasClients) {
-        setState(() {
-          _currentPage = _insightPageController.page ?? 0.0;
+    _insightPageController =
+        PageController(initialPage: 0, viewportFraction: 1.0)..addListener(() {
+          if (_insightPageController.hasClients) {
+            setState(() {
+              _currentPage = _insightPageController.page ?? 0.0;
+            });
+          }
         });
-      }
-    });
   }
 
   @override
@@ -52,6 +52,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     _insightPageController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -63,24 +64,37 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: ArtisanalTheme.primary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: ArtisanalTheme.primary,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(l10n.businessAnalytics,
-            style: ArtisanalTheme.lightTheme.textTheme.displayMedium
-                ?.copyWith(fontSize: 22, fontStyle: FontStyle.italic)),
+        title: Text(
+          l10n.businessAnalytics,
+          style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(
+            fontSize: 22,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.auto_awesome, color: ArtisanalTheme.primary, size: 20),
+            icon: const Icon(
+              Icons.auto_awesome,
+              color: ArtisanalTheme.primary,
+              size: 20,
+            ),
             tooltip: l10n.seedTooltip,
             onPressed: () async {
               await DataSeedService.seedAllData(ref);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(l10n.dataCurated, 
-                      style: ArtisanalTheme.hand(color: Colors.white)),
+                    content: Text(
+                      l10n.dataCurated,
+                      style: ArtisanalTheme.hand(color: Colors.white),
+                    ),
                     backgroundColor: ArtisanalTheme.primary,
                   ),
                 );
@@ -97,29 +111,32 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
           children: [
             _buildPeriodSelector(ref, l10n),
             const SizedBox(height: 24),
-            
+
             // 1. Action Buttons Row
             _buildTransactionActionButtons(context, l10n),
-            
+
             const SizedBox(height: 32),
-            
+
             // 2. Insight Header / Indicator
             _buildInsightNavigator(l10n),
-            
+
             const SizedBox(height: 16),
 
             // 3. Horizontal Deck (Charts & Receipt)
             AnimatedContainer(
               duration: const Duration(milliseconds: 400),
               curve: Curves.easeInOut,
-              height: _activeInsightPage == 1 
+              height: _activeInsightPage == 1
                   ? 1600 // Extra generous Journal height
-                  : (analytics.period == AnalyticsPeriod.month ? 1350 : 1050), // Significantly increased for non-scrollable Trends
+                  : (analytics.period == AnalyticsPeriod.month
+                        ? 1350
+                        : 1050), // Significantly increased for non-scrollable Trends
               child: PageView(
                 controller: _insightPageController,
-                clipBehavior: Clip.none, 
+                clipBehavior: Clip.none,
                 physics: const BouncingScrollPhysics(),
-                onPageChanged: (idx) => setState(() => _activeInsightPage = idx),
+                onPageChanged: (idx) =>
+                    setState(() => _activeInsightPage = idx),
                 children: [
                   _buildAnimatedPage(0, analytics, l10n),
                   _buildAnimatedPage(1, analytics, l10n),
@@ -132,10 +149,14 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     );
   }
 
-  Widget _buildAnimatedPage(int index, AnalyticsData analytics, AppLocalizations l10n) {
+  Widget _buildAnimatedPage(
+    int index,
+    AnalyticsData analytics,
+    AppLocalizations l10n,
+  ) {
     // Calculate the relative position of the page (-1.0 to 1.0)
     double relativePos = index - _currentPage;
-    
+
     // Smooth interpolation values
     double scale = 1.0 - (relativePos.abs() * 0.15).clamp(0.0, 0.15);
     double opacity = 1.0 - (relativePos.abs() * 0.5).clamp(0.0, 0.5);
@@ -209,7 +230,9 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
             style: ArtisanalTheme.receipt(
               fontSize: 10,
               fontWeight: FontWeight.w900,
-              color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.ink.withValues(alpha: 0.2),
+              color: isSelected
+                  ? ArtisanalTheme.primary
+                  : ArtisanalTheme.ink.withValues(alpha: 0.2),
               letterSpacing: 1.5,
             ),
           ),
@@ -225,9 +248,14 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     );
   }
 
-  Widget _buildVisualAnalyticsSection(AnalyticsData analytics, AppLocalizations l10n) {
+  Widget _buildVisualAnalyticsSection(
+    AnalyticsData analytics,
+    AppLocalizations l10n,
+  ) {
     return ArtisanalCard(
-      title: _activeChartIndex == 0 ? l10n.financialTrends : l10n.inventoryDistribution,
+      title: _activeChartIndex == 0
+          ? l10n.financialTrends
+          : l10n.inventoryDistribution,
       action: _activeChartIndex == 0 ? _buildDateNavigator(ref, l10n) : null,
       rotation: 0.005,
       tapeLabel: l10n.analytics.toUpperCase(),
@@ -242,7 +270,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
             ],
           ),
           const SizedBox(height: 32),
-          
+
           // Primary Trend Chart
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
@@ -254,7 +282,10 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                       const InventoryDistributionChart(),
                       if (analytics.topExpenseCategory != null) ...[
                         const SizedBox(height: 16),
-                        _buildTopExpenseBadge(l10n, analytics.topExpenseCategory!),
+                        _buildTopExpenseBadge(
+                          l10n,
+                          analytics.topExpenseCategory!,
+                        ),
                       ],
                     ],
                   ),
@@ -274,15 +305,24 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     );
   }
 
-  Widget _buildPeriodSpecificInsight(AnalyticsData data, AppLocalizations l10n) {
+  Widget _buildPeriodSpecificInsight(
+    AnalyticsData data,
+    AppLocalizations l10n,
+  ) {
     switch (data.period) {
       case AnalyticsPeriod.week:
-        return WeeklyDistributionChart(key: const ValueKey('weekly-insight'), weekdaySales: data.weekdaySales);
+        return WeeklyDistributionChart(
+          key: const ValueKey('weekly-insight'),
+          weekdaySales: data.weekdaySales,
+        );
       case AnalyticsPeriod.month:
         return Column(
           key: const ValueKey('monthly-insight'),
           children: [
-            MonthlyCostAnalysis(fixedCosts: data.fixedCosts, variableCosts: data.variableCosts),
+            MonthlyCostAnalysis(
+              fixedCosts: data.fixedCosts,
+              variableCosts: data.variableCosts,
+            ),
             const SizedBox(height: 32),
             PopularItemsList(items: data.topSellingItems),
           ],
@@ -299,12 +339,18 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.primary.withValues(alpha: 0.05),
+          color: isSelected
+              ? ArtisanalTheme.primary
+              : ArtisanalTheme.primary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 14, color: isSelected ? Colors.white : ArtisanalTheme.primary),
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected ? Colors.white : ArtisanalTheme.primary,
+            ),
             const SizedBox(width: 6),
             Text(
               label,
@@ -331,15 +377,26 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.warning_amber_rounded, size: 14, color: ArtisanalTheme.redInk),
+          const Icon(
+            Icons.warning_amber_rounded,
+            size: 14,
+            color: ArtisanalTheme.redInk,
+          ),
           const SizedBox(width: 8),
           Text(
             "${l10n.topExpenseItem}: ",
-            style: ArtisanalTheme.note(fontSize: 12, fontWeight: FontWeight.bold, color: ArtisanalTheme.redInk),
+            style: ArtisanalTheme.note(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: ArtisanalTheme.redInk,
+            ),
           ),
           Text(
             category,
-            style: ArtisanalTheme.hand(fontSize: 14, color: ArtisanalTheme.redInk),
+            style: ArtisanalTheme.hand(
+              fontSize: 14,
+              color: ArtisanalTheme.redInk,
+            ),
           ),
         ],
       ),
@@ -348,7 +405,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
 
   Widget _buildPeriodSelector(WidgetRef ref, AppLocalizations l10n) {
     final currentPeriod = ref.watch(analyticsPeriodProvider);
-    
+
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -359,14 +416,16 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
         children: [AnalyticsPeriod.week, AnalyticsPeriod.month].map((p) {
           final isSelected = currentPeriod == p;
           String label = p == AnalyticsPeriod.week ? l10n.weekly : l10n.monthly;
-          
+
           return Expanded(
             child: GestureDetector(
               onTap: () => ref.read(analyticsPeriodProvider.notifier).state = p,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: isSelected ? ArtisanalTheme.primary : Colors.transparent,
+                  color: isSelected
+                      ? ArtisanalTheme.primary
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
@@ -374,8 +433,12 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                     label.toUpperCase(),
                     style: ArtisanalTheme.hand(
                       fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: isSelected ? Colors.white : ArtisanalTheme.primary.withValues(alpha: 0.6),
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: isSelected
+                          ? Colors.white
+                          : ArtisanalTheme.primary.withValues(alpha: 0.6),
                     ),
                   ),
                 ),
@@ -389,14 +452,14 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
 
   Widget _buildDateNavigator(WidgetRef ref, AppLocalizations l10n) {
     final currentPeriod = ref.watch(analyticsPeriodProvider);
-    final baseDate = currentPeriod == AnalyticsPeriod.month 
-        ? ref.watch(monthlyBaseDateProvider) 
+    final baseDate = currentPeriod == AnalyticsPeriod.month
+        ? ref.watch(monthlyBaseDateProvider)
         : ref.watch(weeklyBaseDateProvider);
-    
-    final baseDateNotifier = currentPeriod == AnalyticsPeriod.month 
-        ? ref.read(monthlyBaseDateProvider.notifier) 
+
+    final baseDateNotifier = currentPeriod == AnalyticsPeriod.month
+        ? ref.read(monthlyBaseDateProvider.notifier)
         : ref.read(weeklyBaseDateProvider.notifier);
-    
+
     String periodText = "";
     if (currentPeriod == AnalyticsPeriod.week) {
       final start = baseDate.subtract(Duration(days: baseDate.weekday - 1));
@@ -408,15 +471,12 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildNavButton(
-          Icons.chevron_left_rounded,
-          () {
-            final next = currentPeriod == AnalyticsPeriod.week
-                ? baseDate.subtract(const Duration(days: 7))
-                : DateTime(baseDate.year, baseDate.month - 1, 1);
-            baseDateNotifier.state = next;
-          },
-        ),
+        _buildNavButton(Icons.chevron_left_rounded, () {
+          final next = currentPeriod == AnalyticsPeriod.week
+              ? baseDate.subtract(const Duration(days: 7))
+              : DateTime(baseDate.year, baseDate.month - 1, 1);
+          baseDateNotifier.state = next;
+        }),
         const SizedBox(width: 8),
         Text(
           periodText,
@@ -427,18 +487,19 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
           ),
         ),
         const SizedBox(width: 8),
-        _buildNavButton(
-          Icons.chevron_right_rounded,
-          () {
-            final next = currentPeriod == AnalyticsPeriod.week
-                ? baseDate.add(const Duration(days: 7))
-                : DateTime(baseDate.year, baseDate.month + 1, 1);
-            baseDateNotifier.state = next;
-          },
-        ),
+        _buildNavButton(Icons.chevron_right_rounded, () {
+          final next = currentPeriod == AnalyticsPeriod.week
+              ? baseDate.add(const Duration(days: 7))
+              : DateTime(baseDate.year, baseDate.month + 1, 1);
+          baseDateNotifier.state = next;
+        }),
         const SizedBox(width: 4),
         IconButton(
-          icon: const Icon(Icons.history_rounded, size: 14, color: ArtisanalTheme.primary),
+          icon: const Icon(
+            Icons.history_rounded,
+            size: 14,
+            color: ArtisanalTheme.primary,
+          ),
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
           onPressed: () => baseDateNotifier.state = DateTime.now(),
@@ -480,7 +541,9 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
             ],
             borderRadius: BorderRadius.circular(2),
             image: const DecorationImage(
-              image: NetworkImage('https://www.transparenttextures.com/patterns/handmade-paper.png'),
+              image: NetworkImage(
+                'https://www.transparenttextures.com/patterns/handmade-paper.png',
+              ),
               opacity: 0.2,
               repeat: ImageRepeat.repeat,
             ),
@@ -490,7 +553,11 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
             children: [
               Row(
                 children: [
-                  Icon(Icons.auto_fix_high, size: 16, color: Colors.brown.shade400),
+                  Icon(
+                    Icons.auto_fix_high,
+                    size: 16,
+                    color: Colors.brown.shade400,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     "ARTISAN'S INSIGHT",
@@ -533,21 +600,21 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
   Widget _buildPeriodHighlight(AnalyticsData data, AppLocalizations l10n) {
     String highlightText = "";
     IconData icon = Icons.auto_awesome;
-    
+
     switch (data.period) {
       case AnalyticsPeriod.week:
         final dayNum = data.busiestDay;
         final days = ['월', '화', '수', '목', '금', '토', '일'];
         highlightText = dayNum != null
-          ? "${days[dayNum - 1]}요일에 손님들이 가장 많이 찾아주셨어요."
-          : "평화로운 일주일이었습니다.";
+            ? "${days[dayNum - 1]}요일에 손님들이 가장 많이 찾아주셨어요."
+            : "평화로운 일주일이었습니다.";
         icon = Icons.calendar_view_week;
         break;
       case AnalyticsPeriod.month:
         final topItem = data.topItemName;
         highlightText = topItem != null
-          ? "이번 달의 주인공은 '$topItem'이었습니다."
-          : "이달은 새로운 시도가 많았던 시기였네요.";
+            ? "이번 달의 주인공은 '$topItem'이었습니다."
+            : "이달은 새로운 시도가 많았던 시기였네요.";
         icon = Icons.star_border;
         break;
       default:
@@ -560,11 +627,18 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
       decoration: BoxDecoration(
         color: ArtisanalTheme.primary.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.1), width: 0.5),
+        border: Border.all(
+          color: ArtisanalTheme.primary.withValues(alpha: 0.1),
+          width: 0.5,
+        ),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: ArtisanalTheme.primary.withValues(alpha: 0.4)),
+          Icon(
+            icon,
+            size: 16,
+            color: ArtisanalTheme.primary.withValues(alpha: 0.4),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -581,15 +655,27 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     );
   }
 
-  Widget _buildSummarySection(BuildContext context, AnalyticsData data, AppLocalizations l10n) {
-    final currencyFormat = NumberFormat.currency(symbol: l10n.currencySymbol, decimalDigits: 0);
-    
+  Widget _buildSummarySection(
+    BuildContext context,
+    AnalyticsData data,
+    AppLocalizations l10n,
+  ) {
+    final settings = ref.watch(settingsProvider);
+
     String overviewLabel;
     switch (data.period) {
-      case AnalyticsPeriod.day: overviewLabel = l10n.dailyOverview; break;
-      case AnalyticsPeriod.week: overviewLabel = l10n.weeklyOverview; break;
-      case AnalyticsPeriod.month: overviewLabel = l10n.monthlyOverview; break;
-      case AnalyticsPeriod.year: overviewLabel = l10n.yearlyOverview; break;
+      case AnalyticsPeriod.day:
+        overviewLabel = l10n.dailyOverview;
+        break;
+      case AnalyticsPeriod.week:
+        overviewLabel = l10n.weeklyOverview;
+        break;
+      case AnalyticsPeriod.month:
+        overviewLabel = l10n.monthlyOverview;
+        break;
+      case AnalyticsPeriod.year:
+        overviewLabel = l10n.yearlyOverview;
+        break;
     }
 
     final profit = data.totalSales - data.totalExpenses;
@@ -614,23 +700,34 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                 ],
               ),
               child: ClipPath(
-                clipper: data.period == AnalyticsPeriod.month || data.period == AnalyticsPeriod.year
-                  ? null // No serrated edge for magazine/archive
-                  : SerratedClipper(toothWidth: 10, toothHeight: 5),
+                clipper:
+                    data.period == AnalyticsPeriod.month ||
+                        data.period == AnalyticsPeriod.year
+                    ? null // No serrated edge for magazine/archive
+                    : SerratedClipper(toothWidth: 10, toothHeight: 5),
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(32, 56, 32, 48),
                   decoration: BoxDecoration(
                     color: ArtisanalTheme.background,
-                    borderRadius: data.period == AnalyticsPeriod.month || data.period == AnalyticsPeriod.year
-                      ? BorderRadius.circular(4)
-                      : null,
-                    border: data.period == AnalyticsPeriod.year 
-                      ? Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.1), width: 1)
-                      : null,
+                    borderRadius:
+                        data.period == AnalyticsPeriod.month ||
+                            data.period == AnalyticsPeriod.year
+                        ? BorderRadius.circular(4)
+                        : null,
+                    border: data.period == AnalyticsPeriod.year
+                        ? Border.all(
+                            color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                            width: 1,
+                          )
+                        : null,
                   ),
                   child: Column(
                     children: [
-                      _buildReceiptHeader(context, l10n.businessJournalTitle, isProfitPositive),
+                      _buildReceiptHeader(
+                        context,
+                        l10n.businessJournalTitle,
+                        isProfitPositive,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         "${overviewLabel.toUpperCase()} (${DateFormat('MMM').format(DateTime.now())})",
@@ -641,7 +738,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                         ),
                       ),
                       const SizedBox(height: 32),
-                      
+
                       // 1. REFINED BREAKDOWN SECTION (Summary) - NO ICONS
                       _buildCleanReceiptRow(
                         context,
@@ -660,7 +757,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                         ArtisanalTheme.redInk,
                         null, // Removed icon
                       ),
-                      
+
                       const SizedBox(height: 32),
                       _dottedDivider(thick: true),
                       const SizedBox(height: 32),
@@ -680,7 +777,9 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                                   style: ArtisanalTheme.receipt(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
-                                    color: ArtisanalTheme.ink.withValues(alpha: 0.8),
+                                    color: ArtisanalTheme.ink.withValues(
+                                      alpha: 0.8,
+                                    ),
                                     letterSpacing: 1.5,
                                   ),
                                 ),
@@ -688,7 +787,9 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                                   l10n.netProfitLabel.toUpperCase(),
                                   style: ArtisanalTheme.receipt(
                                     fontSize: 10,
-                                    color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+                                    color: ArtisanalTheme.ink.withValues(
+                                      alpha: 0.3,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -696,23 +797,25 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            currencyFormat.format(profit),
+                            settings.format(profit),
                             style: ArtisanalTheme.receipt(
                               fontSize: 32,
                               fontWeight: FontWeight.w900,
-                              color: isProfitPositive ? ArtisanalTheme.greenInk : Colors.red.shade700,
+                              color: isProfitPositive
+                                  ? ArtisanalTheme.greenInk
+                                  : Colors.red.shade700,
                               letterSpacing: -1.0,
                             ),
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 32),
                       _dottedDivider(thick: true),
 
                       // PERIOD SPECIFIC CONTENT INSIDE RECEIPT
                       const SizedBox(height: 32),
-                      _buildReceiptDetailContent(data, currencyFormat, l10n),
+                      _buildReceiptDetailContent(data, settings, l10n),
 
                       const SizedBox(height: 32),
                       _dottedDivider(thick: true),
@@ -729,7 +832,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
               ),
             ),
           ),
-          
+
           // Masking Tape
           Positioned(
             top: 0,
@@ -754,10 +857,18 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     );
   }
 
-  Widget _buildReceiptDetailContent(AnalyticsData data, NumberFormat format, AppLocalizations l10n) {
-    if (data.period == AnalyticsPeriod.day || data.period == AnalyticsPeriod.week) {
+  Widget _buildReceiptDetailContent(
+    AnalyticsData data,
+    SettingsState settings,
+    AppLocalizations l10n,
+  ) {
+    if (data.period == AnalyticsPeriod.day ||
+        data.period == AnalyticsPeriod.week) {
       // Integrated Ledger for Daily/Weekly
-      final txs = data.periodTransactions.whereType<BusinessTransaction>().take(8).toList();
+      final txs = data.periodTransactions
+          .whereType<BusinessTransaction>()
+          .take(8)
+          .toList();
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -766,12 +877,19 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
             children: [
               Text(
                 "상세 장부 내역",
-                style: ArtisanalTheme.receipt(fontSize: 10, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
+                style: ArtisanalTheme.receipt(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+                ),
               ),
               InkWell(
-                onTap: () => _showFullLedger(context, data, format, l10n),
+                onTap: () => _showFullLedger(context, data, settings, l10n),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: ArtisanalTheme.ink.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(4),
@@ -781,13 +899,17 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                       Text(
                         "상세 내역 전체 보기",
                         style: ArtisanalTheme.receipt(
-                          fontSize: 10, 
-                          color: ArtisanalTheme.ink.withValues(alpha: 0.6), 
-                          fontWeight: FontWeight.bold
+                          fontSize: 10,
+                          color: ArtisanalTheme.ink.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_ios, size: 8, color: ArtisanalTheme.ink.withValues(alpha: 0.4)),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 8,
+                        color: ArtisanalTheme.ink.withValues(alpha: 0.4),
+                      ),
                     ],
                   ),
                 ),
@@ -799,62 +921,91 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Center(
-                child: Text("기록된 내역이 없습니다.", 
-                  style: ArtisanalTheme.receipt(fontSize: 13, color: ArtisanalTheme.ink.withValues(alpha: 0.2))),
+                child: Text(
+                  "기록된 내역이 없습니다.",
+                  style: ArtisanalTheme.receipt(
+                    fontSize: 13,
+                    color: ArtisanalTheme.ink.withValues(alpha: 0.2),
+                  ),
+                ),
               ),
             )
           else
-            ...txs.map((tx) => InkWell(
-              onTap: () => _showSalesSlip(context, type: tx.type, initialTransaction: tx),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(tx.description, 
-                            maxLines: 1, 
-                            overflow: TextOverflow.ellipsis, 
-                            style: ArtisanalTheme.receipt(fontSize: 13, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink)),
-                          Text(DateFormat('HH:mm').format(tx.date), 
-                            style: ArtisanalTheme.receipt(fontSize: 9, color: ArtisanalTheme.ink.withValues(alpha: 0.3))),
-                        ],
+            ...txs.map(
+              (tx) => InkWell(
+                onTap: () => _showSalesSlip(
+                  context,
+                  type: tx.type,
+                  initialTransaction: tx,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tx.description,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: ArtisanalTheme.receipt(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: ArtisanalTheme.ink,
+                              ),
+                            ),
+                            Text(
+                              DateFormat('HH:mm').format(tx.date),
+                              style: ArtisanalTheme.receipt(
+                                fontSize: 9,
+                                color: ArtisanalTheme.ink.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Text(
-                      "${tx.type == 'sale' ? '+' : '-'}${format.format(tx.amount)}", 
-                      style: ArtisanalTheme.receipt(
-                        fontSize: 14, 
-                        color: tx.type == 'sale' ? ArtisanalTheme.greenInk : Colors.red.shade700,
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        "${tx.type == 'sale' ? '+' : '-'}${settings.format(tx.amount)}",
+                        style: ArtisanalTheme.receipt(
+                          fontSize: 14,
+                          color: tx.type == 'sale'
+                              ? ArtisanalTheme.greenInk
+                              : Colors.red.shade700,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            )),
+            ),
           if (data.periodTransactions.length > 8) ...[
-             const SizedBox(height: 12),
-             Center(
-               child: InkWell(
-                 onTap: () => _showFullLedger(context, data, format, l10n),
-                 child: Padding(
-                   padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                   child: Text(
-                     "외 ${data.periodTransactions.length - 8}개의 내역이 더 있습니다. (전체 보기)",
-                     style: ArtisanalTheme.receipt(
-                       fontSize: 9, 
-                       color: ArtisanalTheme.ink.withValues(alpha: 0.4),
-                       fontWeight: FontWeight.bold,
-                       decoration: TextDecoration.underline,
-                     ),
-                   ),
-                 ),
-               ),
-             ),
+            const SizedBox(height: 12),
+            Center(
+              child: InkWell(
+                onTap: () => _showFullLedger(context, data, settings, l10n),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 8,
+                  ),
+                  child: Text(
+                    "외 ${data.periodTransactions.length - 8}개의 내역이 더 있습니다. (전체 보기)",
+                    style: ArtisanalTheme.receipt(
+                      fontSize: 9,
+                      color: ArtisanalTheme.ink.withValues(alpha: 0.4),
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ],
       );
@@ -865,7 +1016,11 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
         children: [
           Text(
             "실적 요약 보고",
-            style: ArtisanalTheme.receipt(fontSize: 10, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
+            style: ArtisanalTheme.receipt(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+            ),
           ),
           const SizedBox(height: 16),
           _buildSummaryRow("가장 많이 팔린 품목", data.topItemName ?? "없음"),
@@ -873,7 +1028,10 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
           _buildSummaryRow("주요 지출 카테고리", data.topExpenseCategory ?? "없음"),
           if (data.period == AnalyticsPeriod.month) ...[
             const SizedBox(height: 8),
-            _buildSummaryRow("고정비 비중", "${(data.fixedCostRatio * 100).toStringAsFixed(1)}%"),
+            _buildSummaryRow(
+              "고정비 비중",
+              "${(data.fixedCostRatio * 100).toStringAsFixed(1)}%",
+            ),
           ],
         ],
       );
@@ -884,13 +1042,29 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label.toUpperCase(), style: ArtisanalTheme.receipt(fontSize: 11, color: ArtisanalTheme.ink.withValues(alpha: 0.5))),
-        Text(value, style: ArtisanalTheme.receipt(fontSize: 13, fontWeight: FontWeight.bold)),
+        Text(
+          label.toUpperCase(),
+          style: ArtisanalTheme.receipt(
+            fontSize: 11,
+            color: ArtisanalTheme.ink.withValues(alpha: 0.5),
+          ),
+        ),
+        Text(
+          value,
+          style: ArtisanalTheme.receipt(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildReceiptHeader(BuildContext context, String title, bool isProfitPositive) {
+  Widget _buildReceiptHeader(
+    BuildContext context,
+    String title,
+    bool isProfitPositive,
+  ) {
     final l10n = AppLocalizations.of(context);
     return Stack(
       clipBehavior: Clip.none,
@@ -902,10 +1076,8 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: ArtisanalTheme.lightTheme.textTheme.displaySmall?.copyWith(
-                  fontSize: 18,
-                  fontStyle: FontStyle.italic,
-                ),
+                style: ArtisanalTheme.lightTheme.textTheme.displaySmall
+                    ?.copyWith(fontSize: 18, fontStyle: FontStyle.italic),
               ),
             ),
           ],
@@ -916,11 +1088,16 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
           child: Transform.rotate(
             angle: -0.15,
             child: Text(
-              (isProfitPositive ? l10n.profitVerified : l10n.deficitNoted).toUpperCase(),
+              (isProfitPositive ? l10n.profitVerified : l10n.deficitNoted)
+                  .toUpperCase(),
               style: ArtisanalTheme.receipt(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: (isProfitPositive ? ArtisanalTheme.greenInk : ArtisanalTheme.redInk).withValues(alpha: 0.3),
+                color:
+                    (isProfitPositive
+                            ? ArtisanalTheme.greenInk
+                            : ArtisanalTheme.redInk)
+                        .withValues(alpha: 0.3),
               ),
             ),
           ),
@@ -932,24 +1109,32 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
   Widget _dottedDivider({bool thick = false}) {
     return Row(
       children: List.generate(
-          thick ? 60 : 40,
-          (index) => Expanded(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 1),
-                  height: thick ? 2 : 1,
-                  color: index % 2 == 0 
-                    ? ArtisanalTheme.ink.withValues(alpha: thick ? 0.5 : 0.3) 
-                    : Colors.transparent,
-                ),
-              )),
+        thick ? 60 : 40,
+        (index) => Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 1),
+            height: thick ? 2 : 1,
+            color: index % 2 == 0
+                ? ArtisanalTheme.ink.withValues(alpha: thick ? 0.5 : 0.3)
+                : Colors.transparent,
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildCleanReceiptRow(BuildContext context, String label, double amount, double change, Color color, IconData? icon) {
-    final currencyFormat = NumberFormat.currency(symbol: AppLocalizations.of(context).currencySymbol, decimalDigits: 0);
+  Widget _buildCleanReceiptRow(
+    BuildContext context,
+    String label,
+    double amount,
+    double change,
+    Color color,
+    IconData? icon,
+  ) {
+    final settings = ref.watch(settingsProvider);
     final isIncrease = change >= 0;
-    final isRevenue = label == AppLocalizations.of(context).totalRevenue; 
-    
+    final isRevenue = label == AppLocalizations.of(context).totalRevenue;
+
     return Row(
       children: [
         if (icon != null) ...[
@@ -973,9 +1158,13 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
                   "${(change.abs() * 100).toStringAsFixed(0)}% ${isIncrease ? '↑' : '↓'}",
                   style: ArtisanalTheme.receipt(
                     fontSize: 11,
-                    color: isRevenue 
-                      ? (isIncrease ? ArtisanalTheme.greenInk : Colors.red.shade700)
-                      : (isIncrease ? Colors.red.shade700 : ArtisanalTheme.greenInk),
+                    color: isRevenue
+                        ? (isIncrease
+                              ? ArtisanalTheme.greenInk
+                              : Colors.red.shade700)
+                        : (isIncrease
+                              ? Colors.red.shade700
+                              : ArtisanalTheme.greenInk),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -983,7 +1172,7 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
           ),
         ),
         Text(
-          "${isRevenue ? '+' : '-'}${currencyFormat.format(amount)}",
+          "${isRevenue ? '+' : '-'}${settings.format(amount)}",
           style: ArtisanalTheme.receipt(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -994,7 +1183,10 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     );
   }
 
-  Widget _buildTransactionActionButtons(BuildContext context, AppLocalizations l10n) {
+  Widget _buildTransactionActionButtons(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     return Row(
       children: [
         Expanded(
@@ -1013,14 +1205,20 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
             label: '지출 기록',
             icon: Icons.remove_circle,
             color: ArtisanalTheme.redInk,
-            onPressed: () => _showSalesSlip(context, type: 'expense'), 
+            onPressed: () => _showSalesSlip(context, type: 'expense'),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildActionButton(BuildContext context, {required String label, required IconData icon, required Color color, required VoidCallback onPressed}) {
+  Widget _buildActionButton(
+    BuildContext context, {
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
     return GestureDetector(
       onTap: onPressed,
       child: Container(
@@ -1056,43 +1254,28 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
     );
   }
 
-  void _showFullLedger(BuildContext context, AnalyticsData data, NumberFormat format, AppLocalizations l10n) {
+  void _showFullLedger(
+    BuildContext context,
+    AnalyticsData data,
+    SettingsState settings,
+    AppLocalizations l10n,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       clipBehavior: Clip.none, // Allow overflow for the clip
-      builder: (context) => _FullLedgerSheet(initialData: data, format: format),
+      builder: (context) => _FullLedgerSheet(initialData: data, settings: settings),
     );
   }
 
-  Widget _buildLedgerStatCard(String label, String value, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.05)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: ArtisanalTheme.receipt(fontSize: 10, color: ArtisanalTheme.ink.withValues(alpha: 0.4))),
-          const SizedBox(height: 4),
-          Text(value, style: ArtisanalTheme.receipt(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
-        ],
-      ),
-    );
-  }
 
-  void _showSalesSlip(BuildContext context, {String type = 'sale', BusinessTransaction? initialTransaction}) {
+
+  void _showSalesSlip(
+    BuildContext context, {
+    String type = 'sale',
+    BusinessTransaction? initialTransaction,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1101,7 +1284,10 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: SalesSlipSheet(type: type, initialTransaction: initialTransaction),
+        child: SalesSlipSheet(
+          type: type,
+          initialTransaction: initialTransaction,
+        ),
       ),
     );
   }
@@ -1109,9 +1295,9 @@ class _BusinessAnalyticsScreenState extends ConsumerState<BusinessAnalyticsScree
 
 class _FullLedgerSheet extends ConsumerStatefulWidget {
   final AnalyticsData initialData;
-  final NumberFormat format;
+  final SettingsState settings;
 
-  const _FullLedgerSheet({required this.initialData, required this.format});
+  const _FullLedgerSheet({required this.initialData, required this.settings});
 
   @override
   ConsumerState<_FullLedgerSheet> createState() => _FullLedgerSheetState();
@@ -1123,18 +1309,22 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
   @override
   Widget build(BuildContext context) {
     final transactions = ref.watch(transactionProvider);
-    final l10n = AppLocalizations.of(context);
-    
+
     // Filter transactions
     final filteredTxs = transactions.where((tx) {
-      return tx.date.year == _selectedDate.year && 
-             tx.date.month == _selectedDate.month &&
-             (widget.initialData.period == AnalyticsPeriod.day ? tx.date.day == _selectedDate.day : true);
-    }).toList()
-    ..sort((a, b) => b.date.compareTo(a.date));
+      return tx.date.year == _selectedDate.year &&
+          tx.date.month == _selectedDate.month &&
+          (widget.initialData.period == AnalyticsPeriod.day
+              ? tx.date.day == _selectedDate.day
+              : true);
+    }).toList()..sort((a, b) => b.date.compareTo(a.date));
 
-    final totalSales = filteredTxs.where((tx) => tx.type == 'sale').fold(0.0, (sum, item) => sum + item.amount);
-    final totalExpenses = filteredTxs.where((tx) => tx.type == 'expense').fold(0.0, (sum, item) => sum + item.amount);
+    final totalSales = filteredTxs
+        .where((tx) => tx.type == 'sale')
+        .fold(0.0, (sum, item) => sum + item.amount);
+    final totalExpenses = filteredTxs
+        .where((tx) => tx.type == 'expense')
+        .fold(0.0, (sum, item) => sum + item.amount);
     final balance = totalSales - totalExpenses;
 
     return Container(
@@ -1158,19 +1348,27 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
                     child: Stack(
                       children: [
                         Positioned.fill(
-                          child: CustomPaint(
-                            painter: _DotGridPainter(),
-                          ),
+                          child: CustomPaint(painter: _DotGridPainter()),
                         ),
                         Column(
                           children: [
                             // Header
                             _buildFolderTabHeader(context),
-                            _buildSummarySection(context, totalSales, totalExpenses, balance),
+                            _buildSummarySection(
+                              context,
+                              totalSales,
+                              totalExpenses,
+                              balance,
+                            ),
                             _buildFilterBar(context, filteredTxs.length),
                             const SizedBox(height: 16),
                             const Divider(height: 1, color: Colors.black12),
-                            Expanded(child: _buildLedgerList(context, filteredTxs, widget.format)),
+                            Expanded(
+                              child: _buildLedgerList(
+                                context,
+                                filteredTxs,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -1222,7 +1420,11 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
             child: IconButton(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
-              icon: const Icon(Icons.close_rounded, color: ArtisanalTheme.ink, size: 22),
+              icon: const Icon(
+                Icons.close_rounded,
+                color: ArtisanalTheme.ink,
+                size: 22,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -1232,17 +1434,40 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
   }
 
   // Refactored helper methods for cleaner build
-  Widget _buildSummarySection(BuildContext context, double totalSales, double totalExpenses, double balance) {
+  Widget _buildSummarySection(
+    BuildContext context,
+    double totalSales,
+    double totalExpenses,
+    double balance,
+  ) {
     final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 16), // Zero top padding
       child: Row(
         children: [
-          Expanded(child: _buildSummaryIndexCard(l10n.revenue, totalSales, ArtisanalTheme.greenInk)),
+          Expanded(
+            child: _buildSummaryIndexCard(
+              l10n.revenue,
+              totalSales,
+              ArtisanalTheme.greenInk,
+            ),
+          ),
           const SizedBox(width: 12),
-          Expanded(child: _buildSummaryIndexCard(l10n.expense, totalExpenses, ArtisanalTheme.redInk)),
+          Expanded(
+            child: _buildSummaryIndexCard(
+              l10n.expense,
+              totalExpenses,
+              ArtisanalTheme.redInk,
+            ),
+          ),
           const SizedBox(width: 12),
-          Expanded(child: _buildSummaryIndexCard(l10n.balance, balance, balance >= 0 ? ArtisanalTheme.primary : ArtisanalTheme.redInk)),
+          Expanded(
+            child: _buildSummaryIndexCard(
+              l10n.balance,
+              balance,
+              balance >= 0 ? ArtisanalTheme.primary : ArtisanalTheme.redInk,
+            ),
+          ),
         ],
       ),
     );
@@ -1258,20 +1483,29 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
           const Spacer(),
           Text(
             "$count ${l10n.entriesRecordedLabel}",
-            style: ArtisanalTheme.receipt(fontSize: 10, color: ArtisanalTheme.ink.withValues(alpha: 0.3), letterSpacing: 1),
+            style: ArtisanalTheme.receipt(
+              fontSize: 10,
+              color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+              letterSpacing: 1,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLedgerList(BuildContext context, List<BusinessTransaction> txs, NumberFormat format) {
+  Widget _buildLedgerList(
+    BuildContext context,
+    List<BusinessTransaction> txs,
+  ) {
     if (txs.isEmpty) return _buildEmptyState(context);
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
       itemCount: txs.length,
-      separatorBuilder: (_, __) => Divider(height: 1, color: ArtisanalTheme.ink.withValues(alpha: 0.04)),
-      itemBuilder: (context, index) => _buildProfessionalEntry(context, txs[index], format),
+      separatorBuilder: (_, _) =>
+          Divider(height: 1, color: ArtisanalTheme.ink.withValues(alpha: 0.04)),
+      itemBuilder: (context, index) =>
+          _buildProfessionalEntry(context, txs[index]),
     );
   }
 
@@ -1279,7 +1513,12 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
     final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 12), // Added small bottom padding
+      padding: const EdgeInsets.fromLTRB(
+        24,
+        32,
+        24,
+        12,
+      ), // Added small bottom padding
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1296,21 +1535,36 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(width: 40, height: 1, color: ArtisanalTheme.ink.withValues(alpha: 0.1)),
+              Container(
+                width: 40,
+                height: 1,
+                color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
                   "MANAGEMENT ARCHIVE",
-                  style: ArtisanalTheme.receipt(fontSize: 9, color: ArtisanalTheme.ink.withValues(alpha: 0.3), letterSpacing: 1.5),
+                  style: ArtisanalTheme.receipt(
+                    fontSize: 9,
+                    color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+                    letterSpacing: 1.5,
+                  ),
                 ),
               ),
-              Container(width: 40, height: 1, color: ArtisanalTheme.ink.withValues(alpha: 0.1)),
+              Container(
+                width: 40,
+                height: 1,
+                color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+              ),
             ],
           ),
           const SizedBox(height: 6), // Further reduced gap
           Text(
             l10n.tapToModifyOrDelete,
-            style: ArtisanalTheme.receipt(fontSize: 10, color: ArtisanalTheme.ink.withValues(alpha: 0.4)),
+            style: ArtisanalTheme.receipt(
+              fontSize: 10,
+              color: ArtisanalTheme.ink.withValues(alpha: 0.4),
+            ),
           ),
         ],
       ),
@@ -1335,11 +1589,21 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: ArtisanalTheme.receipt(fontSize: 9, color: ArtisanalTheme.ink.withValues(alpha: 0.4))),
+          Text(
+            label,
+            style: ArtisanalTheme.receipt(
+              fontSize: 9,
+              color: ArtisanalTheme.ink.withValues(alpha: 0.4),
+            ),
+          ),
           const SizedBox(height: 4),
           Text(
-            widget.format.format(value),
-            style: ArtisanalTheme.receipt(fontSize: 12, fontWeight: FontWeight.w900, color: color),
+            ref.watch(settingsProvider).format(value),
+            style: ArtisanalTheme.receipt(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: color,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -1364,25 +1628,42 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
         decoration: BoxDecoration(
           color: ArtisanalTheme.primary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.1)),
+          border: Border.all(
+            color: ArtisanalTheme.primary.withValues(alpha: 0.1),
+          ),
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_month, size: 16, color: ArtisanalTheme.primary),
+            const Icon(
+              Icons.calendar_month,
+              size: 16,
+              color: ArtisanalTheme.primary,
+            ),
             const SizedBox(width: 12),
             Text(
               DateFormat('yyyy. MM. dd').format(_selectedDate),
-              style: ArtisanalTheme.receipt(fontSize: 13, fontWeight: FontWeight.bold, color: ArtisanalTheme.primary),
+              style: ArtisanalTheme.receipt(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: ArtisanalTheme.primary,
+              ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.keyboard_arrow_down, size: 16, color: ArtisanalTheme.primary),
+            const Icon(
+              Icons.keyboard_arrow_down,
+              size: 16,
+              color: ArtisanalTheme.primary,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfessionalEntry(BuildContext context, BusinessTransaction tx, NumberFormat format) {
+  Widget _buildProfessionalEntry(
+    BuildContext context,
+    BusinessTransaction tx,
+  ) {
     return InkWell(
       onTap: () {
         showModalBottomSheet(
@@ -1390,7 +1671,9 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (context) => Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
             child: SalesSlipSheet(type: tx.type, initialTransaction: tx),
           ),
         );
@@ -1403,7 +1686,10 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
               width: 50,
               child: Text(
                 DateFormat('HH:mm').format(tx.date),
-                style: ArtisanalTheme.receipt(fontSize: 11, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
+                style: ArtisanalTheme.receipt(
+                  fontSize: 11,
+                  color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -1411,7 +1697,9 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
               width: 4,
               height: 24,
               decoration: BoxDecoration(
-                color: tx.type == 'sale' ? ArtisanalTheme.greenInk : ArtisanalTheme.redInk,
+                color: tx.type == 'sale'
+                    ? ArtisanalTheme.greenInk
+                    : ArtisanalTheme.redInk,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -1422,28 +1710,36 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
                 children: [
                   Text(
                     tx.description,
-                    style: ArtisanalTheme.lightTheme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
+                    style: ArtisanalTheme.lightTheme.textTheme.bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
                   Text(
                     tx.category.toUpperCase(),
-                    style: ArtisanalTheme.receipt(fontSize: 8, color: ArtisanalTheme.ink.withValues(alpha: 0.3), letterSpacing: 0.5),
+                    style: ArtisanalTheme.receipt(
+                      fontSize: 8,
+                      color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ],
               ),
             ),
             Text(
-              "${tx.type == 'sale' ? '+' : '-'}${format.format(tx.amount)}",
+              "${tx.type == 'sale' ? '+' : '-'}${ref.watch(settingsProvider).format(tx.amount)}",
               style: ArtisanalTheme.receipt(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: tx.type == 'sale' ? ArtisanalTheme.greenInk : ArtisanalTheme.redInk,
+                color: tx.type == 'sale'
+                    ? ArtisanalTheme.greenInk
+                    : ArtisanalTheme.redInk,
               ),
             ),
             const SizedBox(width: 12),
-            Icon(Icons.edit_note_rounded, size: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.15)),
+            Icon(
+              Icons.edit_note_rounded,
+              size: 18,
+              color: ArtisanalTheme.ink.withValues(alpha: 0.15),
+            ),
           ],
         ),
       ),
@@ -1456,11 +1752,17 @@ class _FullLedgerSheetState extends ConsumerState<_FullLedgerSheet> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.folder_open_rounded, size: 64, color: ArtisanalTheme.ink.withValues(alpha: 0.05)),
+          Icon(
+            Icons.folder_open_rounded,
+            size: 64,
+            color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+          ),
           const SizedBox(height: 16),
           Text(
             l10n.noEntriesOnSelectedDate,
-            style: ArtisanalTheme.lightTheme.textTheme.bodyMedium?.copyWith(color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
+            style: ArtisanalTheme.lightTheme.textTheme.bodyMedium?.copyWith(
+              color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+            ),
           ),
         ],
       ),

@@ -18,9 +18,12 @@ class RecipeCostData {
   double get estimatedProfit => suggestedPrice - totalCost;
 }
 
-final recipeCostProvider = Provider.family<RecipeCostData, Recipe>((ref, recipe) {
+final recipeCostProvider = Provider.family<RecipeCostData, Recipe>((
+  ref,
+  recipe,
+) {
   final pantryItems = ref.watch(pantryProvider);
-  
+
   double totalCost = 0;
   Map<String, double> ingredientCosts = {};
   bool hasMissingItems = false;
@@ -36,7 +39,8 @@ final recipeCostProvider = Provider.family<RecipeCostData, Recipe>((ref, recipe)
       if (pantryItem != null) {
         final amount = double.tryParse(ingredient.amount) ?? 0;
         final cost = amount * pantryItem.unitPrice;
-        ingredientCosts[ingredient.name] = (ingredientCosts[ingredient.name] ?? 0) + cost;
+        ingredientCosts[ingredient.name] =
+            (ingredientCosts[ingredient.name] ?? 0) + cost;
         totalCost += cost;
       } else {
         hasMissingItems = true;

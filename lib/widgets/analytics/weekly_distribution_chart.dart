@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/artisanal_theme.dart';
+import '../../providers/settings_provider.dart';
 
-class WeeklyDistributionChart extends StatelessWidget {
+class WeeklyDistributionChart extends ConsumerWidget {
   final Map<int, double> weekdaySales;
 
   const WeeklyDistributionChart({super.key, required this.weekdaySales});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final days = ['월', '화', '수', '목', '금', '토', '일'];
-    
+    final settings = ref.watch(settingsProvider);
+
     double maxAmount = 0;
     weekdaySales.forEach((_, amount) {
       if (amount > maxAmount) maxAmount = amount;
@@ -20,7 +23,11 @@ class WeeklyDistributionChart extends StatelessWidget {
       children: [
         Text(
           "요일별 매출 분포",
-          style: ArtisanalTheme.note(fontSize: 12, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink.withValues(alpha: 0.5)),
+          style: ArtisanalTheme.note(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: ArtisanalTheme.ink.withValues(alpha: 0.5),
+          ),
         ),
         const SizedBox(height: 24),
         Row(
@@ -34,8 +41,11 @@ class WeeklyDistributionChart extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    amount > 0 ? "${(amount / 10000).toStringAsFixed(0)}만" : "",
-                    style: ArtisanalTheme.hand(fontSize: 10, color: ArtisanalTheme.ink.withValues(alpha: 0.4)),
+                    _formatAmount(amount, settings),
+                    style: ArtisanalTheme.hand(
+                      fontSize: 10,
+                      color: ArtisanalTheme.ink.withValues(alpha: 0.4),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Container(
@@ -50,16 +60,22 @@ class WeeklyDistributionChart extends StatelessWidget {
                           ArtisanalTheme.primary.withValues(alpha: 0.4),
                         ],
                       ),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(4),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     days[index],
                     style: ArtisanalTheme.note(
-                      fontSize: 12, 
-                      fontWeight: weekday > 5 ? FontWeight.bold : FontWeight.normal,
-                      color: weekday > 5 ? ArtisanalTheme.redInk : ArtisanalTheme.ink,
+                      fontSize: 12,
+                      fontWeight: weekday > 5
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: weekday > 5
+                          ? ArtisanalTheme.redInk
+                          : ArtisanalTheme.ink,
                     ),
                   ),
                 ],
@@ -69,5 +85,24 @@ class WeeklyDistributionChart extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _formatAmount(double amount, SettingsState settings) {
+    if (amount <= 0) return "";
+    final isLargeUnit = settings.currencySymbol == '₩' || 
+                       settings.currencySymbol == '¥' || 
+                       settings.currencySymbol == '￥' ||
+                       settings.currencySymbol == String.fromCharCode(8361);
+    if (isLargeUnit) {
+      if (amount >= 10000) {
+        return "${(amount / 10000).toStringAsFixed(0)}만";
+      }
+      return amount.toStringAsFixed(0);
+    } else {
+      if (amount >= 1000) {
+        return "${settings.currencySymbol}${(amount / 1000).toStringAsFixed(1)}K";
+      }
+      return "${settings.currencySymbol}${amount.toStringAsFixed(0)}";
+    }
   }
 }

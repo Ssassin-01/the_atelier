@@ -18,7 +18,7 @@ class AnalyticsData {
   final AnalyticsPeriod period;
   final String? topExpenseCategory;
   final List<BusinessTransaction> periodTransactions;
-  
+
   // New detailed insights
   final Map<int, double> hourlySales; // hour (0-23) -> amount
   final Map<int, double> weekdaySales; // weekday (1-7) -> amount
@@ -45,8 +45,11 @@ class AnalyticsData {
     this.variableCosts = 0,
   });
 
-  double get salesChange => previousSales == 0 ? 0 : (totalSales - previousSales) / previousSales;
-  double get expenseChange => previousExpenses == 0 ? 0 : (totalExpenses - previousExpenses) / previousExpenses;
+  double get salesChange =>
+      previousSales == 0 ? 0 : (totalSales - previousSales) / previousSales;
+  double get expenseChange => previousExpenses == 0
+      ? 0
+      : (totalExpenses - previousExpenses) / previousExpenses;
   double get netProfit => totalSales - totalExpenses;
 
   // New Highlight Getters
@@ -60,8 +63,9 @@ class AnalyticsData {
     return weekdaySales.entries.reduce((a, b) => a.value > b.value ? a : b).key;
   }
 
-  String? get topItemName => topSellingItems.isEmpty ? null : topSellingItems.first.key;
-  
+  String? get topItemName =>
+      topSellingItems.isEmpty ? null : topSellingItems.first.key;
+
   double get fixedCostRatio {
     final total = fixedCosts + variableCosts;
     return total == 0 ? 0 : fixedCosts / total;
@@ -75,10 +79,18 @@ class AnalyticsData {
 
     String periodStr = "";
     switch (period) {
-      case AnalyticsPeriod.day: periodStr = "최근 며칠간"; break;
-      case AnalyticsPeriod.week: periodStr = "이번 주"; break;
-      case AnalyticsPeriod.month: periodStr = "이번 달"; break;
-      case AnalyticsPeriod.year: periodStr = "올해"; break;
+      case AnalyticsPeriod.day:
+        periodStr = "최근 며칠간";
+        break;
+      case AnalyticsPeriod.week:
+        periodStr = "이번 주";
+        break;
+      case AnalyticsPeriod.month:
+        periodStr = "이번 달";
+        break;
+      case AnalyticsPeriod.year:
+        periodStr = "올해";
+        break;
     }
 
     if (!saleUp && !saleDown && !expUp && !expDown) {
@@ -105,17 +117,21 @@ class AnalyticsData {
   }
 }
 
-final analyticsPeriodProvider = StateProvider<AnalyticsPeriod>((ref) => AnalyticsPeriod.week);
+final analyticsPeriodProvider = StateProvider<AnalyticsPeriod>(
+  (ref) => AnalyticsPeriod.week,
+);
 final weeklyBaseDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
-final monthlyBaseDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+final monthlyBaseDateProvider = StateProvider<DateTime>(
+  (ref) => DateTime.now(),
+);
 
 final analyticsProvider = Provider<AnalyticsData>((ref) {
   final transactions = ref.watch(transactionProvider);
   final pantryItems = ref.watch(pantryProvider);
   final period = ref.watch(analyticsPeriodProvider);
-  
-  final baseDate = period == AnalyticsPeriod.month 
-      ? ref.watch(monthlyBaseDateProvider) 
+
+  final baseDate = period == AnalyticsPeriod.month
+      ? ref.watch(monthlyBaseDateProvider)
       : ref.watch(weeklyBaseDateProvider);
 
   final now = baseDate;
@@ -127,7 +143,7 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
   late DateTime startDate;
   late DateFormat labelFormat;
   late int steps;
-  
+
   switch (period) {
     case AnalyticsPeriod.day:
       steps = 7;
@@ -138,7 +154,11 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
       steps = 4;
       // Start from the beginning of the week 4 weeks ago
       final daysToSubtract = (now.weekday - 1) + (7 * (steps - 1));
-      startDate = DateTime(now.year, now.month, now.day).subtract(Duration(days: daysToSubtract));
+      startDate = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: daysToSubtract));
       labelFormat = DateFormat('MM.dd');
       break;
     case AnalyticsPeriod.month:
@@ -162,7 +182,9 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
       label = labelFormat.format(date);
     } else if (period == AnalyticsPeriod.week) {
       DateTime weekStart = startDate.add(Duration(days: i * 7));
-      label = DateFormat('M/d').format(weekStart); // Simplified label e.g., "4/6"
+      label = DateFormat(
+        'M/d',
+      ).format(weekStart); // Simplified label e.g., "4/6"
     } else if (period == AnalyticsPeriod.month) {
       date = DateTime(startDate.year, startDate.month + i, 1);
       label = labelFormat.format(date);
@@ -207,7 +229,7 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
   // Calculate totals and previous period totals for comparison
   late DateTime prevStartDate;
   late DateTime prevEndDate;
-  
+
   if (period == AnalyticsPeriod.day) {
     prevEndDate = startDate;
     prevStartDate = startDate.subtract(const Duration(days: 7));
@@ -230,10 +252,20 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
       .fold(0.0, (sum, t) => sum + t.amount);
 
   final previousSales = transactions
-      .where((t) => t.type == 'sale' && t.date.isAfter(prevStartDate) && t.date.isBefore(prevEndDate))
+      .where(
+        (t) =>
+            t.type == 'sale' &&
+            t.date.isAfter(prevStartDate) &&
+            t.date.isBefore(prevEndDate),
+      )
       .fold(0.0, (sum, t) => sum + t.amount);
   final previousExpenses = transactions
-      .where((t) => t.type == 'expense' && t.date.isAfter(prevStartDate) && t.date.isBefore(prevEndDate))
+      .where(
+        (t) =>
+            t.type == 'expense' &&
+            t.date.isAfter(prevStartDate) &&
+            t.date.isBefore(prevEndDate),
+      )
       .fold(0.0, (sum, t) => sum + t.amount);
 
   // Detailed Insight Aggregation
@@ -248,7 +280,8 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
     hourlySales[tx.date.hour] = (hourlySales[tx.date.hour] ?? 0) + tx.amount;
 
     // 2. Weekday Pattern (Weekly Focus)
-    weekdaySales[tx.date.weekday] = (weekdaySales[tx.date.weekday] ?? 0) + tx.amount;
+    weekdaySales[tx.date.weekday] =
+        (weekdaySales[tx.date.weekday] ?? 0) + tx.amount;
 
     // 3. Popular Items
     if (tx.type == 'sale') {
@@ -257,7 +290,9 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
 
     // 4. Cost Analysis
     if (tx.type == 'expense') {
-      if (tx.category == 'Rent' || tx.category == 'Utilities' || tx.category == 'Salary') {
+      if (tx.category == 'Rent' ||
+          tx.category == 'Utilities' ||
+          tx.category == 'Salary') {
         fixedCosts += tx.amount;
       } else {
         variableCosts += tx.amount;
@@ -267,8 +302,11 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
 
   // Top Expense Category
   final Map<String, double> expenseByCategory = {};
-  for (final tx in transactions.where((t) => t.type == 'expense' && t.date.isAfter(startDate))) {
-    expenseByCategory[tx.category] = (expenseByCategory[tx.category] ?? 0) + tx.amount;
+  for (final tx in transactions.where(
+    (t) => t.type == 'expense' && t.date.isAfter(startDate),
+  )) {
+    expenseByCategory[tx.category] =
+        (expenseByCategory[tx.category] ?? 0) + tx.amount;
   }
   String? topCat;
   double maxExp = 0;
@@ -288,8 +326,9 @@ final analyticsProvider = Provider<AnalyticsData>((ref) {
   final topSellingItems = itemSales.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value));
 
-  final currentTxs = transactions.where((t) => t.date.isAfter(startDate)).toList()
-    ..sort((a, b) => b.date.compareTo(a.date));
+  final currentTxs =
+      transactions.where((t) => t.date.isAfter(startDate)).toList()
+        ..sort((a, b) => b.date.compareTo(a.date));
 
   return AnalyticsData(
     salesTrend: salesMap,

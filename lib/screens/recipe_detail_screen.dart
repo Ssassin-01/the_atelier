@@ -24,7 +24,8 @@ class RecipeDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
 }
 
-class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with SingleTickerProviderStateMixin {
+class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _crumpleController;
 
   @override
@@ -45,22 +46,41 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
   Future<void> _confirmDelete() async {
     final l10n = AppLocalizations.of(context);
     HapticFeedback.mediumImpact();
-    
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: ArtisanalTheme.background,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.deleteRecord.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
-        content: Text(l10n.removeMediaConfirm, style: ArtisanalTheme.hand(fontSize: 18)),
+        title: Text(
+          l10n.deleteRecord.toUpperCase(),
+          style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          l10n.removeMediaConfirm,
+          style: ArtisanalTheme.hand(fontSize: 18),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.cancel.toUpperCase(), style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary, fontSize: 16)),
+            child: Text(
+              l10n.cancel.toUpperCase(),
+              style: ArtisanalTheme.hand(
+                color: ArtisanalTheme.secondary,
+                fontSize: 16,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.delete.toUpperCase(), style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 16)),
+            child: Text(
+              l10n.delete.toUpperCase(),
+              style: ArtisanalTheme.hand(
+                color: ArtisanalTheme.redInk,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
           ),
         ],
       ),
@@ -69,7 +89,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
     if (confirmed == true && mounted) {
       await _crumpleController.forward();
       if (mounted) {
-        await ref.read(recipeListProvider.notifier).removeRecipe(widget.recipe.id);
+        await ref
+            .read(recipeListProvider.notifier)
+            .removeRecipe(widget.recipe.id);
         if (mounted) Navigator.pop(context);
       }
     }
@@ -80,20 +102,32 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
     final draft = RecipeDraft(
       name: widget.recipe.name,
       mainImagePath: widget.recipe.mainImageUrl,
-      components: widget.recipe.components.map((c) => RecipeComponentDraft(
-        id: DateTime.now().toString(),
-        title: c.title,
-        imagePath: c.imageUrl,
-        ingredients: c.ingredients.map((i) => IngredientEntry(
-          id: DateTime.now().toString(),
-          name: i.name,
-          weight: double.tryParse(i.amount) ?? 0.0,
-        )).toList(),
-        steps: c.steps.map((s) => RecipeStepDraft(
-          id: DateTime.now().toString(),
-          content: s.description,
-        )).toList(),
-      )).toList(),
+      components: widget.recipe.components
+          .map(
+            (c) => RecipeComponentDraft(
+              id: DateTime.now().toString(),
+              title: c.title,
+              imagePath: c.imageUrl,
+              ingredients: c.ingredients
+                  .map(
+                    (i) => IngredientEntry(
+                      id: DateTime.now().toString(),
+                      name: i.name,
+                      weight: double.tryParse(i.amount) ?? 0.0,
+                    ),
+                  )
+                  .toList(),
+              steps: c.steps
+                  .map(
+                    (s) => RecipeStepDraft(
+                      id: DateTime.now().toString(),
+                      content: s.description,
+                    ),
+                  )
+                  .toList(),
+            ),
+          )
+          .toList(),
     );
 
     // Seed the provider
@@ -115,7 +149,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final recipes = ref.watch(recipeListProvider);
-    final recipe = recipes.firstWhere((r) => r.id == widget.recipe.id, orElse: () => widget.recipe);
+    final recipe = recipes.firstWhere(
+      (r) => r.id == widget.recipe.id,
+      orElse: () => widget.recipe,
+    );
 
     return Scaffold(
       backgroundColor: ArtisanalTheme.background,
@@ -134,11 +171,21 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
             actions: [
               TextButton(
                 onPressed: _onEdit,
-                child: Text(l10n.rename.toUpperCase(), style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontSize: 16, fontWeight: FontWeight.bold)),
+                child: Text(
+                  l10n.rename.toUpperCase(),
+                  style: ArtisanalTheme.hand(
+                    color: ArtisanalTheme.primary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               IconButton(
                 onPressed: _confirmDelete,
-                icon: Icon(Icons.delete_outline, color: ArtisanalTheme.redInk.withValues(alpha: 0.7)),
+                icon: Icon(
+                  Icons.delete_outline,
+                  color: ArtisanalTheme.redInk.withValues(alpha: 0.7),
+                ),
               ),
               const SizedBox(width: 8),
             ],
@@ -172,7 +219,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
                               imagePath: recipe.mainImageUrl,
                               fit: BoxFit.cover,
                             ),
-                            title: DateFormat('yyyy.MM.dd').format(recipe.createdAt),
+                            title: DateFormat(
+                              'yyyy.MM.dd',
+                            ).format(recipe.createdAt),
                           ),
                         ),
                       ],
@@ -220,7 +269,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
                         ),
                       ),
                     ),
-  
+
                     Column(
                       children: [
                         const SizedBox(height: 16),
@@ -233,7 +282,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
                           ),
                         ),
                         const SizedBox(height: 30),
-  
+
                         Center(
                           child: TextButton.icon(
                             onPressed: () => Navigator.push(
@@ -259,7 +308,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
                             ),
                           ),
                         ),
-  
+
                         const SizedBox(height: 60),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -271,9 +320,12 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> with Si
                                   child: AnimatedRecipePostIt(component: comp),
                                 ),
                               ),
-                              if (recipe.description != null && recipe.description!.isNotEmpty) ...[
+                              if (recipe.description != null &&
+                                  recipe.description!.isNotEmpty) ...[
                                 const SizedBox(height: 10),
-                                _DescriptionCard(description: recipe.description!),
+                                _DescriptionCard(
+                                  description: recipe.description!,
+                                ),
                                 const SizedBox(height: 32),
                               ],
                             ],
@@ -451,10 +503,10 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
           width: 180,
           child: Text(
             widget.component.title,
-            style: ArtisanalTheme.hand(fontSize: 26, color: ArtisanalTheme.ink)
-                .copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: ArtisanalTheme.hand(
+              fontSize: 26,
+              color: ArtisanalTheme.ink,
+            ).copyWith(fontWeight: FontWeight.bold),
             maxLines: 2,
           ),
         ),
@@ -462,57 +514,62 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
         ...() {
           final totalFlour = widget.component.ingredients
               .where((ing) => ing.isFlour)
-              .fold(0.0, (sum, ing) => sum + (double.tryParse(ing.amount) ?? 0));
+              .fold(
+                0.0,
+                (sum, ing) => sum + (double.tryParse(ing.amount) ?? 0),
+              );
 
-          return widget.component.ingredients.map(
-            (ing) {
-              final weight = double.tryParse(ing.amount) ?? 0;
-              final percentage =
-                  totalFlour > 0 ? (weight / totalFlour) * 100 : 0.0;
+          return widget.component.ingredients.map((ing) {
+            final weight = double.tryParse(ing.amount) ?? 0;
+            final percentage = totalFlour > 0
+                ? (weight / totalFlour) * 100
+                : 0.0;
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              ing.name,
-                              style: ArtisanalTheme.hand(
-                                  fontSize: 19, height: 1.25),
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            ing.name,
+                            style: ArtisanalTheme.hand(
+                              fontSize: 19,
+                              height: 1.25,
                             ),
                           ),
-                          if (totalFlour > 0) ...[
-                            const SizedBox(width: 8),
-                            Text(
-                              '${percentage.toStringAsFixed(0)}%',
-                              style: ArtisanalTheme.hand(
-                                fontSize: 15,
-                                color: ArtisanalTheme.secondary
-                                    .withValues(alpha: 0.5),
+                        ),
+                        if (totalFlour > 0) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            '${percentage.toStringAsFixed(0)}%',
+                            style: ArtisanalTheme.hand(
+                              fontSize: 15,
+                              color: ArtisanalTheme.secondary.withValues(
+                                alpha: 0.5,
                               ),
                             ),
-                          ],
+                          ),
                         ],
-                      ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${ing.amount}${ing.unit}',
-                      style: ArtisanalTheme.hand(
-                        fontSize: 19,
-                        color: ArtisanalTheme.secondary,
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${ing.amount}${ing.unit}',
+                    style: ArtisanalTheme.hand(
+                      fontSize: 19,
+                      color: ArtisanalTheme.secondary,
                     ),
-                  ],
-                ),
-              );
-            },
-          );
+                  ),
+                ],
+              ),
+            );
+          });
         }(),
         const SizedBox(height: 16),
         Align(
@@ -523,7 +580,9 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  l10n.currentLanguage == '한국어' ? '밀어서 넘기기' : 'Slide or tap to flip',
+                  l10n.currentLanguage == '한국어'
+                      ? '밀어서 넘기기'
+                      : 'Slide or tap to flip',
                   style: ArtisanalTheme.hand(fontSize: 14),
                 ),
                 const Icon(
@@ -548,7 +607,9 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
         SizedBox(
           width: 180,
           child: Text(
-            l10n.currentLanguage == '한국어' ? '조리법: ${widget.component.title}' : 'Method: ${widget.component.title}',
+            l10n.currentLanguage == '한국어'
+                ? '조리법: ${widget.component.title}'
+                : 'Method: ${widget.component.title}',
             style: ArtisanalTheme.hand(
               fontSize: 22,
               color: ArtisanalTheme.primary,
@@ -557,32 +618,29 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
           ),
         ),
         const SizedBox(height: 20),
-        ...widget.component.steps
-            .asMap()
-            .entries
-            .map(
-              (e) => Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${e.key + 1}. ',
-                      style: ArtisanalTheme.hand(
-                        fontSize: 18,
-                        color: ArtisanalTheme.primary,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        e.value.description,
-                        style: ArtisanalTheme.hand(fontSize: 18, height: 1.35),
-                      ),
-                    ),
-                  ],
+        ...widget.component.steps.asMap().entries.map(
+          (e) => Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${e.key + 1}. ',
+                  style: ArtisanalTheme.hand(
+                    fontSize: 18,
+                    color: ArtisanalTheme.primary,
+                  ),
                 ),
-              ),
+                Expanded(
+                  child: Text(
+                    e.value.description,
+                    style: ArtisanalTheme.hand(fontSize: 18, height: 1.35),
+                  ),
+                ),
+              ],
             ),
+          ),
+        ),
         const SizedBox(height: 16),
         Align(
           alignment: Alignment.bottomLeft,
@@ -666,6 +724,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
     );
   }
 }
+
 class _DescriptionCard extends StatelessWidget {
   final String description;
   const _DescriptionCard({required this.description});
@@ -720,7 +779,11 @@ class _DescriptionCard extends StatelessWidget {
                     alignment: Alignment.bottomRight,
                     child: Opacity(
                       opacity: 0.1,
-                      child: Icon(Icons.auto_stories, color: ArtisanalTheme.primary, size: 32),
+                      child: Icon(
+                        Icons.auto_stories,
+                        color: ArtisanalTheme.primary,
+                        size: 32,
+                      ),
                     ),
                   ),
                 ],

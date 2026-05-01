@@ -6,17 +6,14 @@ import '../l10n/app_localizations.dart';
 class LowStockPannel extends StatelessWidget {
   final List<PantryItem> items;
 
-  const LowStockPannel({
-    super.key,
-    required this.items,
-  });
+  const LowStockPannel({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final lowStockItems = items.where((item) {
-      final percent = item.targetQuantity > 0 
-          ? (item.currentStock / item.targetQuantity) 
+      final percent = item.targetQuantity > 0
+          ? (item.currentStock / item.targetQuantity)
           : 0.0;
       return percent < 0.2;
     }).toList();
@@ -49,8 +46,11 @@ class LowStockPannel extends StatelessWidget {
                   color: ArtisanalTheme.redInk.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.inventory_2_outlined,
-                  color: ArtisanalTheme.redInk, size: 18),
+                child: const Icon(
+                  Icons.inventory_2_outlined,
+                  color: ArtisanalTheme.redInk,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 10),
               Text(
@@ -63,48 +63,53 @@ class LowStockPannel extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              const Icon(Icons.push_pin, size: 16, color: ArtisanalTheme.redInk),
+              const Icon(
+                Icons.push_pin,
+                size: 16,
+                color: ArtisanalTheme.redInk,
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          ...lowStockItems.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: const BoxDecoration(
-                    color: ArtisanalTheme.redInk,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    item.name,
-                    style: ArtisanalTheme.hand(
-                      fontSize: 16,
-                      color: ArtisanalTheme.ink.withValues(alpha: 0.8),
+          ...lowStockItems.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: ArtisanalTheme.redInk,
+                      shape: BoxShape.circle,
                     ),
                   ),
-                ),
-                Text(
-                  item.unit == 'pcs' 
-                      ? "${item.currentStock.toInt()}pcs"
-                      : "${(item.currentStock / 1000).toStringAsFixed(1)}kg",
-                  style: ArtisanalTheme.hand(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: ArtisanalTheme.redInk,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      item.name,
+                      style: ArtisanalTheme.hand(
+                        fontSize: 16,
+                        color: ArtisanalTheme.ink.withValues(alpha: 0.8),
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  Text(
+                    item.unit == 'pcs'
+                        ? "${item.currentStock.toInt()}pcs"
+                        : "${(item.currentStock / 1000).toStringAsFixed(1)}kg",
+                    style: ArtisanalTheme.hand(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: ArtisanalTheme.redInk,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          )),
+          ),
         ],
       ),
     );
   }
 }
-

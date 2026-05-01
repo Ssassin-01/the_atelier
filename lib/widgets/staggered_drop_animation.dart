@@ -17,7 +17,8 @@ class StaggeredDropAnimation extends StatefulWidget {
   State<StaggeredDropAnimation> createState() => _StaggeredDropAnimationState();
 }
 
-class _StaggeredDropAnimationState extends State<StaggeredDropAnimation> with SingleTickerProviderStateMixin {
+class _StaggeredDropAnimationState extends State<StaggeredDropAnimation>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _slideAnimation;
   late Animation<double> _scaleAnimation;
@@ -33,19 +34,31 @@ class _StaggeredDropAnimationState extends State<StaggeredDropAnimation> with Si
     );
 
     _slideAnimation = Tween<double>(begin: -20.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic),
+      ),
     );
 
     _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic),
+      ),
     );
 
     _rotationAnimation = Tween<double>(begin: 0.05, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic),
+      ),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.4, curve: Curves.easeIn)),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeIn),
+      ),
     );
 
     // Optimized Delay Logic:

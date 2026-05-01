@@ -8,6 +8,7 @@ import '../widgets/polaroid_card.dart';
 import '../widgets/artisanal_image.dart';
 import '../services/recipe_service.dart';
 import '../providers/dashboard_provider.dart';
+import '../providers/settings_provider.dart';
 import 'recipe_detail_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -29,7 +30,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       vsync: this,
       duration: const Duration(seconds: 4),
     )..repeat(reverse: true);
-    
+
     // Set initial page to a large enough value for infinite scrolling both ways
     _quoteController = PageController(
       initialPage: 800 + (DateTime.now().day % 8),
@@ -100,8 +101,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                       child: AnimatedBuilder(
                         animation: _swayController,
                         builder: (context, child) {
-                          final sway = math.sin(
-                                  _swayController.value * math.pi * 2 + 0.5) *
+                          final sway =
+                              math.sin(
+                                _swayController.value * math.pi * 2 + 0.5,
+                              ) *
                               0.008;
                           return Transform.rotate(angle: sway, child: child);
                         },
@@ -120,26 +123,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                         children: [
                           Text(
                             l10n.recentlyBaked,
-                            style: ArtisanalTheme.lightTheme.textTheme
+                            style: ArtisanalTheme
+                                .lightTheme
+                                .textTheme
                                 .displayMedium
                                 ?.copyWith(fontSize: 26),
                           ),
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               border: Border.all(
-                                  color: ArtisanalTheme.primary
-                                      .withValues(alpha: 0.4)),
+                                color: ArtisanalTheme.primary.withValues(
+                                  alpha: 0.4,
+                                ),
+                              ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
                               l10n.verified.toUpperCase(),
                               style: ArtisanalTheme.hand(
-                                  fontSize: 10,
-                                  color: ArtisanalTheme.primary
-                                      .withValues(alpha: 0.5)),
+                                fontSize: 10,
+                                color: ArtisanalTheme.primary.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -159,9 +170,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                               scrollDirection: Axis.horizontal,
                               clipBehavior: Clip.none,
                               padding: const EdgeInsets.only(
-                                  left: 28.0, right: 8.0),
-                              itemCount:
-                                  recipes.length > 6 ? 6 : recipes.length,
+                                left: 28.0,
+                                right: 8.0,
+                              ),
+                              itemCount: recipes.length > 6
+                                  ? 6
+                                  : recipes.length,
                               itemBuilder: (context, index) {
                                 final recipe = recipes[index];
                                 final baseRotation = [
@@ -170,7 +184,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                                   0.05,
                                   -0.02,
                                   0.04,
-                                  -0.03
+                                  -0.03,
                                 ][index % 6];
 
                                 return Padding(
@@ -178,30 +192,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                                   child: AnimatedBuilder(
                                     animation: _swayController,
                                     builder: (context, child) {
-                                      final sway = math.sin(
-                                              _swayController.value *
-                                                  math.pi *
-                                                  2 +
-                                              index) *
+                                      final sway =
+                                          math.sin(
+                                            _swayController.value *
+                                                    math.pi *
+                                                    2 +
+                                                index,
+                                          ) *
                                           0.012;
                                       return Transform.rotate(
-                                          angle: sway, child: child);
+                                        angle: sway,
+                                        child: child,
+                                      );
                                     },
                                     child: GestureDetector(
                                       onTap: () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) =>
-                                              RecipeDetailScreen(recipe: recipe),
+                                          builder: (_) => RecipeDetailScreen(
+                                            recipe: recipe,
+                                          ),
                                         ),
                                       ),
                                       child: PolaroidCard(
                                         rotation: baseRotation,
                                         tapeColor: index % 2 == 0
-                                            ? ArtisanalTheme.primary
-                                                .withValues(alpha: 0.15)
-                                            : Colors.black
-                                                .withValues(alpha: 0.05),
+                                            ? ArtisanalTheme.primary.withValues(
+                                                alpha: 0.15,
+                                              )
+                                            : Colors.black.withValues(
+                                                alpha: 0.05,
+                                              ),
                                         title: recipe.name,
                                         subtitle: recipe.description,
                                         image: ArtisanalImage(
@@ -232,21 +253,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.photo_camera_back_outlined,
-              size: 56,
-              color: ArtisanalTheme.outline.withValues(alpha: 0.3)),
+          Icon(
+            Icons.photo_camera_back_outlined,
+            size: 56,
+            color: ArtisanalTheme.outline.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 16),
-          Text(l10n.emptyState,
-              style: ArtisanalTheme.hand(
-                  fontSize: 20,
-                  color: ArtisanalTheme.secondary.withValues(alpha: 0.5))),
+          Text(
+            l10n.emptyState,
+            style: ArtisanalTheme.hand(
+              fontSize: 20,
+              color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildAtelierHeader(AppLocalizations l10n, DateTime now) {
-    final weekdays = [l10n.mon, l10n.tue, l10n.wed, l10n.thu, l10n.fri, l10n.sat, l10n.sun];
+    final weekdays = [
+      l10n.mon,
+      l10n.tue,
+      l10n.wed,
+      l10n.thu,
+      l10n.fri,
+      l10n.sat,
+      l10n.sun,
+    ];
     final dateStr =
         '${weekdays[now.weekday - 1]}, ${now.year}.${now.month.toString().padLeft(2, '0')}.${now.day.toString().padLeft(2, '0')}';
 
@@ -261,8 +295,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             child: Text(
               '${l10n.journalNo} 42',
               style: ArtisanalTheme.hand(
-                  fontSize: 22,
-                  color: ArtisanalTheme.primary.withValues(alpha: 0.5)),
+                fontSize: 22,
+                color: ArtisanalTheme.primary.withValues(alpha: 0.5),
+              ),
             ),
           ),
         ),
@@ -271,19 +306,28 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           children: [
             const SizedBox(height: 12),
             Text(
-              l10n.deskHeader,
-              style: ArtisanalTheme.lightTheme.textTheme.displayLarge
-                  ?.copyWith(height: 1.1, fontSize: 32),
+              ref.watch(settingsProvider).atelierName,
+              style: ArtisanalTheme.lightTheme.textTheme.displayLarge?.copyWith(
+                height: 1.1,
+                fontSize: 32,
+              ),
             ),
             const SizedBox(height: 10),
             Row(
               children: [
-                const Icon(Icons.today_outlined,
-                    size: 16, color: ArtisanalTheme.secondary),
+                const Icon(
+                  Icons.today_outlined,
+                  size: 16,
+                  color: ArtisanalTheme.secondary,
+                ),
                 const SizedBox(width: 6),
-                Text(dateStr,
-                    style: ArtisanalTheme.hand(
-                        fontSize: 18, color: ArtisanalTheme.secondary)),
+                Text(
+                  dateStr,
+                  style: ArtisanalTheme.hand(
+                    fontSize: 18,
+                    color: ArtisanalTheme.secondary,
+                  ),
+                ),
               ],
             ),
           ],
@@ -309,7 +353,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     ];
 
     final isQuote = dashboardState.isQuoteMode;
-    
+
     return Stack(
       alignment: Alignment.topCenter,
       clipBehavior: Clip.none,
@@ -325,9 +369,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               borderRadius: BorderRadius.circular(3),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 15,
-                    offset: const Offset(4, 4)),
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 15,
+                  offset: const Offset(4, 4),
+                ),
               ],
             ),
             child: Column(
@@ -355,7 +400,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                           color: ArtisanalTheme.primary.withValues(alpha: 0.05),
                         ),
                         child: Icon(
-                          isQuote ? Icons.person_outline : Icons.auto_stories_outlined,
+                          isQuote
+                              ? Icons.person_outline
+                              : Icons.auto_stories_outlined,
                           size: 16,
                           color: ArtisanalTheme.primary.withValues(alpha: 0.5),
                         ),
@@ -363,7 +410,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 8),
 
                 if (isQuote)
@@ -397,7 +444,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                                 "- ${q.$2}",
                                 style: ArtisanalTheme.hand(
                                   fontSize: 15,
-                                  color: ArtisanalTheme.ink.withValues(alpha: 0.6),
+                                  color: ArtisanalTheme.ink.withValues(
+                                    alpha: 0.6,
+                                  ),
                                 ),
                               ),
                             ),
@@ -409,13 +458,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 else
                   // ── Resolution Display ──────────────────────────────────────
                   GestureDetector(
-                    onTap: () => _showEditResolutionDialog(dashboardState.resolution),
+                    onTap: () =>
+                        _showEditResolutionDialog(dashboardState.resolution),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          dashboardState.resolution.isEmpty 
-                              ? "나의 소중한 다짐을\n이곳에 기록해보세요." 
+                          dashboardState.resolution.isEmpty
+                              ? "나의 소중한 다짐을\n이곳에 기록해보세요."
                               : dashboardState.resolution,
                           style: ArtisanalTheme.hand(
                             fontSize: 21,
@@ -427,17 +477,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                         Align(
                           alignment: Alignment.bottomRight,
                           child: InkWell(
-                            onTap: () => _showEditResolutionDialog(dashboardState.resolution),
+                            onTap: () => _showEditResolutionDialog(
+                              dashboardState.resolution,
+                            ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.edit, size: 12, color: ArtisanalTheme.primary.withValues(alpha: 0.4)),
+                                Icon(
+                                  Icons.edit,
+                                  size: 12,
+                                  color: ArtisanalTheme.primary.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   "다짐 수정하기",
                                   style: ArtisanalTheme.hand(
                                     fontSize: 14,
-                                    color: ArtisanalTheme.primary.withValues(alpha: 0.5),
+                                    color: ArtisanalTheme.primary.withValues(
+                                      alpha: 0.5,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -447,7 +507,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                       ],
                     ),
                   ),
-                
+
                 if (isQuote) ...[
                   const SizedBox(height: 8),
                   // ── Page Indicator Dots ─────────────────────────────────────
@@ -455,21 +515,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                     child: ListenableBuilder(
                       listenable: _quoteController,
                       builder: (context, _) {
-                        final page = _quoteController.hasClients 
-                            ? (_quoteController.page ?? 0).round() % quotes.length 
+                        final page = _quoteController.hasClients
+                            ? (_quoteController.page ?? 0).round() %
+                                  quotes.length
                             : DateTime.now().day % 8;
                         return Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: List.generate(quotes.length, (index) => 
-                            Container(
+                          children: List.generate(
+                            quotes.length,
+                            (index) => Container(
                               margin: const EdgeInsets.symmetric(horizontal: 2),
                               width: 5,
                               height: 5,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: page == index 
-                                    ? ArtisanalTheme.primary.withValues(alpha: 0.5)
-                                    : ArtisanalTheme.primary.withValues(alpha: 0.1),
+                                color: page == index
+                                    ? ArtisanalTheme.primary.withValues(
+                                        alpha: 0.5,
+                                      )
+                                    : ArtisanalTheme.primary.withValues(
+                                        alpha: 0.1,
+                                      ),
                               ),
                             ),
                           ),
@@ -492,7 +558,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
   void _showEditResolutionDialog(String currentResolution) {
     final controller = TextEditingController(text: currentResolution);
-    
+
     showDialog(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.15),
@@ -534,39 +600,41 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                         ),
                       ),
                       const SizedBox(height: 20),
-                      
-                    // ── Clean Handwritten Input Field ─────────────────────────────────
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: TextField(
-                        controller: controller,
-                        maxLines: 4,
-                        autofocus: true,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        cursorColor: ArtisanalTheme.primary,
-                        style: ArtisanalTheme.hand(
-                          fontSize: 22,
-                          color: ArtisanalTheme.ink,
-                          height: 1.6,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: "이곳에 오늘의 다짐을\n자유롭게 적어보세요...",
-                          hintStyle: ArtisanalTheme.hand(
-                            fontSize: 20,
-                            color: ArtisanalTheme.primary.withValues(alpha: 0.25),
+
+                      // ── Clean Handwritten Input Field ─────────────────────────────────
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: TextField(
+                          controller: controller,
+                          maxLines: 4,
+                          autofocus: true,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          cursorColor: ArtisanalTheme.primary,
+                          style: ArtisanalTheme.hand(
+                            fontSize: 22,
+                            color: ArtisanalTheme.ink,
+                            height: 1.6,
                           ),
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          isDense: true,
+                          decoration: InputDecoration(
+                            hintText: "이곳에 오늘의 다짐을\n자유롭게 적어보세요...",
+                            hintStyle: ArtisanalTheme.hand(
+                              fontSize: 20,
+                              color: ArtisanalTheme.primary.withValues(
+                                alpha: 0.25,
+                              ),
+                            ),
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            isDense: true,
+                          ),
                         ),
                       ),
-                    ),
                       const SizedBox(height: 32),
-                      
+
                       // ── Action Buttons ─────────────────────────────────────────
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -577,7 +645,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                               "나중에",
                               style: ArtisanalTheme.hand(
                                 fontSize: 18,
-                                color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                                color: ArtisanalTheme.secondary.withValues(
+                                  alpha: 0.5,
+                                ),
                               ),
                             ),
                           ),
@@ -585,7 +655,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                           ElevatedButton(
                             onPressed: () {
                               if (controller.text.trim().isNotEmpty) {
-                                ref.read(dashboardProvider.notifier).updateResolution(controller.text);
+                                ref
+                                    .read(dashboardProvider.notifier)
+                                    .updateResolution(controller.text);
                                 Navigator.pop(context);
                                 HapticFeedback.mediumImpact();
                               }
@@ -594,7 +666,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                               backgroundColor: ArtisanalTheme.primary,
                               foregroundColor: Colors.white,
                               elevation: 2,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 8,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
                               ),
@@ -614,15 +689,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 ),
               ),
             ),
-            
+
             // ── Decorative Washi Tape ──────────────────────────────────────────
             const Positioned(
               top: -15,
-              child: WashiTape(
-                width: 120,
-                rotation: -0.02,
-                opacity: 0.9,
-              ),
+              child: WashiTape(width: 120, rotation: -0.02, opacity: 0.9),
             ),
           ],
         ),
@@ -648,5 +719,6 @@ class _WorkbenchPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_WorkbenchPainter old) =>
-      old.viewportWidth != viewportWidth || old.viewportHeight != viewportHeight;
+      old.viewportWidth != viewportWidth ||
+      old.viewportHeight != viewportHeight;
 }

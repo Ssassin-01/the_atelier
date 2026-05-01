@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/artisanal_theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/settings_provider.dart';
 
 class PantryDashboard extends ConsumerWidget {
   final double totalVaultValue;
@@ -31,9 +32,9 @@ class PantryDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    
+
     if (isCompressed) {
-      return _buildCompressed(context, l10n);
+      return _buildCompressed(context, ref, l10n);
     }
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
@@ -41,22 +42,18 @@ class PantryDashboard extends ConsumerWidget {
         clipBehavior: Clip.none,
         children: [
           // Tape Decorations for Concept 1
-          Positioned(
-            top: -10, left: 10,
-            child: _buildTape(30, -0.1),
-          ),
-          Positioned(
-            bottom: -5, right: 15,
-            child: _buildTape(40, 0.05),
-          ),
-          
+          Positioned(top: -10, left: 10, child: _buildTape(30, -0.1)),
+          Positioned(bottom: -5, right: 15, child: _buildTape(40, 0.05)),
+
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(2),
-              border: Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.1)),
+              border: Border.all(
+                color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.03),
@@ -76,7 +73,9 @@ class PantryDashboard extends ConsumerWidget {
                         Text(
                           l10n.inventoryValueReport.toUpperCase(),
                           style: ArtisanalTheme.hand(
-                            color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                            color: ArtisanalTheme.secondary.withValues(
+                              alpha: 0.5,
+                            ),
                             letterSpacing: 2.0,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -84,7 +83,7 @@ class PantryDashboard extends ConsumerWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "${l10n.currencySymbol}${totalVaultValue.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}",
+                          ref.watch(settingsProvider).format(totalVaultValue),
                           style: ArtisanalTheme.hand(
                             fontWeight: FontWeight.w900,
                             color: ArtisanalTheme.ink,
@@ -93,30 +92,37 @@ class PantryDashboard extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    Icon(Icons.auto_graph_outlined, color: ArtisanalTheme.ink.withValues(alpha: 0.1), size: 32),
+                    Icon(
+                      Icons.auto_graph_outlined,
+                      color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                      size: 32,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
-                Container(height: 1, color: ArtisanalTheme.ink.withValues(alpha: 0.05)),
+                Container(
+                  height: 1,
+                  color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+                ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildModernStat(
-                      l10n.totalEntries, 
+                      l10n.totalEntries,
                       totalEntries.toString(),
                       onTap: onTotalTap,
                       isSelected: activeFilter == 'all',
                     ),
                     _buildModernStat(
-                      l10n.lowStock, 
-                      urgentCount.toString(), 
+                      l10n.lowStock,
+                      urgentCount.toString(),
                       isAlert: urgentCount > 0,
                       onTap: onLowStockTap,
                       isSelected: activeFilter == 'lowStock',
                     ),
                     _buildModernStat(
-                      l10n.missingInfo, 
+                      l10n.missingInfo,
                       missingInfoCount.toString(),
                       isAlert: missingInfoCount > 0,
                       onTap: onMissingInfoTap,
@@ -132,14 +138,20 @@ class PantryDashboard extends ConsumerWidget {
     );
   }
 
-  Widget _buildCompressed(BuildContext context, AppLocalizations l10n) {
+  Widget _buildCompressed(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) {
     return Container(
       width: double.infinity,
       height: 60,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
         color: const Color(0xFFFAF9F6),
-        border: Border(bottom: BorderSide(color: ArtisanalTheme.ink.withValues(alpha: 0.05))),
+        border: Border(
+          bottom: BorderSide(color: ArtisanalTheme.ink.withValues(alpha: 0.05)),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,7 +159,7 @@ class PantryDashboard extends ConsumerWidget {
           Row(
             children: [
               Text(
-                "${l10n.currencySymbol}${totalVaultValue.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}",
+                ref.watch(settingsProvider).format(totalVaultValue),
                 style: ArtisanalTheme.hand(
                   fontWeight: FontWeight.w900,
                   color: ArtisanalTheme.ink,
@@ -155,11 +167,18 @@ class PantryDashboard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Container(width: 1, height: 12, color: ArtisanalTheme.ink.withValues(alpha: 0.1)),
+              Container(
+                width: 1,
+                height: 12,
+                color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+              ),
               const SizedBox(width: 12),
               Text(
                 "${l10n.totalEntries}: $totalEntries",
-                style: ArtisanalTheme.hand(fontSize: 12, color: ArtisanalTheme.secondary),
+                style: ArtisanalTheme.hand(
+                  fontSize: 12,
+                  color: ArtisanalTheme.secondary,
+                ),
               ),
             ],
           ),
@@ -172,7 +191,11 @@ class PantryDashboard extends ConsumerWidget {
               ),
               child: Text(
                 "! $urgentCount",
-                style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold, fontSize: 12),
+                style: ArtisanalTheme.hand(
+                  color: ArtisanalTheme.redInk,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
               ),
             ),
         ],
@@ -194,7 +217,13 @@ class PantryDashboard extends ConsumerWidget {
     );
   }
 
-  Widget _buildModernStat(String label, String value, {bool isAlert = false, VoidCallback? onTap, bool isSelected = false}) {
+  Widget _buildModernStat(
+    String label,
+    String value, {
+    bool isAlert = false,
+    VoidCallback? onTap,
+    bool isSelected = false,
+  }) {
     return GestureDetector(
       onTap: () {
         if (onTap != null) {
@@ -206,7 +235,9 @@ class PantryDashboard extends ConsumerWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? ArtisanalTheme.ink.withValues(alpha: 0.03) : Colors.transparent,
+          color: isSelected
+              ? ArtisanalTheme.ink.withValues(alpha: 0.03)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(4),
         ),
         child: Column(
@@ -223,7 +254,9 @@ class PantryDashboard extends ConsumerWidget {
             Text(
               label.toUpperCase(),
               style: ArtisanalTheme.hand(
-                color: isSelected ? ArtisanalTheme.ink : ArtisanalTheme.secondary.withValues(alpha: 0.4),
+                color: isSelected
+                    ? ArtisanalTheme.ink
+                    : ArtisanalTheme.secondary.withValues(alpha: 0.4),
                 letterSpacing: 1.0,
                 fontSize: 9,
               ),

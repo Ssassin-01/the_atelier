@@ -12,7 +12,7 @@ class InventoryDistributionChart extends ConsumerWidget {
     final analytics = ref.watch(analyticsProvider);
     final categoryCounts = analytics.inventoryDistribution;
     final categories = categoryCounts.keys.toList();
-    
+
     final colors = [
       ArtisanalTheme.primary.withValues(alpha: 0.7),
       const Color(0xFFD4C8A1),
@@ -66,15 +66,19 @@ class InventoryDistributionChart extends ConsumerWidget {
                     const SizedBox(width: 10),
                     Text(
                       categories[i],
-                      style: ArtisanalTheme.hand(fontSize: 12, color: Colors.black45),
+                      style: ArtisanalTheme.hand(
+                        fontSize: 12,
+                        color: Colors.black45,
+                      ),
                     ),
                     const Spacer(),
                     Text(
                       '${categoryCounts[categories[i]]}',
                       style: ArtisanalTheme.hand(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
                   ],
                 ),

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../theme/artisanal_theme.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
+import '../providers/settings_provider.dart';
 import '../widgets/custom_clippers.dart';
 
 class ExpenseHistoryScreen extends ConsumerWidget {
@@ -11,9 +12,12 @@ class ExpenseHistoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    
     final allTransactions = ref.watch(transactionProvider);
-    final expenses = allTransactions.where((tx) => tx.type == 'expense').toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+    final expenses =
+        allTransactions.where((tx) => tx.type == 'expense').toList()
+          ..sort((a, b) => b.date.compareTo(a.date));
 
     // Group by date
     Map<String, List<BusinessTransaction>> grouped = {};
@@ -25,7 +29,10 @@ class ExpenseHistoryScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: ArtisanalTheme.background,
       appBar: AppBar(
-        title: Text("Ingredient Purchase History", style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold)),
+        title: Text(
+          "Ingredient Purchase History",
+          style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -38,7 +45,7 @@ class ExpenseHistoryScreen extends ConsumerWidget {
               itemBuilder: (context, index) {
                 final dateKey = grouped.keys.elementAt(index);
                 final dayExpenses = grouped[dateKey]!;
-                return _buildDateGroup(context, ref, dateKey, dayExpenses);
+                return _buildDateGroup(context, ref, dateKey, dayExpenses, settings);
               },
             ),
     );
@@ -49,16 +56,28 @@ class ExpenseHistoryScreen extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.receipt_long_outlined, size: 64, color: ArtisanalTheme.primary.withValues(alpha: 0.2)),
+          Icon(
+            Icons.receipt_long_outlined,
+            size: 64,
+            color: ArtisanalTheme.primary.withValues(alpha: 0.2),
+          ),
           const SizedBox(height: 16),
-          Text("No purchase records yet.", style: ArtisanalTheme.hand(fontSize: 18, color: Colors.black26)),
+          Text(
+            "No purchase records yet.",
+            style: ArtisanalTheme.hand(fontSize: 18, color: Colors.black26),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDateGroup(BuildContext context, WidgetRef ref, String dateKey, List<BusinessTransaction> dayExpenses) {
-    final currencyFormat = NumberFormat.currency(symbol: '₩', decimalDigits: 0);
+  Widget _buildDateGroup(
+    BuildContext context,
+    WidgetRef ref,
+    String dateKey,
+    List<BusinessTransaction> dayExpenses,
+    SettingsState settings,
+  ) {
     final dayTotal = dayExpenses.fold(0.0, (sum, tx) => sum + tx.amount);
 
     return Column(
@@ -71,26 +90,37 @@ class ExpenseHistoryScreen extends ConsumerWidget {
             children: [
               Text(
                 dateKey,
-                style: ArtisanalTheme.hand(fontSize: 16, color: ArtisanalTheme.secondary, fontWeight: FontWeight.bold),
+                style: ArtisanalTheme.hand(
+                  fontSize: 16,
+                  color: ArtisanalTheme.secondary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
-                "Total: ${currencyFormat.format(dayTotal)}",
-                style: ArtisanalTheme.hand(fontSize: 14, color: ArtisanalTheme.redInk, fontWeight: FontWeight.bold),
+                "Total: ${settings.format(dayTotal)}",
+                style: ArtisanalTheme.hand(
+                  fontSize: 14,
+                  color: ArtisanalTheme.redInk,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
         ),
-        ...dayExpenses.map((tx) => _buildExpenseCard(context, ref, tx)),
+        ...dayExpenses.map((tx) => _buildExpenseCard(context, ref, tx, settings)),
         const SizedBox(height: 24),
       ],
     );
   }
 
-  Widget _buildExpenseCard(BuildContext context, WidgetRef ref, BusinessTransaction tx) {
-    final currencyFormat = NumberFormat.currency(symbol: '₩', decimalDigits: 0);
-
+  Widget _buildExpenseCard(
+    BuildContext context,
+    WidgetRef ref,
+    BusinessTransaction tx,
+    SettingsState settings,
+  ) {
     return GestureDetector(
-      onTap: () => _showEditExpense(context, ref, tx),
+      onTap: () => _showEditExpense(context, ref, tx, settings),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
@@ -105,12 +135,19 @@ class ExpenseHistoryScreen extends ConsumerWidget {
           ],
         ),
         child: ClipPath(
-          clipper: SerratedClipper(toothWidth: 10, toothHeight: 4, top: false, bottom: true),
+          clipper: SerratedClipper(
+            toothWidth: 10,
+            toothHeight: 4,
+            top: false,
+            bottom: true,
+          ),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
               color: Colors.white,
-              border: Border(left: BorderSide(color: ArtisanalTheme.redInk, width: 4)),
+              border: Border(
+                left: BorderSide(color: ArtisanalTheme.redInk, width: 4),
+              ),
             ),
             child: Row(
               children: [
@@ -120,23 +157,37 @@ class ExpenseHistoryScreen extends ConsumerWidget {
                     children: [
                       Text(
                         tx.description,
-                        style: ArtisanalTheme.hand(fontSize: 18, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink),
+                        style: ArtisanalTheme.hand(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: ArtisanalTheme.ink,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         DateFormat('HH:mm').format(tx.date),
-                        style: ArtisanalTheme.hand(fontSize: 14, color: Colors.black26),
+                        style: ArtisanalTheme.hand(
+                          fontSize: 14,
+                          color: Colors.black26,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 Text(
-                  "-${currencyFormat.format(tx.amount)}",
-                  style: ArtisanalTheme.hand(fontSize: 20, color: ArtisanalTheme.redInk),
+                  "-${settings.format(tx.amount)}",
+                  style: ArtisanalTheme.hand(
+                    fontSize: 20,
+                    color: ArtisanalTheme.redInk,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 IconButton(
-                  icon: Icon(Icons.delete_outline, size: 20, color: ArtisanalTheme.redInk.withValues(alpha: 0.3)),
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 20,
+                    color: ArtisanalTheme.redInk.withValues(alpha: 0.3),
+                  ),
                   onPressed: () => _confirmDelete(context, ref, tx),
                 ),
               ],
@@ -147,15 +198,25 @@ class ExpenseHistoryScreen extends ConsumerWidget {
     );
   }
 
-  void _showEditExpense(BuildContext context, WidgetRef ref, BusinessTransaction tx) {
+  void _showEditExpense(
+    BuildContext context,
+    WidgetRef ref,
+    BusinessTransaction tx,
+    SettingsState settings,
+  ) {
     final descriptionController = TextEditingController(text: tx.description);
-    final amountController = TextEditingController(text: tx.amount.toStringAsFixed(0));
+    final amountController = TextEditingController(
+      text: tx.amount.toStringAsFixed(settings.currencyFormat.decimalDigits ?? 0),
+    );
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFFFDFCFB),
-        title: Text("Edit Expense Record", style: ArtisanalTheme.hand(fontSize: 22, fontWeight: FontWeight.bold)),
+        title: Text(
+          "Edit Expense Record",
+          style: ArtisanalTheme.hand(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -163,8 +224,12 @@ class ExpenseHistoryScreen extends ConsumerWidget {
               controller: descriptionController,
               decoration: InputDecoration(
                 labelText: "Description",
-                labelStyle: ArtisanalTheme.hand(color: ArtisanalTheme.secondary),
-                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E0D8))),
+                labelStyle: ArtisanalTheme.hand(
+                  color: ArtisanalTheme.secondary,
+                ),
+                enabledBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFE5E0D8)),
+                ),
               ),
               style: ArtisanalTheme.hand(fontSize: 18),
             ),
@@ -174,9 +239,13 @@ class ExpenseHistoryScreen extends ConsumerWidget {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: "Amount",
-                suffixText: "₩",
-                labelStyle: ArtisanalTheme.hand(color: ArtisanalTheme.secondary),
-                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E0D8))),
+                suffixText: settings.currencyFormat.currencySymbol,
+                labelStyle: ArtisanalTheme.hand(
+                  color: ArtisanalTheme.secondary,
+                ),
+                enabledBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFE5E0D8)),
+                ),
               ),
               style: ArtisanalTheme.hand(fontSize: 18),
             ),
@@ -185,47 +254,74 @@ class ExpenseHistoryScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: ArtisanalTheme.hand(color: Colors.black38)),
+            child: Text(
+              "Cancel",
+              style: ArtisanalTheme.hand(color: Colors.black38),
+            ),
           ),
           TextButton(
             onPressed: () {
               final newDescription = descriptionController.text;
-              final newAmount = double.tryParse(amountController.text) ?? tx.amount;
-              
-              ref.read(transactionProvider.notifier).addTransaction(BusinessTransaction(
-                id: tx.id,
-                date: tx.date,
-                type: tx.type,
-                amount: newAmount,
-                category: tx.category,
-                description: newDescription,
-                relatedItemId: tx.relatedItemId,
-              ));
+              final newAmount =
+                  double.tryParse(amountController.text) ?? tx.amount;
+
+              ref
+                  .read(transactionProvider.notifier)
+                  .addTransaction(
+                    BusinessTransaction(
+                      id: tx.id,
+                      date: tx.date,
+                      type: tx.type,
+                      amount: newAmount,
+                      category: tx.category,
+                      description: newDescription,
+                      relatedItemId: tx.relatedItemId,
+                    ),
+                  );
               Navigator.pop(context);
             },
-            child: Text("Save", style: ArtisanalTheme.hand(color: ArtisanalTheme.primary, fontWeight: FontWeight.bold)),
+            child: Text(
+              "Save",
+              style: ArtisanalTheme.hand(
+                color: ArtisanalTheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _confirmDelete(BuildContext context, WidgetRef ref, BusinessTransaction tx) {
+  void _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    BusinessTransaction tx,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Delete this record?", style: ArtisanalTheme.hand(fontSize: 20)),
+        title: Text(
+          "Delete this record?",
+          style: ArtisanalTheme.hand(fontSize: 20),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: ArtisanalTheme.hand(color: Colors.black38)),
+            child: Text(
+              "Cancel",
+              style: ArtisanalTheme.hand(color: Colors.black38),
+            ),
           ),
           TextButton(
             onPressed: () {
               ref.read(transactionProvider.notifier).deleteTransaction(tx.id);
               Navigator.pop(context);
             },
-            child: Text("Delete", style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk)),
+            child: Text(
+              "Delete",
+              style: ArtisanalTheme.hand(color: ArtisanalTheme.redInk),
+            ),
           ),
         ],
       ),

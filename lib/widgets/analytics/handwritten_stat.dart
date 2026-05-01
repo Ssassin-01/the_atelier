@@ -20,7 +20,11 @@ class HandwrittenStat extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: ArtisanalTheme.hand(fontSize: 11, color: Colors.black26, letterSpacing: 0.5),
+          style: ArtisanalTheme.hand(
+            fontSize: 11,
+            color: Colors.black26,
+            letterSpacing: 0.5,
+          ),
         ),
         const SizedBox(height: 4),
         Row(

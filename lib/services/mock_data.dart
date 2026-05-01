@@ -8,7 +8,8 @@ List<Recipe> getMockRecipes() {
     Recipe(
       id: 'pumpkin-dessert',
       name: 'Pumpkin Porridge Dessert',
-      description: 'A sophisticated multi-layered dessert featuring kabocha cream, mochi, and roasted rice textures.',
+      description:
+          'A sophisticated multi-layered dessert featuring kabocha cream, mochi, and roasted rice textures.',
       mainImageUrl: 'assets/images/pumpkin_dessert.png',
       createdAt: DateTime.now(),
       tags: ['Seasonal', 'Signature'],
@@ -27,10 +28,20 @@ List<Recipe> getMockRecipes() {
             Ingredient(name: 'Sheet Gelatin', amount: '2', unit: 'g'),
           ],
           steps: [
-            RecipeStep(description: 'Steam kabocha (170°C for 20m), scoop out flesh and puree.'),
-            RecipeStep(description: 'Heat milk and heavy cream until steam rises.'),
-            RecipeStep(description: 'Whisk egg yolks, sugar, and salt together.'),
-            RecipeStep(description: 'Gradually pour hot liquid into yolks and heat to 82°C.'),
+            RecipeStep(
+              description:
+                  'Steam kabocha (170°C for 20m), scoop out flesh and puree.',
+            ),
+            RecipeStep(
+              description: 'Heat milk and heavy cream until steam rises.',
+            ),
+            RecipeStep(
+              description: 'Whisk egg yolks, sugar, and salt together.',
+            ),
+            RecipeStep(
+              description:
+                  'Gradually pour hot liquid into yolks and heat to 82°C.',
+            ),
             RecipeStep(description: 'Add soaked gelatin and emulsify.'),
             RecipeStep(description: 'Mix with pumpkin puree and blend smooth.'),
           ],
@@ -39,16 +50,28 @@ List<Recipe> getMockRecipes() {
           title: 'B. Mini Rice Balls',
           imageUrl: 'assets/images/mini_mochi.png',
           ingredients: [
-            Ingredient(name: 'Dry Glutinous Rice Flour', amount: '50', unit: 'g'),
+            Ingredient(
+              name: 'Dry Glutinous Rice Flour',
+              amount: '50',
+              unit: 'g',
+            ),
             Ingredient(name: 'Hot Water', amount: '32', unit: 'g'),
             Ingredient(name: 'Sugar', amount: '4', unit: 'g'),
             Ingredient(name: 'Salt', amount: '0.5', unit: 'g'),
           ],
           steps: [
             RecipeStep(description: 'Mix flour, sugar, and salt.'),
-            RecipeStep(description: 'Add hot water and knead to form a smooth dough.'),
-            RecipeStep(description: 'Divide into small 4g portions and roll into spheres.'),
-            RecipeStep(description: 'Boil until they float, then cook for 1 more minute.'),
+            RecipeStep(
+              description: 'Add hot water and knead to form a smooth dough.',
+            ),
+            RecipeStep(
+              description:
+                  'Divide into small 4g portions and roll into spheres.',
+            ),
+            RecipeStep(
+              description:
+                  'Boil until they float, then cook for 1 more minute.',
+            ),
             RecipeStep(description: 'Immediately cool in ice water.'),
           ],
         ),
@@ -66,8 +89,12 @@ List<Recipe> getMockRecipes() {
           steps: [
             RecipeStep(description: 'Finely chop the pumpkin seeds.'),
             RecipeStep(description: 'Cream softened butter with icing sugar.'),
-            RecipeStep(description: 'Mix in egg whites followed by rice flour.'),
-            RecipeStep(description: 'Fold in the chopped seeds. Chill for 20m.'),
+            RecipeStep(
+              description: 'Mix in egg whites followed by rice flour.',
+            ),
+            RecipeStep(
+              description: 'Fold in the chopped seeds. Chill for 20m.',
+            ),
             RecipeStep(description: 'Bake at 180°C for 8-11m until golden.'),
           ],
         ),
@@ -83,10 +110,18 @@ List<Recipe> getMockRecipes() {
             Ingredient(name: 'Salt', amount: '1', unit: 'g'),
           ],
           steps: [
-            RecipeStep(description: 'Sift together rice flour, soybean powder, and almond flour.'),
-            RecipeStep(description: 'Rub in cold cubed butter to create a coarse crumble texture.'),
+            RecipeStep(
+              description:
+                  'Sift together rice flour, soybean powder, and almond flour.',
+            ),
+            RecipeStep(
+              description:
+                  'Rub in cold cubed butter to create a coarse crumble texture.',
+            ),
             RecipeStep(description: 'Freeze briefly to maintain shape.'),
-            RecipeStep(description: 'Bake at 160°C for 12-15m, tossing halfway.'),
+            RecipeStep(
+              description: 'Bake at 160°C for 12-15m, tossing halfway.',
+            ),
           ],
         ),
         RecipeComponent(
@@ -104,9 +139,16 @@ List<Recipe> getMockRecipes() {
           ],
           steps: [
             RecipeStep(description: 'Simmer rice and milk in a pot to 50°C.'),
-            RecipeStep(description: 'Add heavy cream, dextrose, syrup and heat to 82°C.'),
-            RecipeStep(description: 'Blend with an immersion blender until smooth.'),
-            RecipeStep(description: 'Fold in roasted brown rice for crunch. Churn in ice cream maker.'),
+            RecipeStep(
+              description: 'Add heavy cream, dextrose, syrup and heat to 82°C.',
+            ),
+            RecipeStep(
+              description: 'Blend with an immersion blender until smooth.',
+            ),
+            RecipeStep(
+              description:
+                  'Fold in roasted brown rice for crunch. Churn in ice cream maker.',
+            ),
           ],
         ),
       ],
@@ -128,7 +170,10 @@ List<Recipe> getMockRecipes() {
             Ingredient(name: 'Honey', amount: '20', unit: 'g'),
           ],
           steps: [
-            RecipeStep(description: 'Mix flour, water, and honey. Autolyse for 45 minutes.'),
+            RecipeStep(
+              description:
+                  'Mix flour, water, and honey. Autolyse for 45 minutes.',
+            ),
             RecipeStep(description: 'Bulk ferment at 24°C for 6 hours.'),
           ],
         ),

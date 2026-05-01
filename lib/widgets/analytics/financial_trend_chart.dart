@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import '../../theme/artisanal_theme.dart';
 import '../../providers/analytics_provider.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/settings_provider.dart';
 
 class FinancialTrendChart extends ConsumerWidget {
   const FinancialTrendChart({super.key});
@@ -15,11 +15,24 @@ class FinancialTrendChart extends ConsumerWidget {
     final salesMap = analytics.salesTrend;
     final expensesMap = analytics.expenseTrend;
     final dates = analytics.trendDates;
-    
-    final maxVal = _calculateMaxY(salesMap, expensesMap);
+
+    final settings = ref.watch(settingsProvider);
     final l10n = AppLocalizations.of(context);
-    final double cleanInterval = (maxVal > 0) ? (((maxVal / 4) / 50000).ceil() * 50000).toDouble() : 50000.0;
+    final convertedSales = salesMap.map((k, v) => MapEntry(k, settings.convert(v)));
+    final convertedExpenses = expensesMap.map((k, v) => MapEntry(k, settings.convert(v)));
+    final maxVal = _calculateMaxY(convertedSales, convertedExpenses);
     
+    final isLargeUnit = settings.currencySymbol == '₩' || 
+                       settings.currencySymbol == '¥' || 
+                       settings.currencySymbol == '￥' ||
+                       settings.currencySymbol == String.fromCharCode(8361);
+    
+    // Dynamic interval based on currency and max value
+    final double step = isLargeUnit ? 50000.0 : 100.0;
+    final double cleanInterval = (maxVal > 0)
+        ? (((maxVal / 4) / step).ceil() * step).toDouble()
+        : step;
+
     return Column(
       children: [
         // Unit Indicator (Moved to the left above Y-axis)
@@ -28,7 +41,9 @@ class FinancialTrendChart extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 8, bottom: 8),
             child: Text(
-              "(단위: 만원)",
+              isLargeUnit 
+                ? (settings.currencySymbol == '₩' ? "(단위: 만원)" : "(Unit: 10,000 ${settings.currencySymbol})")
+                : "(${l10n.price}: ${settings.currencySymbol})",
               style: ArtisanalTheme.receipt(
                 fontSize: 9,
                 color: ArtisanalTheme.ink.withValues(alpha: 0.4),
@@ -42,12 +57,13 @@ class FinancialTrendChart extends ConsumerWidget {
             LineChartData(
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
-                  getTooltipColor: (_) => ArtisanalTheme.primary.withValues(alpha: 0.9),
+                  getTooltipColor: (_) =>
+                      ArtisanalTheme.primary.withValues(alpha: 0.9),
                   getTooltipItems: (touchedSpots) {
                     return touchedSpots.map((spot) {
                       final isSales = spot.barIndex == 0;
                       return LineTooltipItem(
-                        "${isSales ? l10n.revenue : l10n.expense}\n${NumberFormat.simpleCurrency(locale: 'ko_KR', decimalDigits: 0).format(spot.y)}",
+                        "${isSales ? l10n.revenue : l10n.expense}\n${settings.currencyFormat.format(spot.y)}",
                         ArtisanalTheme.hand(color: Colors.white, fontSize: 12),
                       );
                     }).toList();
@@ -57,14 +73,18 @@ class FinancialTrendChart extends ConsumerWidget {
               gridData: FlGridData(
                 show: true,
                 drawVerticalLine: true,
-                horizontalInterval: cleanInterval, 
+                horizontalInterval: cleanInterval,
                 verticalInterval: 1,
                 getDrawingHorizontalLine: (value) => FlLine(
-                  color: ArtisanalTheme.ink.withValues(alpha: 0.05), // Subtle ink line
+                  color: ArtisanalTheme.ink.withValues(
+                    alpha: 0.05,
+                  ), // Subtle ink line
                   strokeWidth: 1,
                 ),
                 getDrawingVerticalLine: (value) => FlLine(
-                  color: ArtisanalTheme.ink.withValues(alpha: 0.05), // Subtle ink line
+                  color: ArtisanalTheme.ink.withValues(
+                    alpha: 0.05,
+                  ), // Subtle ink line
                   strokeWidth: 1,
                 ),
               ),
@@ -74,7 +94,7 @@ class FinancialTrendChart extends ConsumerWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     reservedSize: 30,
-                    interval: 1, 
+                    interval: 1,
                     getTitlesWidget: (value, meta) {
                       if (value.toInt() >= 0 && value.toInt() < dates.length) {
                         String label = dates[value.toInt()];
@@ -96,37 +116,64 @@ class FinancialTrendChart extends ConsumerWidget {
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 40,
-                    interval: cleanInterval, 
+                    reservedSize: 55,
+                    interval: cleanInterval,
                     getTitlesWidget: (value, meta) {
-                      // Format to "Man-won" (10,000 KRW)
-                      final manWon = (value / 10000).toInt();
+                      String label;
+                      if (isLargeUnit) {
+                        // For large unit currencies (KRW, JPY), use "Man" (10,000) units.
+                        label = (value / 10000).toInt().toString();
+                      } else {
+                        if (value >= 1000000) {
+                          label = "${(value / 1000000).toStringAsFixed(1)}M";
+                        } else if (value >= 1000) {
+                          label = "${(value / 1000).toStringAsFixed(1)}k";
+                        } else {
+                          label = value.toInt().toString();
+                        }
+                      }
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
-                          "$manWon",
-                          style: ArtisanalTheme.receipt(fontSize: 9, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
+                          label,
+                          style: ArtisanalTheme.receipt(
+                            fontSize: 9,
+                            color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+                          ),
                           textAlign: TextAlign.right,
+                          maxLines: 1,
+                          softWrap: false,
                         ),
                       );
                     },
                   ),
                 ),
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
               ),
               borderData: FlBorderData(
                 show: true,
-                border: Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.05), width: 1),
+                border: Border.all(
+                  color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+                  width: 1,
+                ),
               ),
               minX: 0,
               maxX: (dates.length - 1).toDouble(),
               minY: 0,
-              maxY: ((maxVal / cleanInterval).ceil() * cleanInterval).toDouble(), // Snap maxY to interval
+              maxY: ((maxVal / cleanInterval).ceil() * cleanInterval)
+                  .toDouble(), // Snap maxY to interval
               lineBarsData: [
                 // Revenue Line (Hand-drawn feel)
                 LineChartBarData(
-                  spots: List.generate(dates.length, (i) => FlSpot(i.toDouble(), salesMap[dates[i]] ?? 0)),
+                  spots: List.generate(
+                    dates.length,
+                    (i) => FlSpot(i.toDouble(), convertedSales[dates[i]] ?? 0),
+                  ),
                   isCurved: true,
                   curveSmoothness: 0.4,
                   color: ArtisanalTheme.primary,
@@ -139,12 +186,13 @@ class FinancialTrendChart extends ConsumerWidget {
                   ),
                   dotData: FlDotData(
                     show: true,
-                    getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-                      radius: 4,
-                      color: Colors.white,
-                      strokeWidth: 2.5,
-                      strokeColor: ArtisanalTheme.primary,
-                    ),
+                    getDotPainter: (spot, percent, barData, index) =>
+                        FlDotCirclePainter(
+                          radius: 4,
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                          strokeColor: ArtisanalTheme.primary,
+                        ),
                   ),
                   belowBarData: BarAreaData(
                     show: true,
@@ -153,13 +201,16 @@ class FinancialTrendChart extends ConsumerWidget {
                 ),
                 // Expense Line (Dashed Hand-drawn feel)
                 LineChartBarData(
-                  spots: List.generate(dates.length, (i) => FlSpot(i.toDouble(), expensesMap[dates[i]] ?? 0)),
+                  spots: List.generate(
+                    dates.length,
+                    (i) => FlSpot(i.toDouble(), convertedExpenses[dates[i]] ?? 0),
+                  ),
                   isCurved: true,
                   curveSmoothness: 0.4,
                   color: ArtisanalTheme.redInk.withValues(alpha: 0.7),
                   barWidth: 2.5,
                   isStrokeCapRound: true,
-                  dashArray: [8, 4], 
+                  dashArray: [8, 4],
                   shadow: Shadow(
                     color: ArtisanalTheme.redInk.withValues(alpha: 0.1),
                     blurRadius: 3,
@@ -167,12 +218,15 @@ class FinancialTrendChart extends ConsumerWidget {
                   ),
                   dotData: FlDotData(
                     show: true,
-                    getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-                      radius: 3,
-                      color: Colors.white,
-                      strokeWidth: 2,
-                      strokeColor: ArtisanalTheme.redInk.withValues(alpha: 0.5),
-                    ),
+                    getDotPainter: (spot, percent, barData, index) =>
+                        FlDotCirclePainter(
+                          radius: 3,
+                          color: Colors.white,
+                          strokeWidth: 2,
+                          strokeColor: ArtisanalTheme.redInk.withValues(
+                            alpha: 0.5,
+                          ),
+                        ),
                   ),
                 ),
               ],
@@ -186,7 +240,11 @@ class FinancialTrendChart extends ConsumerWidget {
           children: [
             _buildLegendItem(l10n.totalRevenue, ArtisanalTheme.primary),
             const SizedBox(width: 24),
-            _buildLegendItem(l10n.operatingExpenses, ArtisanalTheme.redInk.withValues(alpha: 0.6), isDashed: true),
+            _buildLegendItem(
+              l10n.operatingExpenses,
+              ArtisanalTheme.redInk.withValues(alpha: 0.6),
+              isDashed: true,
+            ),
           ],
         ),
       ],
@@ -217,8 +275,11 @@ class FinancialTrendChart extends ConsumerWidget {
     );
   }
 
-  double _calculateMaxY(Map<String, double> sales, Map<String, double> expenses) {
-    double maxValue = 100000;
+  double _calculateMaxY(
+    Map<String, double> sales,
+    Map<String, double> expenses,
+  ) {
+    double maxValue = 0;
     for (final v in sales.values) {
       if (v > maxValue) maxValue = v;
     }
@@ -226,8 +287,11 @@ class FinancialTrendChart extends ConsumerWidget {
       if (v > maxValue) maxValue = v;
     }
     
-    // Round up to nearest 50,000 for clean intervals
+    if (maxValue == 0) return 1000;
+
+    // Round up to nearest step for clean intervals
+    final double step = maxValue > 1000 ? (maxValue > 10000 ? 10000 : 1000) : 100;
     double result = maxValue * 1.2;
-    return (result / 50000).ceil() * 50000;
+    return (result / step).ceil() * step;
   }
 }

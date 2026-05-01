@@ -53,13 +53,11 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
     final l10n = AppLocalizations.of(context);
     final recipes = ref.watch(recipeListProvider);
 
-
     final filtered = recipes.where((r) {
-      final matchesSearch = _searchQuery.isEmpty ||
+      final matchesSearch =
+          _searchQuery.isEmpty ||
           r.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          (r.description
-                  ?.toLowerCase()
-                  .contains(_searchQuery.toLowerCase()) ??
+          (r.description?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
               false);
 
       return matchesSearch;
@@ -72,7 +70,9 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
         height: double.infinity,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: const NetworkImage('https://www.transparenttextures.com/patterns/paper-fibers.png'),
+            image: const NetworkImage(
+              'https://www.transparenttextures.com/patterns/paper-fibers.png',
+            ),
             repeat: ImageRepeat.repeat,
             colorFilter: ColorFilter.mode(
               Colors.black.withValues(alpha: 0.05),
@@ -104,10 +104,19 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
-                                color: ArtisanalTheme.primary.withValues(alpha: 0.15),
-                                border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.3)),
+                                color: ArtisanalTheme.primary.withValues(
+                                  alpha: 0.15,
+                                ),
+                                border: Border.all(
+                                  color: ArtisanalTheme.primary.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                ),
                                 borderRadius: BorderRadius.circular(2),
                               ),
                               child: Text(
@@ -125,7 +134,9 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                               "VOL. ${DateTime.now().year}",
                               style: ArtisanalTheme.receipt(
                                 fontSize: 10,
-                                color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
+                                color: ArtisanalTheme.secondary.withValues(
+                                  alpha: 0.4,
+                                ),
                               ),
                             ),
                           ],
@@ -133,11 +144,15 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                         const SizedBox(height: 12),
                         Text(
                           l10n.myRecipes,
-                          style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(
-                            fontSize: 32,
-                            color: ArtisanalTheme.ink,
-                            letterSpacing: -0.5,
-                          ),
+                          style: ArtisanalTheme
+                              .lightTheme
+                              .textTheme
+                              .displayMedium
+                              ?.copyWith(
+                                fontSize: 32,
+                                color: ArtisanalTheme.ink,
+                                letterSpacing: -0.5,
+                              ),
                         ),
                       ],
                     ),
@@ -162,14 +177,16 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
               ),
             ),
 
-
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(28, 24, 28, 0),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: ArtisanalTheme.ink.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(4),
@@ -179,7 +196,9 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                         style: ArtisanalTheme.receipt(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                          color: ArtisanalTheme.secondary.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                       ),
                     ),
@@ -208,17 +227,21 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.search_off,
-                              size: 52,
-                              color: ArtisanalTheme.outline
-                                  .withValues(alpha: 0.3)),
+                          Icon(
+                            Icons.search_off,
+                            size: 52,
+                            color: ArtisanalTheme.outline.withValues(
+                              alpha: 0.3,
+                            ),
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             l10n.emptyState,
                             style: ArtisanalTheme.hand(
                               fontSize: 20,
-                              color: ArtisanalTheme.secondary
-                                  .withValues(alpha: 0.5),
+                              color: ArtisanalTheme.secondary.withValues(
+                                alpha: 0.5,
+                              ),
                             ),
                           ),
                         ],
@@ -228,28 +251,30 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                 : SliverPadding(
                     padding: const EdgeInsets.fromLTRB(28, 20, 28, 120),
                     sliver: SliverGrid(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 20,
-                        crossAxisSpacing: 16,
-                        childAspectRatio: 0.65, // More vertical space to prevent overflow
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final recipe = filtered[index];
-                          return RecipeIndexCard(
-                            recipe: recipe,
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => RecipeDetailScreen(recipe: recipe),
-                              ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 20,
+                            crossAxisSpacing: 16,
+                            childAspectRatio:
+                                0.65, // More vertical space to prevent overflow
+                          ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final recipe = filtered[index];
+                        return RecipeIndexCard(
+                          recipe: recipe,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  RecipeDetailScreen(recipe: recipe),
                             ),
-                            onDelete: () => ref.read(recipeListProvider.notifier).removeRecipe(recipe.id),
-                          );
-                        },
-                        childCount: filtered.length,
-                      ),
+                          ),
+                          onDelete: () => ref
+                              .read(recipeListProvider.notifier)
+                              .removeRecipe(recipe.id),
+                        );
+                      }, childCount: filtered.length),
                     ),
                   ),
           ],
@@ -271,7 +296,10 @@ class _SliverSearchDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return child;
   }
 
@@ -286,7 +314,11 @@ class _SearchBar extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final FocusNode? focusNode;
 
-  const _SearchBar({required this.hint, required this.onChanged, this.focusNode});
+  const _SearchBar({
+    required this.hint,
+    required this.onChanged,
+    this.focusNode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -310,7 +342,11 @@ class _SearchBar extends StatelessWidget {
             fontSize: 16,
             color: ArtisanalTheme.ink.withValues(alpha: 0.25),
           ),
-          prefixIcon: const Icon(Icons.search, color: ArtisanalTheme.primary, size: 18),
+          prefixIcon: const Icon(
+            Icons.search,
+            color: ArtisanalTheme.primary,
+            size: 18,
+          ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
         ),
@@ -319,4 +355,3 @@ class _SearchBar extends StatelessWidget {
     );
   }
 }
-

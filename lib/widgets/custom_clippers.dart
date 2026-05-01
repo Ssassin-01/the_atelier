@@ -13,12 +13,10 @@ class SerratedClipper extends CustomClipper<Path> {
     this.bottom = true,
   });
 
-
-
   @override
   Path getClip(Size size) {
     var path = Path();
-    
+
     // Start at top-left (with teeth if top is true)
     if (top) {
       path.moveTo(0, toothHeight);
@@ -63,7 +61,7 @@ class ScallopedClipper extends CustomClipper<Path> {
     var path = Path();
     path.moveTo(0, 0);
     path.lineTo(size.width, 0);
-    
+
     if (bottom) {
       path.lineTo(size.width, size.height - radius);
       for (double x = size.width; x >= 0; x -= radius * 2) {
@@ -78,7 +76,7 @@ class ScallopedClipper extends CustomClipper<Path> {
       path.lineTo(size.width, size.height);
       path.lineTo(0, size.height);
     }
-    
+
     path.close();
     return path;
   }
@@ -96,18 +94,18 @@ class TornPaperClipper extends CustomClipper<Path> {
   final bool right;
 
   TornPaperClipper({
-    this.intensity = 2.0, 
+    this.intensity = 2.0,
     this.seed = 0,
-    this.top = true, 
-    this.bottom = true, 
-    this.left = false, 
-    this.right = false
+    this.top = true,
+    this.bottom = true,
+    this.left = false,
+    this.right = false,
   });
 
   @override
   Path getClip(Size size) {
     var path = Path();
-    
+
     // Starting point
     double startY = top ? intensity : 0;
     path.moveTo(0, startY);
@@ -124,7 +122,10 @@ class TornPaperClipper extends CustomClipper<Path> {
     // Right Edge
     if (right) {
       for (double y = 0; y <= size.height; y += 6) {
-         path.lineTo(size.width - (((y + seed).toInt() % 12 < 6) ? 0 : intensity), y);
+        path.lineTo(
+          size.width - (((y + seed).toInt() % 12 < 6) ? 0 : intensity),
+          y,
+        );
       }
     } else {
       path.lineTo(size.width, size.height);
@@ -133,7 +134,10 @@ class TornPaperClipper extends CustomClipper<Path> {
     // Bottom Edge
     if (bottom) {
       for (double x = size.width; x >= 0; x -= 6) {
-        path.lineTo(x, size.height - (((x + seed).toInt() % 12 < 6) ? 0 : intensity));
+        path.lineTo(
+          x,
+          size.height - (((x + seed).toInt() % 12 < 6) ? 0 : intensity),
+        );
       }
     } else {
       path.lineTo(0, size.height);

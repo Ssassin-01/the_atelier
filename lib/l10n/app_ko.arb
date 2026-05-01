@@ -8,6 +8,7 @@
     "description": "기본 이미지 복원 라벨"
   },
   "fixedLabel": "고정됨",
+  "ok": "확인",
   "@fixedLabel": {
     "description": "고정된 항목 라벨"
   },
@@ -18,6 +19,10 @@
   "pantry": "분석",
   "profile": "프로필",
   "settings": "설정",
+  "measurementUnit": "계량 단위",
+  "googleDriveBackup": "구글 드라이브 백업",
+  "googleDriveRestore": "구글 드라이브에서 복원",
+  "resetAllData": "모든 데이터 초기화",
   "logout": "로그아웃",
   "atelierProfile": "작업실 정보",
   "atelierStudio": "아뜰리에 스튜디오",
@@ -68,6 +73,16 @@
   "jumpToProcedure": "상세 조리법 보기",
   "finalPlatingIdea": "최종 완성 아이디어",
   "all": "전체",
+  "wonName": "대한민국 원",
+  "dollarName": "미국 달러",
+  "euroName": "유로",
+  "yenName": "일본 엔",
+  "refreshExchangeRates": "실시간 환율 새로고침",
+  "refreshRatesInfo": "환율 정보는 하루에 한 번 자동으로 갱신됩니다. 지금 바로 최신 환율을 반영하고 싶다면 이 버튼을 눌러주세요.",
+  "gramName": "그램 (기본)",
+  "kilogramName": "킬로그램",
+  "ounceName": "온스",
+  "poundName": "파운드",
   "pumpkinPuree": "호박 퓨레",
   "miniRiceBalls": "미니 경단",
   "seedTuile": "씨앗 튀일",
@@ -247,6 +262,7 @@
   "trends": "운영 실적",
   "inventory": "창고 현황",
   "monthlyOverview": "월간 리포트",
+  "currencySymbolLabel": "통화 기호",
   "currencySymbol": "₩",
   "priceHint": "0",
   "unitKg": "kg",
@@ -348,5 +364,13 @@
   "nameYourMasterpiece": "먼저 연구의 이름을 지어주세요!",
   "addStep": "단계 추가",
   "addCoverMedia": "커버 이미지 추가",
-  "stepContentHint": "예: 따뜻한 물과 효모를 섞습니다..."
+  "stepContentHint": "예: 따뜻한 물과 효모를 섞습니다...",
+  "privacyPermissions": "개인정보 및 권한",
+  "appPermissions": "앱 권한 관리",
+  "cameraAccess": "카메라 권한",
+  "galleryAccess": "갤러리 권한",
+  "cameraAccessDesc": "레시피와 식재료의 사진을 직접 촬영하여 기록하기 위해 카메라를 사용합니다.",
+  "galleryAccessDesc": "멋진 결과물 사진을 불러오기 위해 사용합니다. 최신 기기에서는 전체 권한 없이도 안전하게 사진을 선택할 수 있습니다.",
+  "systemSettings": "시스템 설정 열기",
+  "iUnderstand": "확인"
 }

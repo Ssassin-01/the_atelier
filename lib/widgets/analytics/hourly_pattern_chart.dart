@@ -23,7 +23,11 @@ class HourlyPatternChart extends StatelessWidget {
       children: [
         Text(
           "가장 활기찬 시간대",
-          style: ArtisanalTheme.note(fontSize: 12, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink.withValues(alpha: 0.5)),
+          style: ArtisanalTheme.note(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: ArtisanalTheme.ink.withValues(alpha: 0.5),
+          ),
         ),
         const SizedBox(height: 16),
         SizedBox(
@@ -44,7 +48,9 @@ class HourlyPatternChart extends StatelessWidget {
                       Container(
                         height: (heightFactor * 70).clamp(2, 70).toDouble(),
                         decoration: BoxDecoration(
-                          color: isPeak ? ArtisanalTheme.primary : ArtisanalTheme.primary.withValues(alpha: 0.1),
+                          color: isPeak
+                              ? ArtisanalTheme.primary
+                              : ArtisanalTheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -52,7 +58,10 @@ class HourlyPatternChart extends StatelessWidget {
                       if (index % 6 == 0)
                         Text(
                           "$index",
-                          style: ArtisanalTheme.note(fontSize: 8, color: ArtisanalTheme.ink.withValues(alpha: 0.3)),
+                          style: ArtisanalTheme.note(
+                            fontSize: 8,
+                            color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+                          ),
                         ),
                     ],
                   ),
@@ -65,7 +74,11 @@ class HourlyPatternChart extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             "오늘 오후 ${maxHour > 12 ? maxHour - 12 : maxHour}시경에 가장 바빴습니다.",
-            style: ArtisanalTheme.hand(fontSize: 14, color: ArtisanalTheme.primary, fontStyle: FontStyle.italic),
+            style: ArtisanalTheme.hand(
+              fontSize: 14,
+              color: ArtisanalTheme.primary,
+              fontStyle: FontStyle.italic,
+            ),
           ),
         ],
       ],

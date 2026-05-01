@@ -25,25 +25,40 @@ class _CrumpleEffectState extends State<CrumpleEffect> {
   @override
   void initState() {
     super.initState();
-    
+
     _scale = Tween<double>(begin: 1.0, end: 0.2).animate(
-      CurvedAnimation(parent: widget.controller, curve: const Interval(0.0, 0.8, curve: Curves.easeInBack)),
+      CurvedAnimation(
+        parent: widget.controller,
+        curve: const Interval(0.0, 0.8, curve: Curves.easeInBack),
+      ),
     );
-    
+
     _rotation = Tween<double>(begin: 0.0, end: 0.3).animate(
-      CurvedAnimation(parent: widget.controller, curve: const Interval(0.2, 1.0, curve: Curves.easeInOut)),
+      CurvedAnimation(
+        parent: widget.controller,
+        curve: const Interval(0.2, 1.0, curve: Curves.easeInOut),
+      ),
     );
 
     _opacity = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: widget.controller, curve: const Interval(0.6, 1.0, curve: Curves.easeOut)),
+      CurvedAnimation(
+        parent: widget.controller,
+        curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
+      ),
     );
 
     _skewX = Tween<double>(begin: 0.0, end: 0.2).animate(
-      CurvedAnimation(parent: widget.controller, curve: const Interval(0.0, 0.7, curve: Curves.elasticIn)),
+      CurvedAnimation(
+        parent: widget.controller,
+        curve: const Interval(0.0, 0.7, curve: Curves.elasticIn),
+      ),
     );
 
     _skewY = Tween<double>(begin: 0.0, end: -0.1).animate(
-      CurvedAnimation(parent: widget.controller, curve: const Interval(0.0, 0.7, curve: Curves.elasticIn)),
+      CurvedAnimation(
+        parent: widget.controller,
+        curve: const Interval(0.0, 0.7, curve: Curves.elasticIn),
+      ),
     );
   }
 
@@ -97,14 +112,20 @@ class _WrinklePainter extends CustomPainter {
 
     // Draw random shadow lines (wrinkles) across the surface
     for (int i = 0; i < (20 * progress).toInt(); i++) {
-      final p1 = Offset(random.nextDouble() * size.width, random.nextDouble() * size.height);
-      final p2 = Offset(p1.dx + (random.nextDouble() - 0.5) * 50 * progress, 
-                        p1.dy + (random.nextDouble() - 0.5) * 50 * progress);
-      
+      final p1 = Offset(
+        random.nextDouble() * size.width,
+        random.nextDouble() * size.height,
+      );
+      final p2 = Offset(
+        p1.dx + (random.nextDouble() - 0.5) * 50 * progress,
+        p1.dy + (random.nextDouble() - 0.5) * 50 * progress,
+      );
+
       canvas.drawLine(p1, p2, paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _WrinklePainter oldDelegate) => oldDelegate.progress != progress;
+  bool shouldRepaint(covariant _WrinklePainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }

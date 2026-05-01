@@ -18,6 +18,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fixedLabel => 'FIXED';
 
   @override
+  String get ok => 'OK';
+
+  @override
   String get appTitle => 'The Atelier';
 
   @override
@@ -37,6 +40,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings => 'Settings';
+
+  @override
+  String get measurementUnit => 'Measurement Unit';
+
+  @override
+  String get googleDriveBackup => 'Google Drive Backup';
+
+  @override
+  String get googleDriveRestore => 'Restore from Google Drive';
+
+  @override
+  String get resetAllData => 'Reset All Data';
 
   @override
   String get logout => 'Log Out';
@@ -189,7 +204,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get all => 'All';
 
   @override
-  String get pumpkinPuree => 'Pumpkin Puree';
+  String get wonName => 'South Korean Won';
+
+  @override
+  String get dollarName => 'US Dollar';
+
+  @override
+  String get euroName => 'Euro';
+
+  @override
+  String get yenName => 'Japanese Yen';
+
+  @override
+  String get refreshExchangeRates => 'Refresh Exchange Rates';
+
+  @override
+  String get refreshRatesInfo =>
+      'Exchange rates are automatically updated once a day. Press this button if you want to sync the latest rates immediately.';
+
+  @override
+  String get gramName => 'Gram (Standard)';
+
+  @override
+  String get kilogramName => 'Kilogram';
+
+  @override
+  String get ounceName => 'Ounce';
+
+  @override
+  String get poundName => 'Pound';
 
   @override
   String get miniRiceBalls => 'Mini Rice Balls';
@@ -640,9 +683,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
-  String get ok => 'OK';
-
-  @override
   String get add => 'Add';
 
   @override
@@ -745,6 +785,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get monthlyOverview => 'MONTHLY OVERVIEW';
+
+  @override
+  String get currencySymbolLabel => 'Currency Symbol';
 
   @override
   String get currencySymbol => '₩';
@@ -1031,4 +1074,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stepContentHint => 'e.g. Mix warm water and yeast...';
+
+  @override
+  String get privacyPermissions => 'Privacy & Permissions';
+
+  @override
+  String get appPermissions => 'App Permissions';
+
+  @override
+  String get cameraAccess => 'Camera Access';
+
+  @override
+  String get galleryAccess => 'Gallery Access';
+
+  @override
+  String get cameraAccessDesc =>
+      'We use the camera to let you take photos of your recipes and ingredients directly within the app.';
+
+  @override
+  String get galleryAccessDesc =>
+      'Used to import your masterpiece photos. On modern devices, you can pick photos safely even without full access.';
+
+  @override
+  String get systemSettings => 'System Settings';
+
+  @override
+  String get iUnderstand => 'I Understand';
 }

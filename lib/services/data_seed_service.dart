@@ -163,50 +163,59 @@ class DataSeedService {
       '시그니처 마들렌 답례품 주문',
       '휘낭시에 5종 선물 세트',
       '원데이 클래스 (4인)',
-      '디저트 카페 정기 납품'
+      '디저트 카페 정기 납품',
     ];
 
     for (int i = 0; i < 30; i++) {
       final date = now.subtract(Duration(days: i));
-      
+
       // Daily Sale (Varied amounts)
       final saleAmount = 80000 + random.nextInt(150000).toDouble();
       final saleCat = saleCategories[random.nextInt(saleCategories.length)];
-      final saleDesc = i < specificSales.length ? specificSales[i] : '$saleCat 매출';
-      
-      await transactions.addTransaction(BusinessTransaction(
-        id: 'seed_sale_$i',
-        amount: saleAmount,
-        date: date,
-        type: 'sale',
-        category: saleCat,
-        description: saleDesc,
-      ));
+      final saleDesc = i < specificSales.length
+          ? specificSales[i]
+          : '$saleCat 매출';
+
+      await transactions.addTransaction(
+        BusinessTransaction(
+          id: 'seed_sale_$i',
+          amount: saleAmount,
+          date: date,
+          type: 'sale',
+          category: saleCat,
+          description: saleDesc,
+        ),
+      );
 
       // Daily Expense (Every few days)
       if (i % 3 == 0) {
         final expenseAmount = 40000 + random.nextInt(60000).toDouble();
-        final expCat = expenseCategories[random.nextInt(expenseCategories.length)];
-        await transactions.addTransaction(BusinessTransaction(
-          id: 'seed_exp_$i',
-          amount: expenseAmount,
-          date: date,
-          type: 'expense',
-          category: expCat,
-          description: '$expCat 결제',
-        ));
+        final expCat =
+            expenseCategories[random.nextInt(expenseCategories.length)];
+        await transactions.addTransaction(
+          BusinessTransaction(
+            id: 'seed_exp_$i',
+            amount: expenseAmount,
+            date: date,
+            type: 'expense',
+            category: expCat,
+            description: '$expCat 결제',
+          ),
+        );
       }
 
       // Rent payment once a month
       if (date.day == 1) {
-        await transactions.addTransaction(BusinessTransaction(
-          id: 'seed_rent_$i',
-          amount: 800000,
-          date: date,
-          type: 'expense',
-          category: '공방 임대료',
-          description: '공방 월세 및 관리비 납부',
-        ));
+        await transactions.addTransaction(
+          BusinessTransaction(
+            id: 'seed_rent_$i',
+            amount: 800000,
+            date: date,
+            type: 'expense',
+            category: '공방 임대료',
+            description: '공방 월세 및 관리비 납부',
+          ),
+        );
       }
     }
   }

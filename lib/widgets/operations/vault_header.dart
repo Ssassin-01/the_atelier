@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/artisanal_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/transaction.dart';
+import '../../providers/settings_provider.dart';
 
-class VaultHeader extends StatelessWidget {
+class VaultHeader extends ConsumerWidget {
   final List<BusinessTransaction> transactions;
 
-  const VaultHeader({
-    super.key,
-    required this.transactions,
-  });
+  const VaultHeader({super.key, required this.transactions});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final currencyFormat = NumberFormat.currency(symbol: l10n.currencySymbol, decimalDigits: 0);
-    
+    final settings = ref.watch(settingsProvider);
+
     final now = DateTime.now();
-    final monthlyTxs = transactions.where((tx) => 
-      tx.date.month == now.month && tx.date.year == now.year).toList();
+    final monthlyTxs = transactions
+        .where((tx) => tx.date.month == now.month && tx.date.year == now.year)
+        .toList();
 
     double totalSales = 0;
     double totalExpenses = 0;
@@ -49,7 +48,9 @@ class VaultHeader extends StatelessWidget {
           ),
         ],
         image: const DecorationImage(
-          image: NetworkImage('https://www.transparenttextures.com/patterns/paper-fibers.png'),
+          image: NetworkImage(
+            'https://www.transparenttextures.com/patterns/paper-fibers.png',
+          ),
           repeat: ImageRepeat.repeat,
           opacity: 0.1,
         ),
@@ -69,12 +70,15 @@ class VaultHeader extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                currencyFormat.format(netProfit),
-                style: ArtisanalTheme.lightTheme.textTheme.displayLarge?.copyWith(
-                  fontSize: 38,
-                  color: isProfit ? ArtisanalTheme.primary : ArtisanalTheme.redInk,
-                  height: 1.0,
-                ),
+                settings.format(netProfit),
+                style: ArtisanalTheme.lightTheme.textTheme.displayLarge
+                    ?.copyWith(
+                      fontSize: 38,
+                      color: isProfit
+                          ? ArtisanalTheme.primary
+                          : ArtisanalTheme.redInk,
+                      height: 1.0,
+                    ),
               ),
               Text(
                 l10n.netProfitLabel,
@@ -87,17 +91,17 @@ class VaultHeader extends StatelessWidget {
               Row(
                 children: [
                   _buildMiniStat(
-                    context, 
-                    l10n.totalRevenue, 
-                    "+${currencyFormat.format(totalSales)}", 
-                    ArtisanalTheme.greenInk.withValues(alpha: 0.9)
+                    context,
+                    l10n.totalRevenue,
+                    "+${settings.format(totalSales)}",
+                    ArtisanalTheme.greenInk.withValues(alpha: 0.9),
                   ),
                   const SizedBox(width: 24),
                   _buildMiniStat(
-                    context, 
-                    l10n.totalExpensesLabel, 
-                    "-${currencyFormat.format(totalExpenses)}", 
-                    ArtisanalTheme.redInk.withValues(alpha: 0.9)
+                    context,
+                    l10n.totalExpensesLabel,
+                    "-${settings.format(totalExpenses)}",
+                    ArtisanalTheme.redInk.withValues(alpha: 0.9),
                   ),
                 ],
               ),
@@ -109,10 +113,17 @@ class VaultHeader extends StatelessWidget {
             child: Transform.rotate(
               angle: -0.15,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: (isProfit ? ArtisanalTheme.primary : ArtisanalTheme.redInk).withValues(alpha: 0.3),
+                    color:
+                        (isProfit
+                                ? ArtisanalTheme.primary
+                                : ArtisanalTheme.redInk)
+                            .withValues(alpha: 0.3),
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(4),
@@ -122,7 +133,11 @@ class VaultHeader extends StatelessWidget {
                   style: ArtisanalTheme.hand(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: (isProfit ? ArtisanalTheme.primary : ArtisanalTheme.redInk).withValues(alpha: 0.4),
+                    color:
+                        (isProfit
+                                ? ArtisanalTheme.primary
+                                : ArtisanalTheme.redInk)
+                            .withValues(alpha: 0.4),
                   ),
                 ),
               ),
@@ -133,7 +148,12 @@ class VaultHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildMiniStat(BuildContext context, String label, String value, Color color) {
+  Widget _buildMiniStat(
+    BuildContext context,
+    String label,
+    String value,
+    Color color,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

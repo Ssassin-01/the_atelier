@@ -10,8 +10,5 @@ class RecipeStep extends HiveObject {
   @HiveField(1)
   String? redNote;
 
-  RecipeStep({
-    required this.description,
-    this.redNote,
-  });
+  RecipeStep({required this.description, this.redNote});
 }

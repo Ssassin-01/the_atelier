@@ -6,7 +6,11 @@ class SketchPoint {
   final Color color;
   final double strokeWidth;
 
-  SketchPoint({required this.offset, required this.color, this.strokeWidth = 3.0});
+  SketchPoint({
+    required this.offset,
+    required this.color,
+    this.strokeWidth = 3.0,
+  });
 }
 
 class SketchPainter extends CustomPainter {
@@ -18,7 +22,7 @@ class SketchPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (var path in paths) {
       if (path.isEmpty) continue;
-      
+
       final paint = Paint()
         ..color = path.first.color
         ..strokeWidth = path.first.strokeWidth
@@ -56,7 +60,10 @@ class _SketchAreaState extends State<SketchArea> {
           child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              border: Border.all(color: ArtisanalTheme.outline.withValues(alpha: 0.2), width: 1),
+              border: Border.all(
+                color: ArtisanalTheme.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
               borderRadius: BorderRadius.circular(12),
               color: Colors.white.withValues(alpha: 0.5),
             ),
@@ -68,18 +75,20 @@ class _SketchAreaState extends State<SketchArea> {
                       offset: details.localPosition,
                       color: _currentColor,
                       strokeWidth: _currentWidth,
-                    )
+                    ),
                   ]);
                 });
               },
               onPanUpdate: (details) {
                 setState(() {
                   if (_paths.isNotEmpty) {
-                    _paths.last.add(SketchPoint(
-                      offset: details.localPosition,
-                      color: _currentColor,
-                      strokeWidth: _currentWidth,
-                    ));
+                    _paths.last.add(
+                      SketchPoint(
+                        offset: details.localPosition,
+                        color: _currentColor,
+                        strokeWidth: _currentWidth,
+                      ),
+                    );
                   }
                 });
               },
@@ -111,7 +120,9 @@ class _SketchAreaState extends State<SketchArea> {
                   icon: const Icon(Icons.undo, color: Colors.white70, size: 20),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  onPressed: () => setState(() => _paths.isNotEmpty ? _paths.removeLast() : null),
+                  onPressed: () => setState(
+                    () => _paths.isNotEmpty ? _paths.removeLast() : null,
+                  ),
                 ),
                 Container(
                   height: 20,
@@ -133,7 +144,11 @@ class _SketchAreaState extends State<SketchArea> {
                   color: Colors.white24,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.white70, size: 20),
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.white70,
+                    size: 20,
+                  ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   onPressed: () => setState(() => _paths.clear()),
@@ -161,7 +176,8 @@ class _SketchAreaState extends State<SketchArea> {
             width: 2,
           ),
           boxShadow: [
-            if (isSelected) const BoxShadow(color: Colors.black26, blurRadius: 4),
+            if (isSelected)
+              const BoxShadow(color: Colors.black26, blurRadius: 4),
           ],
         ),
       ),

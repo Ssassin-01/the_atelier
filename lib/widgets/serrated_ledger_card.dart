@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/custom_clippers.dart';
 import '../widgets/masking_tape.dart';
 import '../widgets/artisanal_barcode.dart';
+import '../providers/settings_provider.dart';
 
-class SerratedLedgerCard extends StatelessWidget {
+class SerratedLedgerCard extends ConsumerWidget {
   final double totalExpenses;
   final List<dynamic> transactions;
   final VoidCallback onHistoryTap;
@@ -19,9 +21,9 @@ class SerratedLedgerCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     final l10n = AppLocalizations.of(context);
-    final currencyFormat = NumberFormat.currency(symbol: '₩', decimalDigits: 0);
     final monthName = DateFormat('MMMM').format(DateTime.now());
 
     return Stack(
@@ -33,9 +35,10 @@ class SerratedLedgerCard extends StatelessWidget {
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 40,
-                    offset: const Offset(0, 12))
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 40,
+                  offset: const Offset(0, 12),
+                ),
               ],
             ),
             child: ClipPath(
@@ -45,12 +48,19 @@ class SerratedLedgerCard extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(32, 48, 32, 48),
                 child: Column(
                   children: [
-                    _buildSectionHeader(context, l10n.ingredientLedger, onHistoryTap),
+                    _buildSectionHeader(
+                      context,
+                      l10n.ingredientLedger,
+                      onHistoryTap,
+                    ),
                     const SizedBox(height: 16),
                     Text(
-                      currencyFormat.format(totalExpenses),
+                      settings.format(totalExpenses),
                       style: ArtisanalTheme.lightTheme.textTheme.displayMedium
-                          ?.copyWith(fontSize: 40, color: ArtisanalTheme.primary),
+                          ?.copyWith(
+                            fontSize: 40,
+                            color: ArtisanalTheme.primary,
+                          ),
                     ),
                     Text(
                       '${l10n.totalMonthlySpend} ($monthName)',
@@ -60,9 +70,13 @@ class SerratedLedgerCard extends StatelessWidget {
                     const SizedBox(height: 32),
                     _dottedDivider(),
                     const SizedBox(height: 32),
-                    _buildSectionHeader(context, l10n.recentPurchases.toUpperCase(), onHistoryTap),
+                    _buildSectionHeader(
+                      context,
+                      l10n.recentPurchases.toUpperCase(),
+                      onHistoryTap,
+                    ),
                     const SizedBox(height: 16),
-                    _buildExpenseList(transactions, l10n, currencyFormat),
+                    _buildExpenseList(transactions, l10n, settings),
                     const SizedBox(height: 48),
                     _dottedDivider(),
                     const SizedBox(height: 24),
@@ -87,8 +101,9 @@ class SerratedLedgerCard extends StatelessWidget {
             child: Text(
               l10n.review,
               style: ArtisanalTheme.hand(
-                      fontSize: 20, color: const Color(0xFFBA1A1A))
-                  .copyWith(fontWeight: FontWeight.bold),
+                fontSize: 20,
+                color: const Color(0xFFBA1A1A),
+              ).copyWith(fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -96,43 +111,69 @@ class SerratedLedgerCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, VoidCallback onTap) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    VoidCallback onTap,
+  ) {
     return Row(
       children: [
-        Text(title,
-            style: ArtisanalTheme.lightTheme.textTheme.displaySmall
-                ?.copyWith(fontSize: 18, fontStyle: FontStyle.italic)),
+        Text(
+          title,
+          style: ArtisanalTheme.lightTheme.textTheme.displaySmall?.copyWith(
+            fontSize: 18,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
         const Spacer(),
         GestureDetector(
           onTap: onTap,
           child: Text(
             AppLocalizations.of(context).history,
-            style: ArtisanalTheme.hand(fontSize: 14, color: ArtisanalTheme.primary.withValues(alpha: 0.6)),
+            style: ArtisanalTheme.hand(
+              fontSize: 14,
+              color: ArtisanalTheme.primary.withValues(alpha: 0.6),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildExpenseList(List<dynamic> transactions, AppLocalizations l10n, NumberFormat format) {
+  Widget _buildExpenseList(
+    List<dynamic> transactions,
+    AppLocalizations l10n,
+    SettingsState settings,
+  ) {
     final expenses = transactions.where((tx) => tx.type == 'expense').toList()
       ..sort((a, b) => b.date.compareTo(a.date));
-    
+
     if (expenses.isEmpty) {
-      return Text(l10n.noPurchaseRecords, 
-          style: ArtisanalTheme.hand(fontSize: 14, color: Colors.black26));
+      return Text(
+        l10n.noPurchaseRecords,
+        style: ArtisanalTheme.hand(fontSize: 14, color: Colors.black26),
+      );
     }
-    
+
     return Column(
-      children: expenses.take(3).map((tx) => _buildDisbursementItem(
-          DateFormat('dd MMM yyyy').format(tx.date),
-          tx.description,
-          format.format(tx.amount)
-      )).toList(),
+      children: expenses
+          .take(3)
+          .map(
+            (tx) => _buildDisbursementItem(
+              DateFormat('dd MMM yyyy').format(tx.date),
+              tx.description,
+              settings.format(tx.amount),
+            ),
+          )
+          .toList(),
     );
   }
 
-  Widget _buildDisbursementItem(String date, String description, String amount) {
+  Widget _buildDisbursementItem(
+    String date,
+    String description,
+    String amount,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
@@ -142,14 +183,18 @@ class SerratedLedgerCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(date,
-                    style: ArtisanalTheme.lightTheme.textTheme.labelSmall
-                        ?.copyWith(color: Colors.black26)),
-                Text(description,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: ArtisanalTheme.lightTheme.textTheme.bodyLarge
-                        ?.copyWith(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(
+                  date,
+                  style: ArtisanalTheme.lightTheme.textTheme.labelSmall
+                      ?.copyWith(color: Colors.black26),
+                ),
+                Text(
+                  description,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: ArtisanalTheme.lightTheme.textTheme.bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
               ],
             ),
           ),
@@ -166,14 +211,15 @@ class SerratedLedgerCard extends StatelessWidget {
   Widget _dottedDivider() {
     return Row(
       children: List.generate(
-          30,
-          (index) => Expanded(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  height: 1,
-                  color: index % 2 == 0 ? Colors.black12 : Colors.transparent,
-                ),
-              )),
+        30,
+        (index) => Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            height: 1,
+            color: index % 2 == 0 ? Colors.black12 : Colors.transparent,
+          ),
+        ),
+      ),
     );
   }
 }

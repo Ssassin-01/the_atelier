@@ -8,22 +8,22 @@ import '../../l10n/app_localizations.dart';
 class InventoryTag extends ConsumerWidget {
   final PantryItem item;
   final VoidCallback onRestock;
-  
-  const InventoryTag({
-    super.key, 
-    required this.item,
-    required this.onRestock,
-  });
+
+  const InventoryTag({super.key, required this.item, required this.onRestock});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final categoriesMap = ref.watch(pantryCategoriesProvider);
-    final stockPercent = (item.currentStock / (item.targetQuantity > 0 ? item.targetQuantity : 1)).clamp(0.0, 1.0);
+    final stockPercent =
+        (item.currentStock /
+                (item.targetQuantity > 0 ? item.targetQuantity : 1))
+            .clamp(0.0, 1.0);
     final isLow = stockPercent < 0.2;
-    
+
     // Get Dynamic Post-it Color from Provider
-    final noteColorValue = categoriesMap[item.category] ?? 0xFFFFF9C4; // Fallback to Yellow
+    final noteColorValue =
+        categoriesMap[item.category] ?? 0xFFFFF9C4; // Fallback to Yellow
     final noteColor = Color(noteColorValue);
 
     return Stack(
@@ -48,7 +48,7 @@ class InventoryTag extends ConsumerWidget {
             ),
           ),
         ),
-        
+
         // Post-it Body
         Transform.rotate(
           angle: (item.id.hashCode % 10 - 5) / 180, // Subtle random tilt
@@ -57,7 +57,9 @@ class InventoryTag extends ConsumerWidget {
             decoration: BoxDecoration(
               color: noteColor,
               borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(item.id.hashCode % 2 == 0 ? 20 : 2),
+                bottomRight: Radius.circular(
+                  item.id.hashCode % 2 == 0 ? 20 : 2,
+                ),
               ),
               boxShadow: [
                 BoxShadow(
@@ -86,7 +88,7 @@ class InventoryTag extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  
+
                   // Category Annotation
                   Text(
                     "#${item.category}",
@@ -96,9 +98,9 @@ class InventoryTag extends ConsumerWidget {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 4),
-                  
+
                   // Stock Info
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -112,35 +114,43 @@ class InventoryTag extends ConsumerWidget {
                             style: ArtisanalTheme.hand(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: isLow ? ArtisanalTheme.redInk : ArtisanalTheme.ink,
+                              color: isLow
+                                  ? ArtisanalTheme.redInk
+                                  : ArtisanalTheme.ink,
                             ),
                           ),
                           Text(
                             "/ ${item.targetQuantity.toInt()}${item.unit}",
                             style: ArtisanalTheme.hand(
                               fontSize: 10,
-                              color: ArtisanalTheme.secondary.withValues(alpha: 0.3),
+                              color: ArtisanalTheme.secondary.withValues(
+                                alpha: 0.3,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      
+
                       if (isLow) _buildUrgentMarker(l10n),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 6),
                   _buildHandDrawnProgress(stockPercent, isLow),
-                  
+
                   const SizedBox(height: 2),
-                  
+
                   Align(
                     alignment: Alignment.bottomRight,
                     child: GestureDetector(
                       onTap: onRestock,
                       child: Opacity(
                         opacity: 0.3,
-                        child: Icon(Icons.edit_note, size: 14, color: ArtisanalTheme.ink),
+                        child: Icon(
+                          Icons.edit_note,
+                          size: 14,
+                          color: ArtisanalTheme.ink,
+                        ),
                       ),
                     ),
                   ),
@@ -149,15 +159,13 @@ class InventoryTag extends ConsumerWidget {
             ),
           ),
         ),
-        
+
         // Masking Tape on top
         Positioned(
           top: -8,
           left: 0,
           right: 0,
-          child: Center(
-            child: _buildMaskingTape(item.id.hashCode),
-          ),
+          child: Center(child: _buildMaskingTape(item.id.hashCode)),
         ),
       ],
     );
@@ -170,7 +178,9 @@ class InventoryTag extends ConsumerWidget {
         width: 50,
         height: 18,
         decoration: BoxDecoration(
-          color: const Color(0xFFFDF5E6).withValues(alpha: 0.7), // Semi-transparent paper tape
+          color: const Color(
+            0xFFFDF5E6,
+          ).withValues(alpha: 0.7), // Semi-transparent paper tape
           border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
           boxShadow: [
             BoxShadow(
@@ -180,9 +190,7 @@ class InventoryTag extends ConsumerWidget {
             ),
           ],
         ),
-        child: CustomPaint(
-          painter: TapeTexturePainter(),
-        ),
+        child: CustomPaint(painter: TapeTexturePainter()),
       ),
     );
   }
@@ -216,16 +224,16 @@ class InventoryTag extends ConsumerWidget {
             widthFactor: percent,
             child: Container(
               decoration: BoxDecoration(
-                color: isLow ? ArtisanalTheme.redInk.withValues(alpha: 0.5) : ArtisanalTheme.ink.withValues(alpha: 0.3),
+                color: isLow
+                    ? ArtisanalTheme.redInk.withValues(alpha: 0.5)
+                    : ArtisanalTheme.ink.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
           ),
           // "Scribble" lines on the progress
           Positioned.fill(
-            child: CustomPaint(
-              painter: ScribblePainter(percent),
-            ),
+            child: CustomPaint(painter: ScribblePainter(percent)),
           ),
         ],
       ),
@@ -240,7 +248,7 @@ class ScribblePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (percent <= 0) return;
-    
+
     final paint = Paint()
       ..color = Colors.white.withValues(alpha: 0.2)
       ..strokeWidth = 1.0;

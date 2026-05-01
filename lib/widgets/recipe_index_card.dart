@@ -21,7 +21,8 @@ class RecipeIndexCard extends StatefulWidget {
   State<RecipeIndexCard> createState() => _RecipeIndexCardState();
 }
 
-class _RecipeIndexCardState extends State<RecipeIndexCard> with SingleTickerProviderStateMixin {
+class _RecipeIndexCardState extends State<RecipeIndexCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _crumpleController;
 
   @override
@@ -45,22 +46,48 @@ class _RecipeIndexCardState extends State<RecipeIndexCard> with SingleTickerProv
 
   Future<void> _confirmDelete() async {
     _triggerFeedback();
-    
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: ArtisanalTheme.background,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)), // Sharp artisanal style
-        title: Text("DELETE RECORD?", style: ArtisanalTheme.receipt(fontSize: 16, fontWeight: FontWeight.w900, color: ArtisanalTheme.redInk)),
-        content: Text("This will permanently remove this entry from your archive drawer.", style: ArtisanalTheme.hand(fontSize: 18)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ), // Sharp artisanal style
+        title: Text(
+          "DELETE RECORD?",
+          style: ArtisanalTheme.receipt(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            color: ArtisanalTheme.redInk,
+          ),
+        ),
+        content: Text(
+          "This will permanently remove this entry from your archive drawer.",
+          style: ArtisanalTheme.hand(fontSize: 18),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text("CANCEL", style: ArtisanalTheme.receipt(color: ArtisanalTheme.ink.withValues(alpha: 0.4), fontSize: 12, fontWeight: FontWeight.bold)),
+            child: Text(
+              "CANCEL",
+              style: ArtisanalTheme.receipt(
+                color: ArtisanalTheme.ink.withValues(alpha: 0.4),
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text("REMOVE", style: ArtisanalTheme.receipt(color: ArtisanalTheme.redInk, fontWeight: FontWeight.w900, fontSize: 12)),
+            child: Text(
+              "REMOVE",
+              style: ArtisanalTheme.receipt(
+                color: ArtisanalTheme.redInk,
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+              ),
+            ),
           ),
         ],
       ),
@@ -86,7 +113,9 @@ class _RecipeIndexCardState extends State<RecipeIndexCard> with SingleTickerProv
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(4), // More rectangular for index card feel
+            borderRadius: BorderRadius.circular(
+              4,
+            ), // More rectangular for index card feel
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.06),
@@ -99,7 +128,9 @@ class _RecipeIndexCardState extends State<RecipeIndexCard> with SingleTickerProv
                 offset: const Offset(0, 1),
               ),
             ],
-            border: Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.05)),
+            border: Border.all(
+              color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,8 +153,7 @@ class _RecipeIndexCardState extends State<RecipeIndexCard> with SingleTickerProv
                   const Positioned(
                     top: -8,
                     left: 20,
-                    child: MaskingTape(
-                        width: 60, rotation: -0.05),
+                    child: MaskingTape(width: 60, rotation: -0.05),
                   ),
                 ],
               ),
@@ -134,7 +164,8 @@ class _RecipeIndexCardState extends State<RecipeIndexCard> with SingleTickerProv
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Flexible( // Wrapped in Flexible to prevent overflow
+                      Flexible(
+                        // Wrapped in Flexible to prevent overflow
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
@@ -150,12 +181,15 @@ class _RecipeIndexCardState extends State<RecipeIndexCard> with SingleTickerProv
                             ),
                             const SizedBox(height: 2),
                             if (widget.recipe.description != null &&
-                                (widget.recipe.description as String).isNotEmpty)
+                                (widget.recipe.description as String)
+                                    .isNotEmpty)
                               Text(
                                 widget.recipe.description,
                                 style: ArtisanalTheme.hand(
                                   fontSize: 12,
-                                  color: ArtisanalTheme.ink.withValues(alpha: 0.45),
+                                  color: ArtisanalTheme.ink.withValues(
+                                    alpha: 0.45,
+                                  ),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -168,10 +202,15 @@ class _RecipeIndexCardState extends State<RecipeIndexCard> with SingleTickerProv
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _MetaItem(
-                              icon: Icons.calendar_today_outlined,
-                              label: dateStr),
+                            icon: Icons.calendar_today_outlined,
+                            label: dateStr,
+                          ),
                           if (widget.recipe.sketchImageUrl != null)
-                            const Icon(Icons.edit_note_rounded, size: 14, color: ArtisanalTheme.primary),
+                            const Icon(
+                              Icons.edit_note_rounded,
+                              size: 14,
+                              color: ArtisanalTheme.primary,
+                            ),
                         ],
                       ),
                     ],
@@ -197,9 +236,11 @@ class _MetaItem extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon,
-            size: 13,
-            color: ArtisanalTheme.secondary.withValues(alpha: 0.45)),
+        Icon(
+          icon,
+          size: 13,
+          color: ArtisanalTheme.secondary.withValues(alpha: 0.45),
+        ),
         const SizedBox(width: 4),
         Text(
           label,

@@ -18,6 +18,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get fixedLabel => '고정됨';
 
   @override
+  String get ok => '확인';
+
+  @override
   String get appTitle => '아뜰리에';
 
   @override
@@ -37,6 +40,18 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settings => '설정';
+
+  @override
+  String get measurementUnit => '계량 단위';
+
+  @override
+  String get googleDriveBackup => '구글 드라이브 백업';
+
+  @override
+  String get googleDriveRestore => '구글 드라이브에서 복원';
+
+  @override
+  String get resetAllData => '모든 데이터 초기화';
 
   @override
   String get logout => '로그아웃';
@@ -189,7 +204,35 @@ class AppLocalizationsKo extends AppLocalizations {
   String get all => '전체';
 
   @override
-  String get pumpkinPuree => '호박 퓨레';
+  String get wonName => '대한민국 원';
+
+  @override
+  String get dollarName => '미국 달러';
+
+  @override
+  String get euroName => '유로';
+
+  @override
+  String get yenName => '일본 엔';
+
+  @override
+  String get refreshExchangeRates => '실시간 환율 새로고침';
+
+  @override
+  String get refreshRatesInfo =>
+      '환율 정보는 하루에 한 번 자동으로 갱신됩니다. 지금 바로 최신 환율을 반영하고 싶다면 이 버튼을 눌러주세요.';
+
+  @override
+  String get gramName => '그램 (기본)';
+
+  @override
+  String get kilogramName => '킬로그램';
+
+  @override
+  String get ounceName => '온스';
+
+  @override
+  String get poundName => '파운드';
 
   @override
   String get miniRiceBalls => '미니 경단';
@@ -629,9 +672,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get close => '닫기';
 
   @override
-  String get ok => '확인';
-
-  @override
   String get add => '추가';
 
   @override
@@ -733,6 +773,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get monthlyOverview => '월간 리포트';
+
+  @override
+  String get currencySymbolLabel => '통화 기호';
 
   @override
   String get currencySymbol => '₩';
@@ -1009,4 +1052,29 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get stepContentHint => '예: 따뜻한 물과 효모를 섞습니다...';
+
+  @override
+  String get privacyPermissions => '개인정보 및 권한';
+
+  @override
+  String get appPermissions => '앱 권한 관리';
+
+  @override
+  String get cameraAccess => '카메라 권한';
+
+  @override
+  String get galleryAccess => '갤러리 권한';
+
+  @override
+  String get cameraAccessDesc => '레시피와 식재료의 사진을 직접 촬영하여 기록하기 위해 카메라를 사용합니다.';
+
+  @override
+  String get galleryAccessDesc =>
+      '멋진 결과물 사진을 불러오기 위해 사용합니다. 최신 기기에서는 전체 권한 없이도 안전하게 사진을 선택할 수 있습니다.';
+
+  @override
+  String get systemSettings => '시스템 설정 열기';
+
+  @override
+  String get iUnderstand => '확인';
 }

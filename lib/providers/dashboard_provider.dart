@@ -1,23 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-final dashboardProvider = StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
-  return DashboardNotifier();
-});
+final dashboardProvider =
+    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
+      return DashboardNotifier();
+    });
 
 class DashboardState {
   final bool isQuoteMode;
   final String resolution;
 
-  DashboardState({
-    required this.isQuoteMode,
-    required this.resolution,
-  });
+  DashboardState({required this.isQuoteMode, required this.resolution});
 
-  DashboardState copyWith({
-    bool? isQuoteMode,
-    String? resolution,
-  }) {
+  DashboardState copyWith({bool? isQuoteMode, String? resolution}) {
     return DashboardState(
       isQuoteMode: isQuoteMode ?? this.isQuoteMode,
       resolution: resolution ?? this.resolution,
@@ -26,7 +21,8 @@ class DashboardState {
 }
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
-  DashboardNotifier() : super(DashboardState(isQuoteMode: true, resolution: "")) {
+  DashboardNotifier()
+    : super(DashboardState(isQuoteMode: true, resolution: "")) {
     _init();
   }
 
