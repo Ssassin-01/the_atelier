@@ -98,6 +98,102 @@ abstract class AppLocalizations {
     Locale('ko'),
   ];
 
+  /// No description provided for @metric.
+  ///
+  /// In en, this message translates to:
+  /// **'Metric'**
+  String get metric;
+
+  /// No description provided for @imperial.
+  ///
+  /// In en, this message translates to:
+  /// **'Imperial'**
+  String get imperial;
+
+  /// No description provided for @dangerousAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Dangerous Action'**
+  String get dangerousAction;
+
+  /// No description provided for @resetConfirmationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete all your recipes, pantry data, and business records. This action cannot be undone.'**
+  String get resetConfirmationMessage;
+
+  /// No description provided for @keepData.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Data'**
+  String get keepData;
+
+  /// No description provided for @resetEverything.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Everything'**
+  String get resetEverything;
+
+  /// No description provided for @allDataWiped.
+  ///
+  /// In en, this message translates to:
+  /// **'All data has been wiped clean.'**
+  String get allDataWiped;
+
+  /// No description provided for @exchangeRatesUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange rates have been updated.'**
+  String get exchangeRatesUpdated;
+
+  /// No description provided for @customizeStudioDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize your studio identity on reports.'**
+  String get customizeStudioDesc;
+
+  /// No description provided for @atelierNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Atelier Name'**
+  String get atelierNameLabel;
+
+  /// No description provided for @contactInfoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Info'**
+  String get contactInfoLabel;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @saveProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Profile'**
+  String get saveProfile;
+
+  /// No description provided for @unitSelectionTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the unit (g/kg) to switch measurement systems.'**
+  String get unitSelectionTip;
+
+  /// No description provided for @sketchpad.
+  ///
+  /// In en, this message translates to:
+  /// **'SKETCHPAD'**
+  String get sketchpad;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'DONE'**
+  String get done;
+
   /// No description provided for @unitLabel.
   ///
   /// In en, this message translates to:
@@ -1117,12 +1213,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get delete;
-
-  /// No description provided for @cancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get cancel;
 
   /// No description provided for @saleRegistered.
   ///

@@ -9,6 +9,57 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get metric => 'Metric';
+
+  @override
+  String get imperial => 'Imperial';
+
+  @override
+  String get dangerousAction => 'Dangerous Action';
+
+  @override
+  String get resetConfirmationMessage =>
+      'This will permanently delete all your recipes, pantry data, and business records. This action cannot be undone.';
+
+  @override
+  String get keepData => 'Keep Data';
+
+  @override
+  String get resetEverything => 'Reset Everything';
+
+  @override
+  String get allDataWiped => 'All data has been wiped clean.';
+
+  @override
+  String get exchangeRatesUpdated => 'Exchange rates have been updated.';
+
+  @override
+  String get customizeStudioDesc =>
+      'Customize your studio identity on reports.';
+
+  @override
+  String get atelierNameLabel => 'Atelier Name';
+
+  @override
+  String get contactInfoLabel => 'Contact Info';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get saveProfile => 'Save Profile';
+
+  @override
+  String get unitSelectionTip =>
+      'Tap the unit (g/kg) to switch measurement systems.';
+
+  @override
+  String get sketchpad => 'SKETCHPAD';
+
+  @override
+  String get done => 'DONE';
+
+  @override
   String get unitLabel => 'Unit';
 
   @override
@@ -531,9 +582,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get delete => 'Delete';
-
-  @override
-  String get cancel => 'Cancel';
 
   @override
   String get saleRegistered => 'Sale registered with a flourish.';

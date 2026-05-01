@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import '../theme/artisanal_theme.dart';
+import '../l10n/app_localizations.dart';
 
 class DrawingPoint {
   final Offset offset;
@@ -86,14 +87,14 @@ class _FullScreenSketchEditorState extends State<FullScreenSketchEditor> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F3F0),
       appBar: AppBar(
-        title: Text("SKETCHPAD", style: ArtisanalTheme.hand(fontSize: 20)),
+        title: Text(AppLocalizations.of(context).sketchpad.toUpperCase(), style: ArtisanalTheme.hand(fontSize: 20)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           TextButton(
             onPressed: _saveSketch,
             child: Text(
-              "DONE",
+              AppLocalizations.of(context).done.toUpperCase(),
               style: ArtisanalTheme.hand(
                 color: ArtisanalTheme.primary,
                 fontSize: 18,

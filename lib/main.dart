@@ -193,7 +193,6 @@ class _MainScaffoldState extends State<MainScaffold> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBody: true,
-      body: IndexedStack(index: _selectedIndex, children: screens),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
@@ -274,6 +273,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           );
         },
       ),
+      body: IndexedStack(index: _selectedIndex, children: screens),
     );
   }
 

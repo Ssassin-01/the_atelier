@@ -100,40 +100,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
 
   void _onEdit() {
     // Map existing recipe to draft
-    final draft = RecipeDraft(
-      name: widget.recipe.name,
-      mainImagePath: widget.recipe.mainImageUrl,
-      components: widget.recipe.components
-          .map(
-            (c) => RecipeComponentDraft(
-              id: DateTime.now().toString(),
-              title: c.title,
-              imagePath: c.imageUrl,
-              ingredients: c.ingredients
-                  .map(
-                    (i) => IngredientEntry(
-                      id: DateTime.now().toString(),
-                      name: i.name,
-                      weight: ref.read(settingsProvider).convertWeight(
-                        double.tryParse(i.amount) ?? 0.0,
-                        'g',
-                      ),
-                      isFlour: i.isFlour,
-                    ),
-                  )
-                  .toList(),
-              steps: c.steps
-                  .map(
-                    (s) => RecipeStepDraft(
-                      id: DateTime.now().toString(),
-                      content: s.description,
-                    ),
-                  )
-                  .toList(),
-            ),
-          )
-          .toList(),
-    );
+    // Map existing recipe to draft using the centralized factory
+    final draft = RecipeDraft.fromModel(widget.recipe, ref.read(settingsProvider));
 
     // Seed the provider
     ref.read(recipeDraftProvider.notifier).state = draft;

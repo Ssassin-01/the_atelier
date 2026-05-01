@@ -9,10 +9,12 @@ import '../providers/locale_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/pantry_provider.dart';
 import '../providers/transaction_provider.dart';
+import '../providers/pantry_categories_provider.dart';
 import '../services/recipe_service.dart';
 import '../models/recipe.dart';
 import '../models/pantry_item.dart';
 import '../models/transaction.dart';
+import 'add_recipe_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -121,7 +123,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                     Icons.store_outlined,
                     l10n.atelierProfile,
                     trailer: settings.atelierName,
-                    onTap: () => _showProfileEditor(context, settings),
+                    onTap: () => _showProfileEditor(context, settings, l10n),
                   ),
                 ]),
                 const SizedBox(height: 28),
@@ -482,7 +484,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
     );
   }
 
-  void _showProfileEditor(BuildContext context, SettingsState settings) {
+  void _showProfileEditor(BuildContext context, SettingsState settings, AppLocalizations l10n) {
     final nameController = TextEditingController(text: settings.atelierName);
     final contactController = TextEditingController(text: settings.atelierContact);
 
@@ -799,10 +801,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
     await Hive.box<Recipe>('recipes').clear();
     await Hive.box<PantryItem>('pantry').clear();
     await Hive.box<BusinessTransaction>('transactions').clear();
+    await Hive.box('settings').delete('pantry_categories_map');
     
     ref.invalidate(pantryProvider);
     ref.invalidate(transactionProvider);
     ref.invalidate(recipeListProvider);
+    ref.invalidate(pantryCategoriesProvider);
+    ref.invalidate(recipeDraftProvider);
   }
 }
 

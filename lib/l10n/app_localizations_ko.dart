@@ -9,6 +9,55 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
+  String get metric => '미터법';
+
+  @override
+  String get imperial => '야드파운드법';
+
+  @override
+  String get dangerousAction => '위험한 작업';
+
+  @override
+  String get resetConfirmationMessage =>
+      '모든 레시피, 재고 내역, 사업 기록이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.';
+
+  @override
+  String get keepData => '데이터 유지';
+
+  @override
+  String get resetEverything => '모든 데이터 초기화';
+
+  @override
+  String get allDataWiped => '모든 데이터가 초기화되었습니다.';
+
+  @override
+  String get exchangeRatesUpdated => '최신 환율로 업데이트되었습니다.';
+
+  @override
+  String get customizeStudioDesc => '리포트에 표시될 스튜디오 정보를 설정하세요.';
+
+  @override
+  String get atelierNameLabel => '아뜰리에 명칭';
+
+  @override
+  String get contactInfoLabel => '연락처 정보';
+
+  @override
+  String get cancel => '취소';
+
+  @override
+  String get saveProfile => '프로필 저장';
+
+  @override
+  String get unitSelectionTip => '단위(g/kg)를 터치하면 다른 단위로 변경할 수 있습니다.';
+
+  @override
+  String get sketchpad => '스케치패드';
+
+  @override
+  String get done => '완료';
+
+  @override
   String get unitLabel => '단위';
 
   @override
@@ -523,9 +572,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get delete => '삭제';
-
-  @override
-  String get cancel => '취소';
 
   @override
   String get saleRegistered => '매출 장부에 인을 찍었습니다.';

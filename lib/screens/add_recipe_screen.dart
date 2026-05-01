@@ -104,6 +104,20 @@ class RecipeDraft {
   double get totalWeight =>
       components.fold(0.0, (sum, c) => sum + c.totalWeight);
 
+  RecipeDraft copyWith({
+    String? name,
+    String? description,
+    String? mainImagePath,
+    List<RecipeComponentDraft>? components,
+  }) {
+    return RecipeDraft(
+      name: name ?? this.name,
+      description: description ?? this.description,
+      mainImagePath: mainImagePath ?? this.mainImagePath,
+      components: components ?? this.components,
+    );
+  }
+
   static RecipeDraft fromModel(model.Recipe recipe, SettingsState settings) {
     return RecipeDraft(
       name: recipe.name,
@@ -165,7 +179,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final Map<String, TextEditingController> _controllers = {};
+  final Map<String, FocusNode> _focusNodes = {};
   final Map<String, GlobalKey> _photoKeys = {};
+  final ScrollController _scrollController = ScrollController();
 
   void _triggerFeedback() {
     HapticFeedback.lightImpact();
@@ -178,6 +194,13 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     return _controllers[id]!;
   }
 
+  FocusNode _getFocusNode(String id) {
+    if (!_focusNodes.containsKey(id)) {
+      _focusNodes[id] = FocusNode();
+    }
+    return _focusNodes[id]!;
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -185,6 +208,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     for (var c in _controllers.values) {
       c.dispose();
     }
+    for (var f in _focusNodes.values) {
+      f.dispose();
+    }
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -228,6 +255,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
         0xFFFAF9F6,
       ), // Reverted to original Linen White
       body: CustomScrollView(
+        controller: _scrollController,
         slivers: [
           SliverAppBar(
             backgroundColor: Colors.transparent,
@@ -410,14 +438,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       TextField(
                         onChanged: (val) {
                           _triggerFeedback();
-                          notifier.update(
-                            (s) => RecipeDraft(
-                              name: s.name,
-                              description: val,
-                              mainImagePath: s.mainImagePath,
-                              components: s.components,
-                            ),
-                          );
+                          notifier.update((s) => s.copyWith(description: val));
                         },
                         controller: _descController,
                         maxLines: null,
@@ -484,24 +505,50 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           color: ArtisanalTheme.primary.withValues(alpha: 0.1),
                         ),
                       ),
-                      child: Row(
+                      child: Column(
                         children: [
-                          Icon(
-                            Icons.lightbulb_outline,
-                            size: 18,
-                            color: ArtisanalTheme.primary,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              l10n.bakerPercentageTip,
-                              style: ArtisanalTheme.hand(
-                                fontSize: 14,
-                                color: ArtisanalTheme.ink.withValues(
-                                  alpha: 0.7,
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.lightbulb_outline,
+                                size: 18,
+                                color: ArtisanalTheme.primary,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  l10n.bakerPercentageTip,
+                                  style: ArtisanalTheme.hand(
+                                    fontSize: 14,
+                                    color: ArtisanalTheme.ink.withValues(
+                                      alpha: 0.7,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.touch_app_outlined,
+                                size: 18,
+                                color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  l10n.unitSelectionTip,
+                                  style: ArtisanalTheme.hand(
+                                    fontSize: 14,
+                                    color: ArtisanalTheme.ink.withValues(
+                                      alpha: 0.7,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -524,19 +571,27 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                   child: TextButton.icon(
                     onPressed: () {
                       _triggerFeedback();
+                      final newId = DateTime.now().millisecondsSinceEpoch.toString();
                       notifier.update((s) {
                         final newComps =
                             List<RecipeComponentDraft>.from(s.components)..add(
                               RecipeComponentDraft(
-                                id: DateTime.now().toString(),
+                                id: newId,
                               ),
                             );
-                        return RecipeDraft(
-                          name: s.name,
-                          description: s.description,
-                          mainImagePath: s.mainImagePath,
-                          components: newComps,
-                        );
+                        return s.copyWith(components: newComps);
+                      });
+                      // Auto-scroll to new component and FOCUS it
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (_scrollController.hasClients) {
+                          _scrollController.animateTo(
+                            _scrollController.position.maxScrollExtent,
+                            duration: const Duration(milliseconds: 500),
+                            curve: Curves.easeOut,
+                          );
+                        }
+                        // Request focus for the newly added component's title
+                        _getFocusNode("${newId}_title").requestFocus();
                       });
                     },
                     icon: const Icon(Icons.library_add_outlined),
@@ -613,7 +668,12 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
         context,
         newIngredientNames,
       );
-      if (toRegister != null) {
+      
+      // If user clicked CANCEL (returns null), abort the whole save process
+      if (toRegister == null) return;
+
+      // If user clicked REGISTER (returns non-empty list)
+      if (toRegister.isNotEmpty) {
         for (final entry in toRegister) {
           final newItem = PantryItem(
             id: DateTime.now().millisecondsSinceEpoch.toString() + entry.name,
@@ -628,6 +688,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
           await ref.read(pantryProvider.notifier).addItem(newItem);
         }
       }
+      // If toRegister is empty (returns []), it was a SKIP. Proceed to save recipe without registering.
     }
 
     HapticFeedback.heavyImpact();
@@ -885,8 +946,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
         .where((c) => c != 'All')
         .toList();
 
-    return showDialog<List<({String name, String category})>>(
+    return showDialog<List<({String name, String category})>?>(
       context: context,
+      barrierDismissible: false, // Prevent accidental dismissal by clicking outside
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           backgroundColor: const Color(0xFFFDFBF7),
@@ -993,7 +1055,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context, null),
+              onPressed: () => Navigator.pop(context, []), // Return empty list for SKIP
               child: Text(
                 "SKIP",
                 style: ArtisanalTheme.hand(
@@ -1015,6 +1077,18 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                   color: ArtisanalTheme.primary,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Explicit Cancel to abort saving
+            TextButton(
+              onPressed: () => Navigator.pop(context, null),
+              child: Text(
+                l10n.cancel,
+                style: ArtisanalTheme.hand(
+                  color: ArtisanalTheme.redInk,
+                  fontSize: 16,
                 ),
               ),
             ),
@@ -1096,6 +1170,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       "${component.id}_title",
                       component.title,
                     ),
+                    focusNode: _getFocusNode("${component.id}_title"),
                     style: ArtisanalTheme.hand(
                       fontSize: 20,
                       color: ArtisanalTheme.primary,
@@ -1215,11 +1290,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                             unit: settings.measurementSystem == 'metric' ? 'g' : 'oz',
                           ),
                         );
-                        return RecipeDraft(
-                          name: s.name,
-                          mainImagePath: s.mainImagePath,
-                          components: s.components,
-                        );
+                        return s.copyWith(components: s.components);
                       });
                     },
                     icon: const Icon(Icons.add, size: 14),
@@ -1272,11 +1343,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                   component.steps.add(
                     RecipeStepDraft(id: DateTime.now().toString()),
                   );
-                  return RecipeDraft(
-                    name: s.name,
-                    mainImagePath: s.mainImagePath,
-                    components: s.components,
-                  );
+                  return s.copyWith(components: s.components);
                 });
               },
               icon: const Icon(Icons.add, size: 14),
@@ -1316,11 +1383,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           _triggerFeedback();
                           notifier.update((s) {
                             component.imagePath = path;
-                            return RecipeDraft(
-                              name: s.name,
-                              mainImagePath: s.mainImagePath,
-                              components: s.components,
-                            );
+                            return s.copyWith(components: s.components);
                           });
                         },
                         height: 280,
@@ -1580,12 +1643,11 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                                   onTap: () {
                                     _triggerFeedback();
                                     notifier.update((s) {
+                                      final oldVal = settings.fromGrams(entry.weight, entry.unit);
                                       entry.unit = opt;
-                                      return RecipeDraft(
-                                        name: s.name,
-                                        mainImagePath: s.mainImagePath,
-                                        components: s.components,
-                                      );
+                                      // Preserve the numerical value when toggling units
+                                      entry.weight = settings.convertToGrams(oldVal, opt);
+                                      return s.copyWith(components: s.components);
                                     });
                                     Navigator.pop(context);
                                   },
@@ -1671,11 +1733,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               _triggerFeedback();
               notifier.update((s) {
                 component.ingredients.removeAt(index);
-                return RecipeDraft(
-                  name: s.name,
-                  mainImagePath: s.mainImagePath,
-                  components: s.components,
-                );
+                return s.copyWith(components: s.components);
               });
             },
             child: const Icon(
@@ -1755,11 +1813,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               _triggerFeedback();
               notifier.update((s) {
                 component.steps.removeAt(index);
-                return RecipeDraft(
-                  name: s.name,
-                  mainImagePath: s.mainImagePath,
-                  components: s.components,
-                );
+                return s.copyWith(components: s.components);
               });
             },
           ),
