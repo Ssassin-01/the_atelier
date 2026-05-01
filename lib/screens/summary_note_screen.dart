@@ -284,25 +284,6 @@ class _JournalPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (recipe?.description != null &&
-                            recipe!.description!.isNotEmpty) ...[
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40),
-                            child: Text(
-                              recipe!.description!,
-                              textAlign: TextAlign.justify,
-                              style: ArtisanalTheme.hand(
-                                fontSize: 18,
-                                height: 1.8,
-                                color: ArtisanalTheme.ink.withValues(
-                                  alpha: 0.8,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 36),
                         // Hero Image
                         Center(
                           child: Transform.rotate(
@@ -335,7 +316,28 @@ class _JournalPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 80),
+                        const SizedBox(height: 48),
+
+                        // Artisanal Notes (Moved below image)
+                        if (recipe?.description != null &&
+                            recipe!.description!.isNotEmpty) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              recipe!.description!,
+                              textAlign: TextAlign.justify,
+                              style: ArtisanalTheme.hand(
+                                fontSize: 18,
+                                height: 1.8,
+                                color: ArtisanalTheme.ink.withValues(
+                                  alpha: 0.8,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 36),
+                        ],
+                        const SizedBox(height: 32),
 
                         // Render Dynamic Components
                         ...components.map(
@@ -396,7 +398,6 @@ class _RecipeSection extends ConsumerWidget {
                     style: ArtisanalTheme.hand(fontSize: 28, color: ink)
                         .copyWith(
                           fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
                         ),
                   ),
                 ],

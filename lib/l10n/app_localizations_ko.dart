@@ -9,6 +9,12 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
+  String get unitLabel => '단위';
+
+  @override
+  String get selectUnit => '단위 선택';
+
+  @override
   String get selectSource => '이미지 출처 선택';
 
   @override

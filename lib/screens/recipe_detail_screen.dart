@@ -750,7 +750,7 @@ class _DescriptionCard extends StatelessWidget {
             angle: 0.01,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(28, 40, 28, 32),
+              padding: const EdgeInsets.fromLTRB(16, 40, 16, 32),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFFDF5), // Warm parchment
                 borderRadius: BorderRadius.circular(2),

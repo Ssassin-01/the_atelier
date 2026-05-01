@@ -1,4 +1,6 @@
 {
+  "unitLabel": "Unit",
+  "selectUnit": "Select Unit",
   "selectSource": "Select Image Source",
   "@selectSource": {
     "description": "Title for image source selection sheet"

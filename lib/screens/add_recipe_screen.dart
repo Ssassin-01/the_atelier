@@ -1549,21 +1549,68 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     suffix: GestureDetector(
                       onTap: () {
                         _triggerFeedback();
-                        final next = settings.measurementSystem == 'metric'
-                            ? (entry.unit == 'g' ? 'kg' : 'g')
-                            : (entry.unit == 'oz' ? 'lb' : 'oz');
+                        final options = settings.measurementSystem == 'metric'
+                            ? ['g', 'kg']
+                            : ['oz', 'lb'];
                         
-                        notifier.update((s) {
-                          entry.unit = next;
-                          return RecipeDraft(
-                            name: s.name,
-                            mainImagePath: s.mainImagePath,
-                            components: s.components,
-                          );
-                        });
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => Container(
+                            decoration: const BoxDecoration(
+                              color: ArtisanalTheme.surface,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(32),
+                                topRight: Radius.circular(32),
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  l10n.selectUnit.toUpperCase(),
+                                  style: ArtisanalTheme.hand(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                ...options.map((opt) => ListTile(
+                                  onTap: () {
+                                    _triggerFeedback();
+                                    notifier.update((s) {
+                                      entry.unit = opt;
+                                      return RecipeDraft(
+                                        name: s.name,
+                                        mainImagePath: s.mainImagePath,
+                                        components: s.components,
+                                      );
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                  title: Text(
+                                    opt.toUpperCase(),
+                                    textAlign: TextAlign.center,
+                                    style: ArtisanalTheme.hand(
+                                      fontSize: 16,
+                                      fontWeight: entry.unit == opt 
+                                          ? FontWeight.w900 
+                                          : FontWeight.normal,
+                                      color: entry.unit == opt
+                                          ? ArtisanalTheme.primary
+                                          : ArtisanalTheme.ink,
+                                    ),
+                                  ),
+                                )),
+                                const SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        );
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: ArtisanalTheme.primary.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(4),

@@ -508,7 +508,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     final qtyController = TextEditingController();
     final costController = TextEditingController();
     final settings = ref.read(settingsProvider);
-    String selectedUnit = settings.measurementSystem == 'metric' ? 'g' : 'oz';
+    String selectedUnit = item.unit;
 
     showModalBottomSheet(
       context: context,
@@ -550,17 +550,36 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                     ),
                   ),
                   const SizedBox(height: 24),
+                  // UNIT SELECTOR ROW
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.unitLabel.toUpperCase(),
+                        style: ArtisanalTheme.hand(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                      _buildUnitToggle(
+                        selectedUnit,
+                        settings.measurementSystem == 'metric'
+                            ? ['g', 'kg']
+                            : ['oz', 'lb'],
+                        (val) => setSheetState(() => selectedUnit = val),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
                   _buildLedgerField(
                     label: l10n.quantityToAdd,
                     controller: qtyController,
                     keyboardType: TextInputType.number,
-                    suffix: _buildUnitToggle(
-                      selectedUnit,
-                      settings.measurementSystem == 'metric'
-                          ? ['g', 'kg']
-                          : ['oz', 'lb'],
-                      (val) => setSheetState(() => selectedUnit = val),
-                    ),
+                    hintText: "0",
+                    suffixText: selectedUnit,
                   ),
                   const SizedBox(height: 16),
                   _buildLedgerField(
@@ -568,6 +587,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                     controller: costController,
                     keyboardType: TextInputType.number,
                     suffixText: settings.currencySymbol,
+                    hintText: "0",
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -619,7 +639,10 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                       ),
                       child: Text(
                         l10n.restockButton.toUpperCase(),
-                        style: ArtisanalTheme.hand(fontWeight: FontWeight.bold),
+                        style: ArtisanalTheme.hand(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -636,7 +659,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     final settings = ref.read(settingsProvider);
     final nameController = TextEditingController(text: item?.name ?? '');
     final priceController = TextEditingController(
-      text: item?.purchasePrice.toString() ?? '',
+      text: item != null ? item.purchasePrice.toStringAsFixed(2).replaceAll(RegExp(r'\.?0+$'), '') : '',
     );
     
     // Default unit based on system
@@ -651,12 +674,11 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
         : 0.0;
 
     final targetQtyController = TextEditingController(
-      text: item != null ? initialTarget.toStringAsFixed(selectedUnit == 'g' ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
+      text: item != null ? initialTarget.toStringAsFixed((selectedUnit == 'g' || selectedUnit == 'oz') ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
     );
     final currentQtyController = TextEditingController(
-      text: item != null ? initialCurrent.toStringAsFixed(selectedUnit == 'g' ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
+      text: item != null ? initialCurrent.toStringAsFixed((selectedUnit == 'g' || selectedUnit == 'oz') ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
     );
-    final unitController = TextEditingController(text: item?.unit ?? 'g');
 
     final categoriesMap = ref.read(pantryCategoriesProvider);
     final activeCategories = categoriesMap.keys
@@ -670,7 +692,6 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
             ? 'Others'
             : activeCategories.first);
     final categoryNotifier = ValueNotifier<String>(initialCategory);
-    bool isCatPickerExpanded = false;
 
     showModalBottomSheet(
       context: context,
@@ -743,15 +764,45 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 8),
-                        Text(
-                          (item == null
-                                  ? l10n.addIngredient
-                                  : l10n.updateIngredient)
-                              .toUpperCase(),
-                          style: ArtisanalTheme.hand(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
+                        // Elegant Title with "Stamp" background
+                        Center(
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Opacity(
+                                opacity: 0.05,
+                                child: Transform.rotate(
+                                  angle: -0.1,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: ArtisanalTheme.ink, width: 2),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      "ATELIER",
+                                      style: ArtisanalTheme.receipt(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w900,
+                                        color: ArtisanalTheme.ink,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                (item == null
+                                        ? l10n.addIngredient
+                                        : l10n.updateIngredient)
+                                    .toUpperCase(),
+                                style: ArtisanalTheme.hand(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.5,
+                                  color: ArtisanalTheme.ink,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -762,168 +813,99 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                         ),
                         const SizedBox(height: 20),
 
-                        // IMPROVED: Click-to-Expand Category Picker
-                        StatefulBuilder(
-                          builder: (context, setLocalState) {
-                            final selectedCat = categoryNotifier.value;
-                            final selectedColor = Color(
-                              categoriesMap[selectedCat] ?? 0xFFFDFCFB,
-                            );
-                            // Note: We need this to be persistent within the sheet's lifecycle
-                            // We can use a variable declared in the outer scope of the builder
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      l10n.categoryName.toUpperCase(),
-                                      style: ArtisanalTheme.hand(
-                                        fontSize: 10,
-                                        color: ArtisanalTheme.secondary
-                                            .withValues(alpha: 0.6),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setLocalState(
-                                          () => isCatPickerExpanded =
-                                              !isCatPickerExpanded,
-                                        );
-                                        HapticFeedback.lightImpact();
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: selectedColor,
-                                          borderRadius: BorderRadius.circular(
-                                            4,
+                        // Horizontal Scroll Category Picker
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.categoryName.toUpperCase(),
+                              style: ArtisanalTheme.hand(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              height: 40,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: activeCategories.length,
+                                separatorBuilder: (context, index) => const SizedBox(width: 8),
+                                itemBuilder: (context, index) {
+                                  final cat = activeCategories[index];
+                                  final color = Color(categoriesMap[cat] ?? 0xFFFDFCFB);
+                                  
+                                  return ValueListenableBuilder<String>(
+                                    valueListenable: categoryNotifier,
+                                    builder: (context, selectedCat, child) {
+                                      final isSelected = selectedCat == cat;
+                                      return GestureDetector(
+                                        onTap: () {
+                                          categoryNotifier.value = cat;
+                                          HapticFeedback.selectionClick();
+                                        },
+                                        child: AnimatedContainer(
+                                          duration: const Duration(milliseconds: 200),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color: isSelected ? color : color.withValues(alpha: 0.3),
+                                            borderRadius: BorderRadius.circular(20),
+                                            border: Border.all(
+                                              color: isSelected 
+                                                ? ArtisanalTheme.ink 
+                                                : ArtisanalTheme.ink.withValues(alpha: 0.1),
+                                              width: isSelected ? 1.5 : 0.5,
+                                            ),
                                           ),
-                                          border: Border.all(
-                                            color: ArtisanalTheme.ink
-                                                .withValues(alpha: 0.1),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              selectedCat,
-                                              style: ArtisanalTheme.hand(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Icon(
-                                              isCatPickerExpanded
-                                                  ? Icons.keyboard_arrow_up
-                                                  : Icons.keyboard_arrow_down,
-                                              size: 14,
-                                              color: ArtisanalTheme.ink
-                                                  .withValues(alpha: 0.4),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (isCatPickerExpanded) ...[
-                                  const SizedBox(height: 12),
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.02,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: activeCategories.map((cat) {
-                                        final color = Color(
-                                          categoriesMap[cat] ?? 0xFFFDFCFB,
-                                        );
-                                        final isSelected = selectedCat == cat;
-
-                                        return GestureDetector(
-                                          onTap: () {
-                                            setSheetState(
-                                              () =>
-                                                  categoryNotifier.value = cat,
-                                            );
-                                            setLocalState(
-                                              () =>
-                                                  isCatPickerExpanded = false,
-                                            );
-                                            HapticFeedback.selectionClick();
-                                          },
-                                          child: AnimatedContainer(
-                                            duration: const Duration(
-                                              milliseconds: 200,
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 14,
-                                              vertical: 8,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: color,
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                              border: Border.all(
-                                                color: isSelected
-                                                    ? ArtisanalTheme.ink
-                                                    : Colors.black.withValues(
-                                                        alpha: 0.05,
-                                                      ),
-                                                width: isSelected ? 1.5 : 0.5,
-                                              ),
-                                              boxShadow: isSelected
-                                                  ? [
-                                                      BoxShadow(
-                                                        color: Colors.black12,
-                                                        blurRadius: 4,
-                                                        offset: const Offset(
-                                                          0,
-                                                          2,
-                                                        ),
-                                                      ),
-                                                    ]
-                                                  : null,
-                                            ),
+                                          child: Center(
                                             child: Text(
                                               cat,
                                               style: ArtisanalTheme.hand(
                                                 fontSize: 12,
-                                                fontWeight: isSelected
-                                                    ? FontWeight.w900
-                                                    : FontWeight.normal,
-                                                color: isSelected
-                                                    ? ArtisanalTheme.ink
-                                                    : ArtisanalTheme.ink
-                                                          .withValues(
-                                                            alpha: 0.6,
-                                                          ),
+                                                fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal,
+                                                color: isSelected ? ArtisanalTheme.ink : ArtisanalTheme.ink.withValues(alpha: 0.5),
                                               ),
                                             ),
                                           ),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            );
-                          },
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 24),
+
+                         // CENTRAL UNIT SELECTOR
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              l10n.unitLabel.toUpperCase(),
+                              style: ArtisanalTheme.hand(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                            _buildUnitToggle(
+                              selectedUnit,
+                              [
+                                ...(settings.measurementSystem == 'metric'
+                                    ? ['g', 'kg']
+                                    : ['oz', 'lb']),
+                                'pcs',
+                              ],
+                              (val) => setSheetState(() => selectedUnit = val),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
 
                         Row(
                           children: [
@@ -932,14 +914,8 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                 label: l10n.currentStockLabel,
                                 controller: currentQtyController,
                                 keyboardType: TextInputType.number,
-                                suffix: _buildUnitToggle(
-                                  selectedUnit,
-                                  settings.measurementSystem == 'metric'
-                                      ? ['g', 'kg']
-                                      : ['oz', 'lb'],
-                                  (val) =>
-                                      setSheetState(() => selectedUnit = val),
-                                ),
+                                suffixText: selectedUnit,
+                                hintText: "0",
                               ),
                             ),
                             const SizedBox(width: 20),
@@ -949,30 +925,19 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                 controller: targetQtyController,
                                 keyboardType: TextInputType.number,
                                 suffixText: selectedUnit,
+                                hintText: "0",
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 20),
 
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildLedgerField(
-                                label: l10n.purchasePriceLabel,
-                                controller: priceController,
-                                keyboardType: TextInputType.number,
-                                suffixText: settings.currencySymbol,
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: _buildLedgerField(
-                                label: "UNIT",
-                                controller: unitController,
-                              ),
-                            ),
-                          ],
+                        _buildLedgerField(
+                          label: l10n.purchasePriceLabel,
+                          controller: priceController,
+                          keyboardType: TextInputType.number,
+                          suffixText: settings.currencyFormat.currencySymbol,
+                          hintText: "0",
                         ),
                         const SizedBox(height: 32),
 
@@ -1037,6 +1002,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 2.0,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -1058,40 +1024,53 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     List<String> units,
     Function(String) onSelected,
   ) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: units.map((u) {
-        final isSelected = activeUnit == u;
-        return GestureDetector(
-          onTap: () {
-            HapticFeedback.selectionClick();
-            onSelected(u);
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            margin: const EdgeInsets.only(left: 4),
-            decoration: BoxDecoration(
-              color: isSelected ? ArtisanalTheme.ink : Colors.transparent,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: isSelected
-                    ? ArtisanalTheme.ink
-                    : ArtisanalTheme.ink.withValues(alpha: 0.1),
+    return Container(
+      height: 32,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: units.map((u) {
+          final isSelected = activeUnit == u;
+          return GestureDetector(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onSelected(u);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.white : Colors.transparent,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 2,
+                          offset: const Offset(0, 1),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Text(
+                u.toUpperCase(),
+                style: ArtisanalTheme.hand(
+                  fontSize: 11,
+                  color: isSelected
+                      ? ArtisanalTheme.ink
+                      : ArtisanalTheme.ink.withValues(alpha: 0.4),
+                  fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal,
+                ),
               ),
             ),
-            child: Text(
-              u,
-              style: ArtisanalTheme.hand(
-                fontSize: 10,
-                color: isSelected
-                    ? Colors.white
-                    : ArtisanalTheme.ink.withValues(alpha: 0.5),
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -1114,6 +1093,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     TextInputType? keyboardType,
     String? suffixText,
     Widget? suffix,
+    String? hintText,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1122,19 +1102,28 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
           label.toUpperCase(),
           style: ArtisanalTheme.hand(
             fontSize: 10,
+            fontWeight: FontWeight.bold,
             color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+            letterSpacing: 1.0,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         TextField(
           controller: controller,
           keyboardType: keyboardType,
           style: ArtisanalTheme.hand(fontSize: 16),
           decoration: InputDecoration(
             isDense: true,
+            hintText: hintText,
+            hintStyle: ArtisanalTheme.hand(
+              fontSize: 14,
+              color: ArtisanalTheme.ink.withValues(alpha: 0.2),
+            ),
             contentPadding: const EdgeInsets.symmetric(vertical: 8),
             suffix: suffix,
             suffixText: suffix == null ? suffixText : null,
+            // Ensure suffix is always visible
+            floatingLabelBehavior: FloatingLabelBehavior.always,
             suffixStyle: ArtisanalTheme.hand(
               color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
               fontSize: 14,
@@ -1145,7 +1134,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
               ),
             ),
             focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: ArtisanalTheme.ink),
+              borderSide: BorderSide(color: ArtisanalTheme.ink, width: 1.5),
             ),
           ),
         ),

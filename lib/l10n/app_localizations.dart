@@ -98,6 +98,18 @@ abstract class AppLocalizations {
     Locale('ko'),
   ];
 
+  /// No description provided for @unitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get unitLabel;
+
+  /// No description provided for @selectUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Unit'**
+  String get selectUnit;
+
   /// Title for image source selection sheet
   ///
   /// In en, this message translates to:

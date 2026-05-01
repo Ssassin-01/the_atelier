@@ -1,4 +1,6 @@
 {
+  "unitLabel": "단위",
+  "selectUnit": "단위 선택",
   "selectSource": "이미지 출처 선택",
   "@selectSource": {
     "description": "이미지 소스 선택 시트의 제목"

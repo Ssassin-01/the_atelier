@@ -165,7 +165,7 @@ class _JournalPagePreview extends StatelessWidget {
 
                         if (draft.description.isNotEmpty) ...[
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Text(
                               draft.description,
                               textAlign: TextAlign.justify,
@@ -225,7 +225,6 @@ class _ComponentPreview extends StatelessWidget {
                     style: ArtisanalTheme.hand(fontSize: 28, color: ink)
                         .copyWith(
                           fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
                         ),
                   ),
                 ],

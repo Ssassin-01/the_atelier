@@ -9,6 +9,12 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get unitLabel => 'Unit';
+
+  @override
+  String get selectUnit => 'Select Unit';
+
+  @override
   String get selectSource => 'Select Image Source';
 
   @override
