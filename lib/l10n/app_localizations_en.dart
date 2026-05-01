@@ -42,7 +42,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
-  String get measurementUnit => 'Measurement Unit';
+  String get measurementUnit => 'Measurement System';
+
+  @override
+  String get metricSystem => 'Metric (g, kg)';
+
+  @override
+  String get imperialSystem => 'Imperial (oz, lb)';
 
   @override
   String get googleDriveBackup => 'Google Drive Backup';
@@ -733,8 +739,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ingredientPurchase => 'Ingredient Purchase';
 
   @override
-  String boughtDescription(Object name, Object quantity) {
-    return 'Bought: $name (${quantity}g)';
+  String boughtDescription(String name, String quantity, String unit) {
+    return 'Bought: $name ($quantity$unit)';
   }
 
   @override

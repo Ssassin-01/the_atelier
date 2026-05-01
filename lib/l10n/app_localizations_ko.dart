@@ -42,7 +42,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settings => '설정';
 
   @override
-  String get measurementUnit => '계량 단위';
+  String get measurementUnit => '계량 시스템';
+
+  @override
+  String get metricSystem => '미터법 (g, kg)';
+
+  @override
+  String get imperialSystem => '야드파운드법 (oz, lb)';
 
   @override
   String get googleDriveBackup => '구글 드라이브 백업';
@@ -722,8 +728,8 @@ class AppLocalizationsKo extends AppLocalizations {
   String get ingredientPurchase => '재료 매입';
 
   @override
-  String boughtDescription(Object name, Object quantity) {
-    return '$name 구매 (${quantity}g)';
+  String boughtDescription(String name, String quantity, String unit) {
+    return '$name 구매 ($quantity$unit)';
   }
 
   @override

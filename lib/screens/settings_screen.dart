@@ -95,7 +95,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                   _settingsItem(
                     Icons.scale_outlined,
                     l10n.measurementUnit,
-                    trailer: settings.weightUnit,
+                    trailer: settings.measurementSystem == 'metric' ? 'Metric' : 'Imperial',
                     onTap: () => _showUnitPicker(context),
                   ),
                   _settingsItem(
@@ -329,24 +329,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
 
   void _showUnitPicker(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final units = [
-      ('g', l10n.gramName),
-      ('kg', l10n.kilogramName),
-      ('oz', l10n.ounceName),
-      ('lb', l10n.poundName),
+    final systems = [
+      ('metric', l10n.metricSystem, Icons.auto_awesome_mosaic_outlined),
+      ('imperial', l10n.imperialSystem, Icons.architecture_outlined),
     ];
-    
+
     _showArtisanalSelector(
       context,
       title: l10n.measurementUnit,
-      options: units.map((u) => _SelectorOption(
-        value: u.$1,
-        label: u.$1,
-        description: u.$2,
-        icon: Icons.scale_outlined,
-      )).toList(),
-      onSelected: (value) => ref.read(settingsProvider.notifier).updateWeightUnit(value),
-      selectedValue: ref.read(settingsProvider).weightUnit,
+      options: systems
+          .map((s) => _SelectorOption(
+                value: s.$1,
+                label: s.$2,
+                description: s.$1 == 'metric' ? "g, kg" : "oz, lb",
+                icon: s.$3,
+              ))
+          .toList(),
+      onSelected: (value) =>
+          ref.read(settingsProvider.notifier).updateMeasurementSystem(value),
+      selectedValue: ref.read(settingsProvider).measurementSystem,
     );
   }
 

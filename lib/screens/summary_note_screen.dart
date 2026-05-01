@@ -8,6 +8,7 @@ import '../models/recipe.dart';
 import '../models/component.dart';
 import '../services/recipe_service.dart';
 import '../widgets/crumple_effect.dart';
+import '../providers/settings_provider.dart';
 import 'add_recipe_screen.dart';
 
 class SummaryNoteScreen extends ConsumerStatefulWidget {
@@ -108,7 +109,10 @@ class _SummaryNoteScreenState extends ConsumerState<SummaryNoteScreen>
                     (i) => IngredientEntry(
                       id: DateTime.now().toString(),
                       name: i.name,
-                      weight: double.tryParse(i.amount) ?? 0.0,
+                      weight: ref.read(settingsProvider).convertWeight(
+                        double.tryParse(i.amount) ?? 0.0,
+                        'g',
+                      ),
                       isFlour: i.isFlour,
                     ),
                   )
@@ -366,13 +370,14 @@ class _JournalPage extends StatelessWidget {
   }
 }
 
-class _RecipeSection extends StatelessWidget {
+class _RecipeSection extends ConsumerWidget {
   final RecipeComponent component;
 
   const _RecipeSection({required this.component});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     const ink = ArtisanalTheme.ink;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -477,7 +482,10 @@ class _RecipeSection extends StatelessWidget {
                       ],
                       const Spacer(),
                       Text(
-                        '${ing.amount}${ing.unit}',
+                        settings.formatWeight(
+                          double.tryParse(ing.amount) ?? 0,
+                          ing.unit,
+                        ),
                         style: ArtisanalTheme.hand(fontSize: 19, color: ink),
                       ),
                     ],

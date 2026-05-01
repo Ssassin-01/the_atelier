@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import '../theme/artisanal_theme.dart';
 import '../providers/pantry_provider.dart';
+import '../providers/settings_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../models/pantry_item.dart';
 import '../models/transaction.dart';
@@ -506,122 +507,154 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
   void _showRestockSheet(PantryItem item, AppLocalizations l10n) {
     final qtyController = TextEditingController();
     final costController = TextEditingController();
+    final settings = ref.read(settingsProvider);
+    String selectedUnit = settings.measurementSystem == 'metric' ? 'g' : 'oz';
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          0,
-          20,
-          MediaQuery.of(context).viewInsets.bottom + 20,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFFDFCFB),
-            borderRadius: BorderRadius.circular(32),
-            image: DecorationImage(
-              image: const NetworkImage(
-                'https://www.transparenttextures.com/patterns/paper-fibers.png',
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) => Padding(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              0,
+              20,
+              MediaQuery.of(context).viewInsets.bottom + 20,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFFDFCFB),
+                borderRadius: BorderRadius.circular(32),
+                image: DecorationImage(
+                  image: const NetworkImage(
+                    'https://www.transparenttextures.com/patterns/paper-fibers.png',
+                  ),
+                  repeat: ImageRepeat.repeat,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withValues(alpha: 0.03),
+                    BlendMode.dstATop,
+                  ),
+                ),
               ),
-              repeat: ImageRepeat.repeat,
-              colorFilter: ColorFilter.mode(
-                Colors.black.withValues(alpha: 0.03),
-                BlendMode.dstATop,
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l10n.restockIngredient(item.name).toUpperCase(),
+                    style: ArtisanalTheme.hand(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildLedgerField(
+                    label: l10n.quantityToAdd,
+                    controller: qtyController,
+                    keyboardType: TextInputType.number,
+                    suffix: _buildUnitToggle(
+                      selectedUnit,
+                      settings.measurementSystem == 'metric'
+                          ? ['g', 'kg']
+                          : ['oz', 'lb'],
+                      (val) => setSheetState(() => selectedUnit = val),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildLedgerField(
+                    label: l10n.totalCostForBatch,
+                    controller: costController,
+                    keyboardType: TextInputType.number,
+                    suffixText: settings.currencySymbol,
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: TextButton(
+                      onPressed: () {
+                        final inputQty = double.tryParse(qtyController.text) ?? 0;
+                        final cost = double.tryParse(costController.text) ?? 0;
+                        if (inputQty <= 0) return;
+
+                        // Convert from selected input unit to grams
+                        final addQty = settings.convertToGrams(inputQty, selectedUnit);
+
+                        final now = DateTime.now();
+                        ref.read(pantryProvider.notifier).updateItem(
+                              item.copyWith(
+                                currentStock: item.currentStock + addQty,
+                                lastUpdated: now,
+                              ),
+                            );
+
+                        if (cost > 0) {
+                          ref.read(transactionProvider.notifier).addTransaction(
+                                BusinessTransaction(
+                                  id: 'restock_${now.millisecondsSinceEpoch}',
+                                  date: now,
+                                  type: 'expense',
+                                  amount: cost,
+                                  category: l10n.ingredientPurchase,
+                                  description: l10n.boughtDescription(
+                                    item.name,
+                                    inputQty
+                                        .toString()
+                                        .replaceAll(RegExp(r'\.?0+$'), ''),
+                                    selectedUnit,
+                                  ),
+                                ),
+                              );
+                        }
+                        Navigator.pop(context);
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: ArtisanalTheme.ink,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        l10n.restockButton.toUpperCase(),
+                        style: ArtisanalTheme.hand(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l10n.restockIngredient(item.name).toUpperCase(),
-                style: ArtisanalTheme.hand(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 24),
-              _buildLedgerField(
-                label: l10n.quantityToAdd,
-                controller: qtyController,
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 16),
-              _buildLedgerField(
-                label: l10n.totalCostForBatch,
-                controller: costController,
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: TextButton(
-                  onPressed: () {
-                    final addQty = double.tryParse(qtyController.text) ?? 0;
-                    final cost = double.tryParse(costController.text) ?? 0;
-                    if (addQty <= 0) return;
-
-                    final now = DateTime.now();
-                    ref
-                        .read(pantryProvider.notifier)
-                        .updateItem(
-                          item.copyWith(
-                            currentStock: item.currentStock + addQty,
-                            lastUpdated: now,
-                          ),
-                        );
-
-                    if (cost > 0) {
-                      ref
-                          .read(transactionProvider.notifier)
-                          .addTransaction(
-                            BusinessTransaction(
-                              id: 'restock_${now.millisecondsSinceEpoch}',
-                              date: now,
-                              type: 'expense',
-                              amount: cost,
-                              category: l10n.ingredientPurchase,
-                              description: l10n.boughtDescription(
-                                item.name,
-                                addQty.toInt(),
-                              ),
-                            ),
-                          );
-                    }
-                    Navigator.pop(context);
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor: ArtisanalTheme.ink,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: Text(
-                    l10n.restockButton.toUpperCase(),
-                    style: ArtisanalTheme.hand(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   void _showAddEditSheet(AppLocalizations l10n, [PantryItem? item]) {
+    final settings = ref.read(settingsProvider);
     final nameController = TextEditingController(text: item?.name ?? '');
     final priceController = TextEditingController(
       text: item?.purchasePrice.toString() ?? '',
     );
+    
+    // Default unit based on system
+    String selectedUnit = item?.unit ?? (settings.measurementSystem == 'metric' ? 'g' : 'oz');
+
+    // Convert values to selected unit for initial display
+    final initialTarget = item != null 
+        ? settings.fromGrams(item.targetQuantity, selectedUnit) 
+        : 0.0;
+    final initialCurrent = item != null 
+        ? settings.fromGrams(item.currentStock, selectedUnit) 
+        : 0.0;
+
     final targetQtyController = TextEditingController(
-      text: item?.targetQuantity.toString() ?? '',
+      text: item != null ? initialTarget.toStringAsFixed(selectedUnit == 'g' ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
     );
     final currentQtyController = TextEditingController(
-      text: item?.currentStock.toString() ?? '',
+      text: item != null ? initialCurrent.toStringAsFixed(selectedUnit == 'g' ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
     );
     final unitController = TextEditingController(text: item?.unit ?? 'g');
 
@@ -899,6 +932,14 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                 label: l10n.currentStockLabel,
                                 controller: currentQtyController,
                                 keyboardType: TextInputType.number,
+                                suffix: _buildUnitToggle(
+                                  selectedUnit,
+                                  settings.measurementSystem == 'metric'
+                                      ? ['g', 'kg']
+                                      : ['oz', 'lb'],
+                                  (val) =>
+                                      setSheetState(() => selectedUnit = val),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 20),
@@ -907,6 +948,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                 label: l10n.inventoryGoal,
                                 controller: targetQtyController,
                                 keyboardType: TextInputType.number,
+                                suffixText: selectedUnit,
                               ),
                             ),
                           ],
@@ -920,6 +962,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                 label: l10n.purchasePriceLabel,
                                 controller: priceController,
                                 keyboardType: TextInputType.number,
+                                suffixText: settings.currencySymbol,
                               ),
                             ),
                             const SizedBox(width: 20),
@@ -940,22 +983,26 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                             onPressed: () {
                               if (nameController.text.trim().isEmpty) return;
 
+                              final inputStock =
+                                  double.tryParse(currentQtyController.text) ??
+                                  0;
+                              final inputTarget =
+                                  double.tryParse(targetQtyController.text) ??
+                                  0;
+
                               final newItem = PantryItem(
                                 id:
                                     item?.id ??
-                                    DateTime.now().millisecondsSinceEpoch
+                                    DateTime.now()
+                                        .millisecondsSinceEpoch
                                         .toString(),
                                 name: nameController.text.trim(),
                                 category: categoryNotifier.value,
-                                currentStock:
-                                    double.tryParse(
-                                      currentQtyController.text,
-                                    ) ??
-                                    0,
-                                targetQuantity:
-                                    double.tryParse(targetQtyController.text) ??
-                                    0,
-                                unit: unitController.text.trim(),
+                                currentStock: settings.convertToGrams(
+                                    inputStock, selectedUnit),
+                                targetQuantity: settings.convertToGrams(
+                                    inputTarget, selectedUnit),
+                                unit: selectedUnit,
                                 purchasePrice:
                                     double.tryParse(priceController.text) ?? 0,
                                 lastUpdated: DateTime.now(),
@@ -963,9 +1010,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                               );
 
                               if (item == null) {
-                                ref
-                                    .read(pantryProvider.notifier)
-                                    .addItem(newItem);
+                                ref.read(pantryProvider.notifier).addItem(newItem);
                               } else {
                                 ref
                                     .read(pantryProvider.notifier)
@@ -1008,6 +1053,48 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     );
   }
 
+  Widget _buildUnitToggle(
+    String activeUnit,
+    List<String> units,
+    Function(String) onSelected,
+  ) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: units.map((u) {
+        final isSelected = activeUnit == u;
+        return GestureDetector(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onSelected(u);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            margin: const EdgeInsets.only(left: 4),
+            decoration: BoxDecoration(
+              color: isSelected ? ArtisanalTheme.ink : Colors.transparent,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(
+                color: isSelected
+                    ? ArtisanalTheme.ink
+                    : ArtisanalTheme.ink.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Text(
+              u,
+              style: ArtisanalTheme.hand(
+                fontSize: 10,
+                color: isSelected
+                    ? Colors.white
+                    : ArtisanalTheme.ink.withValues(alpha: 0.5),
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   void _manageCategories(
     BuildContext context,
     WidgetRef ref,
@@ -1025,6 +1112,8 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     required String label,
     required TextEditingController controller,
     TextInputType? keyboardType,
+    String? suffixText,
+    Widget? suffix,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1044,6 +1133,12 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
           decoration: InputDecoration(
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            suffix: suffix,
+            suffixText: suffix == null ? suffixText : null,
+            suffixStyle: ArtisanalTheme.hand(
+              color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+              fontSize: 14,
+            ),
             enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                 color: ArtisanalTheme.ink.withValues(alpha: 0.1),

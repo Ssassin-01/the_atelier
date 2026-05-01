@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_atelier/providers/pantry_categories_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../theme/artisanal_theme.dart';
 import '../../models/pantry_item.dart';
 import '../../l10n/app_localizations.dart';
@@ -14,6 +15,7 @@ class InventoryTag extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final settings = ref.watch(settingsProvider);
     final categoriesMap = ref.watch(pantryCategoriesProvider);
     final stockPercent =
         (item.currentStock /
@@ -110,7 +112,7 @@ class InventoryTag extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${item.currentStock.toInt()}${item.unit}",
+                            settings.formatWeight(item.currentStock, item.unit),
                             style: ArtisanalTheme.hand(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -120,7 +122,7 @@ class InventoryTag extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            "/ ${item.targetQuantity.toInt()}${item.unit}",
+                            "/ ${settings.formatWeight(item.targetQuantity, item.unit)}",
                             style: ArtisanalTheme.hand(
                               fontSize: 10,
                               color: ArtisanalTheme.secondary.withValues(

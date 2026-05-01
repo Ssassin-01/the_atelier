@@ -16,14 +16,16 @@ import '../models/ingredient.dart' as model;
 import '../models/step.dart' as model;
 import '../widgets/artisanal_image.dart';
 import '../services/recipe_service.dart';
-import '../providers/pantry_provider.dart';
 import '../models/pantry_item.dart';
+import '../providers/settings_provider.dart';
+import '../providers/pantry_provider.dart';
 
 // ── Data Models ─────────────────────────────────────────────────────────────
 class IngredientEntry {
   final String id;
   String name;
   double weight;
+  String unit;
   bool isFlour;
   String category;
 
@@ -31,6 +33,7 @@ class IngredientEntry {
     required this.id,
     this.name = '',
     this.weight = 0,
+    this.unit = 'g',
     this.isFlour = false,
     this.category = 'Others',
   });
@@ -55,12 +58,14 @@ class RecipeComponentDraft {
     this.imagePath,
     List<IngredientEntry>? ingredients,
     List<RecipeStepDraft>? steps,
+    String defaultUnit = 'g',
   }) : title = title ?? '',
        ingredients =
            ingredients ??
            [
              IngredientEntry(
                id: 'i_${DateTime.now().millisecondsSinceEpoch}_1',
+               unit: defaultUnit,
              ),
            ],
        steps =
@@ -99,7 +104,7 @@ class RecipeDraft {
   double get totalWeight =>
       components.fold(0.0, (sum, c) => sum + c.totalWeight);
 
-  static RecipeDraft fromModel(model.Recipe recipe) {
+  static RecipeDraft fromModel(model.Recipe recipe, SettingsState settings) {
     return RecipeDraft(
       name: recipe.name,
       description: recipe.description ?? '',
@@ -117,7 +122,8 @@ class RecipeDraft {
                           DateTime.now().millisecondsSinceEpoch.toString() +
                           i.name,
                       name: i.name,
-                      weight: double.tryParse(i.amount) ?? 0,
+                      weight: settings.convertToGrams(double.tryParse(i.amount) ?? 0, i.unit),
+                      unit: i.unit,
                       isFlour: i.isFlour,
                     ),
                   )
@@ -192,7 +198,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
             .where((r) => r.id == widget.editingRecipeId)
             .firstOrNull;
         if (existing != null) {
-          final draft = RecipeDraft.fromModel(existing);
+          final settings = ref.read(settingsProvider);
+          final draft = RecipeDraft.fromModel(existing, settings);
           _nameController.text = draft.name;
           _descController.text = draft.description;
           ref.read(recipeDraftProvider.notifier).state = draft;
@@ -212,6 +219,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     final l10n = AppLocalizations.of(context);
     final draft = ref.watch(recipeDraftProvider);
     final notifier = ref.read(recipeDraftProvider.notifier);
+    final settings = ref.watch(settingsProvider);
 
     // Remove English patching logic to respect user request and l10n
 
@@ -267,7 +275,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 },
               ),
               TextButton(
-                onPressed: () => _saveRecipe(context, ref, draft),
+                onPressed: () => _saveRecipe(context, ref, draft, settings),
                 child: Text(
                   'SAVE',
                   style: ArtisanalTheme.hand(
@@ -448,7 +456,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      "${draft.totalWeight.toStringAsFixed(0)}G",
+                      settings.formatWeight(draft.totalWeight, settings.weightUnit),
                       style: GoogleFonts.notoSerif(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -507,6 +515,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     entry.value,
                     entry.key,
                     l10n,
+                    settings,
                   ),
                 ),
 
@@ -564,6 +573,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     BuildContext context,
     WidgetRef ref,
     RecipeDraft draft,
+    SettingsState settings,
   ) async {
     final l10n = AppLocalizations.of(context);
     if (draft.name.trim().isEmpty) {
@@ -640,8 +650,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                   .map(
                     (i) => model.Ingredient(
                       name: i.name,
-                      amount: i.weight.toString(),
-                      unit: 'g',
+                      amount: settings.fromGrams(i.weight, i.unit).toString(),
+                      unit: i.unit,
                       isFlour: i.isFlour,
                     ),
                   )
@@ -1045,6 +1055,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     RecipeComponentDraft component,
     int index,
     AppLocalizations l10n,
+    SettingsState settings,
   ) {
     final notifier = ref.read(recipeDraftProvider.notifier);
     final photoKey = _photoKeys.putIfAbsent(component.id, () => GlobalKey());
@@ -1188,6 +1199,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     entry.value,
                     entry.key,
                     l10n,
+                    settings,
                   ),
                 ),
                 Align(
@@ -1200,6 +1212,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                           IngredientEntry(
                             id: DateTime.now().millisecondsSinceEpoch
                                 .toString(),
+                            unit: settings.measurementSystem == 'metric' ? 'g' : 'oz',
                           ),
                         );
                         return RecipeDraft(
@@ -1338,6 +1351,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     IngredientEntry entry,
     int index,
     AppLocalizations l10n,
+    SettingsState settings,
   ) {
     final notifier = ref.read(recipeDraftProvider.notifier);
     final totalFlour = component.totalFlour;
@@ -1499,7 +1513,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                   onChanged: (val) {
                     _triggerFeedback();
                     notifier.update((s) {
-                      entry.weight = double.tryParse(val) ?? 0;
+                      entry.weight = settings.convertToGrams(double.tryParse(val) ?? 0, entry.unit);
                       return RecipeDraft(
                         name: s.name,
                         mainImagePath: s.mainImagePath,
@@ -1509,10 +1523,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                   },
                   controller: _getController(
                     "${entry.id}_weight",
-                    entry.weight == 0 ? '' : entry.weight.toStringAsFixed(0),
+                    entry.weight == 0 ? '' : settings.fromGrams(entry.weight, entry.unit).toStringAsFixed(entry.unit == 'g' ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), ''),
                   ),
                   style: GoogleFonts.notoSerif(
-                    fontSize: 18,
+                    fontSize: 16,
                   ), // Match font size for alignment
                   decoration: InputDecoration(
                     hintText: "0",
@@ -1532,10 +1546,37 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.black12, width: 1.0),
                     ),
-                    suffixText: "g",
-                    suffixStyle: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black38,
+                    suffix: GestureDetector(
+                      onTap: () {
+                        _triggerFeedback();
+                        final next = settings.measurementSystem == 'metric'
+                            ? (entry.unit == 'g' ? 'kg' : 'g')
+                            : (entry.unit == 'oz' ? 'lb' : 'oz');
+                        
+                        notifier.update((s) {
+                          entry.unit = next;
+                          return RecipeDraft(
+                            name: s.name,
+                            mainImagePath: s.mainImagePath,
+                            components: s.components,
+                          );
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: ArtisanalTheme.primary.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          entry.unit,
+                          style: ArtisanalTheme.hand(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: ArtisanalTheme.primary,
+                          ),
+                        ),
+                      ),
                     ),
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 8),

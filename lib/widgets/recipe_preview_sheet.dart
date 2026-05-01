@@ -3,14 +3,17 @@ import '../theme/artisanal_theme.dart';
 import '../screens/add_recipe_screen.dart';
 import '../widgets/artisanal_image.dart';
 import '../widgets/masking_tape.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/settings_provider.dart';
 
-class RecipePreviewSheet extends StatelessWidget {
+class RecipePreviewSheet extends ConsumerWidget {
   final RecipeDraft draft;
 
   const RecipePreviewSheet({super.key, required this.draft});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
     return Container(
       decoration: const BoxDecoration(
         color: Color(0xFFF5F3F0),
@@ -24,7 +27,7 @@ class RecipePreviewSheet extends StatelessWidget {
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 700),
-                child: _JournalPagePreview(draft: draft),
+                child: _JournalPagePreview(draft: draft, settings: settings),
               ),
             ),
           ),
@@ -46,7 +49,8 @@ class RecipePreviewSheet extends StatelessWidget {
 
 class _JournalPagePreview extends StatelessWidget {
   final RecipeDraft draft;
-  const _JournalPagePreview({required this.draft});
+  final SettingsState settings;
+  const _JournalPagePreview({required this.draft, required this.settings});
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +185,7 @@ class _JournalPagePreview extends StatelessWidget {
 
                         // Draft Components
                         ...draft.components.map(
-                          (comp) => _ComponentPreview(component: comp),
+                          (comp) => _ComponentPreview(component: comp, settings: settings),
                         ),
                       ],
                     ),
@@ -198,7 +202,8 @@ class _JournalPagePreview extends StatelessWidget {
 
 class _ComponentPreview extends StatelessWidget {
   final RecipeComponentDraft component;
-  const _ComponentPreview({required this.component});
+  final SettingsState settings;
+  const _ComponentPreview({required this.component, required this.settings});
 
   @override
   Widget build(BuildContext context) {
@@ -300,7 +305,7 @@ class _ComponentPreview extends StatelessWidget {
                         ),
                       const Spacer(),
                       Text(
-                        "${ing.weight.toStringAsFixed(0)}g",
+                        settings.formatWeight(ing.weight, settings.weightUnit),
                         style: ArtisanalTheme.hand(fontSize: 19, color: ink),
                       ),
                     ],

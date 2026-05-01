@@ -5,13 +5,14 @@ import 'package:intl/intl.dart';
 import 'dart:math' as math;
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
+import '../services/recipe_service.dart';
+import '../providers/settings_provider.dart';
 import '../widgets/polaroid_card.dart';
 import '../widgets/artisanal_image.dart';
 import '../widgets/crumple_effect.dart';
 import '../widgets/masking_tape.dart';
 import '../models/recipe.dart';
 import '../models/component.dart';
-import '../services/recipe_service.dart';
 import 'summary_note_screen.dart';
 import 'add_recipe_screen.dart';
 
@@ -113,7 +114,11 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                     (i) => IngredientEntry(
                       id: DateTime.now().toString(),
                       name: i.name,
-                      weight: double.tryParse(i.amount) ?? 0.0,
+                      weight: ref.read(settingsProvider).convertWeight(
+                        double.tryParse(i.amount) ?? 0.0,
+                        'g',
+                      ),
+                      isFlour: i.isFlour,
                     ),
                   )
                   .toList(),
@@ -345,16 +350,16 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
   }
 }
 
-class AnimatedRecipePostIt extends StatefulWidget {
+class AnimatedRecipePostIt extends ConsumerStatefulWidget {
   final RecipeComponent component;
 
   const AnimatedRecipePostIt({super.key, required this.component});
 
   @override
-  State<AnimatedRecipePostIt> createState() => _AnimatedRecipePostItState();
+  ConsumerState<AnimatedRecipePostIt> createState() => _AnimatedRecipePostItState();
 }
 
-class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
+class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   bool _isFront = true;
@@ -398,6 +403,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final settings = ref.watch(settingsProvider);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 80.0),
@@ -421,7 +427,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
                   alignment: Alignment.center,
                   child: angle < math.pi / 2
                       ? _postItWrapper(
-                          _buildIngredientsContent(),
+                          _buildIngredientsContent(settings),
                           widget.component.imageUrl,
                         )
                       : Transform(
@@ -492,7 +498,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
     );
   }
 
-  Widget _buildIngredientsContent() {
+  Widget _buildIngredientsContent(SettingsState settings) {
     final l10n = AppLocalizations.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -512,17 +518,17 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
         ),
         const SizedBox(height: 20),
         ...() {
-          final totalFlour = widget.component.ingredients
+          final totalFlourGrams = widget.component.ingredients
               .where((ing) => ing.isFlour)
               .fold(
                 0.0,
-                (sum, ing) => sum + (double.tryParse(ing.amount) ?? 0),
+                (sum, ing) => sum + settings.convertToGrams(double.tryParse(ing.amount) ?? 0, ing.unit),
               );
 
           return widget.component.ingredients.map((ing) {
-            final weight = double.tryParse(ing.amount) ?? 0;
-            final percentage = totalFlour > 0
-                ? (weight / totalFlour) * 100
+            final weightGrams = settings.convertToGrams(double.tryParse(ing.amount) ?? 0, ing.unit);
+            final percentage = totalFlourGrams > 0
+                ? (weightGrams / totalFlourGrams) * 100
                 : 0.0;
 
             return Padding(
@@ -543,7 +549,7 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
                             ),
                           ),
                         ),
-                        if (totalFlour > 0) ...[
+                        if (totalFlourGrams > 0) ...[
                           const SizedBox(width: 8),
                           Text(
                             '${percentage.toStringAsFixed(0)}%',
@@ -560,7 +566,10 @@ class _AnimatedRecipePostItState extends State<AnimatedRecipePostIt>
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '${ing.amount}${ing.unit}',
+                    settings.formatWeight(
+                      double.tryParse(ing.amount) ?? 0,
+                      ing.unit,
+                    ),
                     style: ArtisanalTheme.hand(
                       fontSize: 19,
                       color: ArtisanalTheme.secondary,

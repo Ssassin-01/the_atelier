@@ -22,7 +22,9 @@
   "pantry": "Analytics",
   "profile": "Profile",
   "settings": "Settings",
-  "measurementUnit": "Measurement Unit",
+  "measurementUnit": "Measurement System",
+  "metricSystem": "Metric (g, kg)",
+  "imperialSystem": "Imperial (oz, lb)",
   "googleDriveBackup": "Google Drive Backup",
   "googleDriveRestore": "Restore from Google Drive",
   "resetAllData": "Reset All Data",
@@ -247,7 +249,20 @@
   "addProductHint": "Add product...",
   "productSale": "Product Sale",
   "ingredientPurchase": "Ingredient Purchase",
-  "boughtDescription": "Bought: {name} ({quantity}g)",
+  "boughtDescription": "Bought: {name} ({quantity}{unit})",
+  "@boughtDescription": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "nameHint": "Enter name...",
   "ingredientNameHint": "e.g. Organic Rye Flour",
   "analytics": "Analytics",

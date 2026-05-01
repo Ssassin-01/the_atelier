@@ -167,8 +167,20 @@ abstract class AppLocalizations {
   /// No description provided for @measurementUnit.
   ///
   /// In en, this message translates to:
-  /// **'Measurement Unit'**
+  /// **'Measurement System'**
   String get measurementUnit;
+
+  /// No description provided for @metricSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Metric (g, kg)'**
+  String get metricSystem;
+
+  /// No description provided for @imperialSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Imperial (oz, lb)'**
+  String get imperialSystem;
 
   /// No description provided for @googleDriveBackup.
   ///
@@ -1511,8 +1523,8 @@ abstract class AppLocalizations {
   /// No description provided for @boughtDescription.
   ///
   /// In en, this message translates to:
-  /// **'Bought: {name} ({quantity}g)'**
-  String boughtDescription(Object name, Object quantity);
+  /// **'Bought: {name} ({quantity}{unit})'**
+  String boughtDescription(String name, String quantity, String unit);
 
   /// No description provided for @nameHint.
   ///

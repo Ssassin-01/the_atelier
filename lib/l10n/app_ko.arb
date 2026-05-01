@@ -19,7 +19,9 @@
   "pantry": "분석",
   "profile": "프로필",
   "settings": "설정",
-  "measurementUnit": "계량 단위",
+  "measurementUnit": "계량 시스템",
+  "metricSystem": "미터법 (g, kg)",
+  "imperialSystem": "야드파운드법 (oz, lb)",
   "googleDriveBackup": "구글 드라이브 백업",
   "googleDriveRestore": "구글 드라이브에서 복원",
   "resetAllData": "모든 데이터 초기화",
@@ -245,7 +247,20 @@
   "addProductHint": "구성 추가...",
   "productSale": "제품 판매",
   "ingredientPurchase": "재료 매입",
-  "boughtDescription": "{name} 구매 ({quantity}g)",
+  "boughtDescription": "{name} 구매 ({quantity}{unit})",
+  "@boughtDescription": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
   "nameHint": "이름 입력...",
   "ingredientNameHint": "예: 유기농 호밀가루",
   "analytics": "분석",
