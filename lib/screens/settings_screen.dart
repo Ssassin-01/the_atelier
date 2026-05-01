@@ -95,7 +95,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                   _settingsItem(
                     Icons.scale_outlined,
                     l10n.measurementUnit,
-                    trailer: settings.measurementSystem == 'metric' ? 'Metric' : 'Imperial',
+                    trailer: settings.measurementSystem == 'metric' ? l10n.metric : l10n.imperial,
                     onTap: () => _showUnitPicker(context),
                   ),
                   _settingsItem(
@@ -112,7 +112,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                       await ref.read(settingsProvider.notifier).refreshRates();
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("최신 환율로 업데이트되었습니다.")),
+                          SnackBar(content: Text(l10n.exchangeRatesUpdated)),
                         );
                       }
                     },
@@ -509,20 +509,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
               ),
               const SizedBox(height: 8),
               Text(
-                "Customize your studio identity on reports.",
+                l10n.customizeStudioDesc,
                 style: ArtisanalTheme.hand(fontSize: 16, color: ArtisanalTheme.ink.withValues(alpha: 0.5)),
               ),
               const SizedBox(height: 32),
-              _buildStylizedField("Atelier Name", nameController, Icons.store_outlined),
+              _buildStylizedField(l10n.atelierNameLabel, nameController, Icons.store_outlined),
               const SizedBox(height: 20),
-              _buildStylizedField("Contact Info", contactController, Icons.alternate_email),
+              _buildStylizedField(l10n.contactInfoLabel, contactController, Icons.alternate_email),
               const SizedBox(height: 40),
               Row(
                 children: [
                   Expanded(
                     child: TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text("Cancel", style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.4))),
+                      child: Text(l10n.cancel, style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.4))),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -541,7 +541,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: Text("Save Profile", style: ArtisanalTheme.hand(fontSize: 18, color: Colors.white)),
+                      child: Text(l10n.saveProfile, style: ArtisanalTheme.hand(fontSize: 18, color: Colors.white)),
                     ),
                   ),
                 ],
@@ -761,17 +761,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
           children: [
             const Icon(Icons.warning_amber_rounded, color: Color(0xFFB33939)),
             const SizedBox(width: 12),
-            Text("Dangerous Action", style: ArtisanalTheme.hand(fontSize: 24, color: const Color(0xFFB33939))),
+            Text(l10n.dangerousAction, style: ArtisanalTheme.hand(fontSize: 24, color: const Color(0xFFB33939))),
           ],
         ),
         content: Text(
-          "This will permanently delete all your recipes, pantry data, and business records. This action cannot be undone.",
+          l10n.resetConfirmationMessage,
           style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Keep Data", style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.5))),
+            child: Text(l10n.keepData, style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.5))),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -779,7 +779,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
               if (context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("All data has been wiped clean.")),
+                  SnackBar(content: Text(l10n.allDataWiped)),
                 );
               }
             },
@@ -788,7 +788,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            child: Text("Reset Everything", style: ArtisanalTheme.hand(fontSize: 18, color: Colors.white)),
+            child: Text(l10n.resetEverything, style: ArtisanalTheme.hand(fontSize: 18, color: Colors.white)),
           ),
         ],
       ),
