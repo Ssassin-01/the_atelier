@@ -489,7 +489,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 const SizedBox(height: 24),
 
                 if (draft.components.any(
-                  (c) => c.ingredients.isNotEmpty && c.totalFlour == 0,
+                  (c) => c.ingredients.isNotEmpty && !c.ingredients.any((e) => e.isFlour),
                 ))
                   Padding(
                     padding: const EdgeInsets.only(bottom: 24, left: 4),
@@ -1135,7 +1135,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     final photoKey = _photoKeys.putIfAbsent(component.id, () => GlobalKey());
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 40),
+      key: ValueKey(component.id),
+      margin: const EdgeInsets.only(bottom: 32),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: ArtisanalTheme.background, // Reverted to original theme color
@@ -1423,6 +1424,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
         : 0.0;
 
     return Padding(
+      key: ValueKey(entry.id),
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -1584,6 +1586,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                       );
                     });
                   },
+                  focusNode: _getFocusNode("${entry.id}_weight"),
                   controller: _getController(
                     "${entry.id}_weight",
                     entry.weight == 0 ? '' : settings.fromGrams(entry.weight, entry.unit).toStringAsFixed(entry.unit == 'g' ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), ''),
@@ -1756,6 +1759,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   ) {
     final notifier = ref.read(recipeDraftProvider.notifier);
     return Padding(
+      key: ValueKey(step.id),
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
         children: [
@@ -1773,8 +1777,12 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               autocorrect: false,
               onChanged: (val) {
                 _triggerFeedback();
-                step.content = val;
+                notifier.update((s) {
+                  step.content = val;
+                  return s.copyWith(components: s.components);
+                });
               },
+              focusNode: _getFocusNode(step.id),
               controller: _getController(step.id, step.content),
               maxLines: null,
               style: ArtisanalTheme.hand(
