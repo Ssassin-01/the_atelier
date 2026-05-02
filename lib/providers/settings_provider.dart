@@ -78,8 +78,13 @@ class SettingsState {
   // Smart Formatting: Automatically chooses g/kg or oz/lb based on magnitude
   String formatWeight(double valueInGrams, [String? originalUnit]) {
     // If an original unit is provided and it's not a weight unit, preserve it (e.g. 'pcs')
-    if (originalUnit != null && !_isWeightUnit(originalUnit)) {
-      return "${_formatDecimal(valueInGrams)}$originalUnit";
+    // If an original unit is provided and it's a weight unit, honor it without scaling
+    if (originalUnit != null && _isWeightUnit(originalUnit)) {
+      final scaledValue = fromGrams(valueInGrams, originalUnit);
+      if (originalUnit == 'g' || originalUnit == 'oz') {
+        return "${scaledValue.toStringAsFixed(0)}$originalUnit";
+      }
+      return "${_formatDecimal(scaledValue)}$originalUnit";
     }
 
     if (measurementSystem == 'metric') {

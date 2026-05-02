@@ -1,19 +1,20 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../theme/artisanal_theme.dart';
 import '../providers/pantry_provider.dart';
 import '../providers/settings_provider.dart';
-import '../providers/transaction_provider.dart';
 import '../models/pantry_item.dart';
-import '../models/transaction.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/pantry_categories_provider.dart';
 import '../widgets/pantry/inventory_tag.dart';
 import '../widgets/pantry/pantry_dashboard.dart';
 import '../widgets/pantry/category_manager_sheet.dart';
 import '../widgets/staggered_drop_animation.dart';
+import '../widgets/custom_clippers.dart';
+import '../widgets/masking_tape.dart';
 
 class PantryManagementScreen extends ConsumerStatefulWidget {
   const PantryManagementScreen({super.key});
@@ -29,7 +30,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
   String _searchQuery = '';
   bool _sortByUrgency = false;
   bool _isSearchFocused = false;
-  String _activeFilter = 'all'; // 'all', 'lowStock', 'missingInfo'
+  String _activeFilter = 'all'; 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
@@ -395,7 +396,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           HapticFeedback.heavyImpact();
-          _showAddEditSheet(l10n);
+          _showEditDetailsSheet(l10n);
         },
         backgroundColor: ArtisanalTheme.ink,
         tooltip: l10n.addIngredient,
@@ -434,15 +435,9 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
             child: GestureDetector(
               onTap: () {
                 HapticFeedback.mediumImpact();
-                _showAddEditSheet(l10n, item);
+                _showQuickUpdateSheet(l10n, item);
               },
-              child: InventoryTag(
-                item: item,
-                onRestock: () {
-                  HapticFeedback.lightImpact();
-                  _showRestockSheet(item, l10n);
-                },
-              ),
+              child: InventoryTag(item: item),
             ),
           ),
         );
@@ -504,526 +499,889 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     );
   }
 
-  void _showRestockSheet(PantryItem item, AppLocalizations l10n) {
-    final qtyController = TextEditingController();
-    final costController = TextEditingController();
-    final settings = ref.read(settingsProvider);
-    String selectedUnit = item.unit;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) => Padding(
-            padding: EdgeInsets.fromLTRB(
-              20,
-              0,
-              20,
-              MediaQuery.of(context).viewInsets.bottom + 20,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFFDFCFB),
-                borderRadius: BorderRadius.circular(32),
-                image: DecorationImage(
-                  image: const NetworkImage(
-                    'https://www.transparenttextures.com/patterns/paper-fibers.png',
-                  ),
-                  repeat: ImageRepeat.repeat,
-                  colorFilter: ColorFilter.mode(
-                    Colors.black.withValues(alpha: 0.03),
-                    BlendMode.dstATop,
-                  ),
-                ),
-              ),
-              padding: const EdgeInsets.all(28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+  Widget _buildSheetHeader(PantryItem item, AppLocalizations l10n, dynamic settings, Widget? trailing) {
+    final categoryMap = ref.read(pantryCategoriesProvider);
+    final color = Color(categoryMap[item.category] ?? 0xFF804E2E);
+    
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              // Postage Stamp / Label look for the icon
+              Stack(
+                alignment: Alignment.center,
                 children: [
-                  Text(
-                    l10n.restockIngredient(item.name).toUpperCase(),
-                    style: ArtisanalTheme.hand(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // UNIT SELECTOR ROW
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        l10n.unitLabel.toUpperCase(),
-                        style: ArtisanalTheme.hand(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
-                          letterSpacing: 1.0,
-                        ),
-                      ),
-                      _buildUnitToggle(
-                        selectedUnit,
-                        settings.measurementSystem == 'metric'
-                            ? ['g', 'kg']
-                            : ['oz', 'lb'],
-                        (val) => setSheetState(() => selectedUnit = val),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  _buildLedgerField(
-                    label: l10n.quantityToAdd,
-                    controller: qtyController,
-                    keyboardType: TextInputType.number,
-                    hintText: "0",
-                    suffixText: selectedUnit,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildLedgerField(
-                    label: l10n.totalCostForBatch,
-                    controller: costController,
-                    keyboardType: TextInputType.number,
-                    suffixText: settings.currencySymbol,
-                    hintText: "0",
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: TextButton(
-                      onPressed: () {
-                        final inputQty = double.tryParse(qtyController.text) ?? 0;
-                        final cost = double.tryParse(costController.text) ?? 0;
-                        if (inputQty <= 0) return;
-
-                        // Convert from selected input unit to grams
-                        final addQty = settings.convertToGrams(inputQty, selectedUnit);
-
-                        final now = DateTime.now();
-                        ref.read(pantryProvider.notifier).updateItem(
-                              item.copyWith(
-                                currentStock: item.currentStock + addQty,
-                                lastUpdated: now,
-                              ),
-                            );
-
-                        if (cost > 0) {
-                          ref.read(transactionProvider.notifier).addTransaction(
-                                BusinessTransaction(
-                                  id: 'restock_${now.millisecondsSinceEpoch}',
-                                  date: now,
-                                  type: 'expense',
-                                  amount: cost,
-                                  category: l10n.ingredientPurchase,
-                                  description: l10n.boughtDescription(
-                                    item.name,
-                                    inputQty
-                                        .toString()
-                                        .replaceAll(RegExp(r'\.?0+$'), ''),
-                                    selectedUnit,
-                                  ),
-                                ),
-                              );
-                        }
-                        Navigator.pop(context);
-                      },
-                      style: TextButton.styleFrom(
-                        backgroundColor: ArtisanalTheme.ink,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        l10n.restockButton.toUpperCase(),
-                        style: ArtisanalTheme.hand(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                  Transform.rotate(
+                    angle: -0.05,
+                    child: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: ArtisanalTheme.ink.withValues(alpha: 0.1)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 4,
+                            offset: const Offset(2, 2),
+                          ),
+                        ],
                       ),
                     ),
+                  ),
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Icon(Icons.inventory_2_outlined, color: color, size: 24),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name.toUpperCase(),
+                      style: ArtisanalTheme.receipt(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: ArtisanalTheme.ink,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: color.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            "#${item.category}",
+                            style: ArtisanalTheme.hand(
+                              fontSize: 12,
+                              color: color,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Handwritten "Date Stamp"
+                        Transform.rotate(
+                          angle: -0.05,
+                          child: Text(
+                            "Updated ${DateFormat('MMM dd').format(item.lastUpdated)}",
+                            style: ArtisanalTheme.hand(
+                              fontSize: 12,
+                              color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // ignore: use_null_aware_elements
+              if (trailing != null) trailing,
+            ],
           ),
-        );
-      },
+          const SizedBox(height: 20),
+          // Subtle dotted divider
+          CustomPaint(
+            size: const Size(double.infinity, 1),
+            painter: _DottedLinePainter(color: ArtisanalTheme.ink.withValues(alpha: 0.1)),
+          ),
+        ],
+      ),
     );
   }
 
-  void _showAddEditSheet(AppLocalizations l10n, [PantryItem? item]) {
+  void _showPantryItemSheet(AppLocalizations l10n, [PantryItem? item]) {
     final settings = ref.read(settingsProvider);
-    final nameController = TextEditingController(text: item?.name ?? '');
-    final priceController = TextEditingController(
-      text: item != null ? item.purchasePrice.toStringAsFixed(2).replaceAll(RegExp(r'\.?0+$'), '') : '',
-    );
+    final categoriesMap = ref.read(pantryCategoriesProvider);
+    final activeCategories = categoriesMap.keys.where((c) => c != 'All').toList();
     
-    // Default unit based on system
+    final nameController = TextEditingController(text: item?.name ?? '');
+    final priceController = TextEditingController(text: item != null ? item.purchasePrice.toStringAsFixed(0) : '');
+    final quickAddController = TextEditingController();
+    final quickCostController = TextEditingController();
+    
     String selectedUnit = item?.unit ?? (settings.measurementSystem == 'metric' ? 'g' : 'oz');
+    
+    final initialStock = item != null ? settings.fromGrams(item.currentStock, selectedUnit) : 0.0;
+    final initialTarget = item != null ? settings.fromGrams(item.targetQuantity, selectedUnit) : 0.0;
 
-    // Convert values to selected unit for initial display
-    final initialTarget = item != null 
-        ? settings.fromGrams(item.targetQuantity, selectedUnit) 
-        : 0.0;
-    final initialCurrent = item != null 
-        ? settings.fromGrams(item.currentStock, selectedUnit) 
-        : 0.0;
-
+    final currentStockController = TextEditingController(
+      text: item != null ? initialStock.toStringAsFixed((selectedUnit == 'g' || selectedUnit == 'oz') ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
+    );
     final targetQtyController = TextEditingController(
       text: item != null ? initialTarget.toStringAsFixed((selectedUnit == 'g' || selectedUnit == 'oz') ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
     );
-    final currentQtyController = TextEditingController(
-      text: item != null ? initialCurrent.toStringAsFixed((selectedUnit == 'g' || selectedUnit == 'oz') ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
+
+    final categoryNotifier = ValueNotifier<String>(
+      item?.category ?? (activeCategories.contains('Others') ? 'Others' : activeCategories.isNotEmpty ? activeCategories.first : '')
     );
-
-    final categoriesMap = ref.read(pantryCategoriesProvider);
-    final activeCategories = categoriesMap.keys
-        .where((c) => c != 'All')
-        .toList();
-
-    // Ensure we have a valid initial category
-    String initialCategory =
-        item?.category ??
-        (activeCategories.contains('Others')
-            ? 'Others'
-            : activeCategories.first);
-    final categoryNotifier = ValueNotifier<String>(initialCategory);
+    bool isEditMode = item == null;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
-        builder: (context, setSheetState) => Padding(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            0,
-            16,
-            MediaQuery.of(context).viewInsets.bottom + 16,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFFDFCFB),
-              borderRadius: BorderRadius.circular(32),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            clipBehavior: Clip.none,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                // Top Decoration
-                Positioned(
-                  top: -10,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Container(
-                      width: 80,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFDF5E6).withValues(alpha: 0.9),
-                        border: Border.all(
-                          color: Colors.black.withValues(alpha: 0.05),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          (item == null ? "NEW ENTRY" : "EDIT ENTRY"),
-                          style: ArtisanalTheme.hand(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                      ),
-                    ),
+        builder: (context, setSheetState) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              decoration: BoxDecoration(
+                color: ArtisanalTheme.background,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
                   ),
-                ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: -10,
+                    left: 0,
+                    right: 0,
+                    child: Center(child: MaskingTape(width: 100, rotation: 0.02)),
+                  ),
+                  
+                  Column(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(top: 16, bottom: 8),
+                        decoration: BoxDecoration(
+                          color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
 
-                Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 8),
-                        // Elegant Title with "Stamp" background
-                        Center(
-                          child: Stack(
-                            alignment: Alignment.center,
+                      // Mode Toggle was here, moved to header
+
+                      Flexible(
+                        child: SingleChildScrollView(
+                          physics: const ClampingScrollPhysics(),
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Opacity(
-                                opacity: 0.05,
-                                child: Transform.rotate(
-                                  angle: -0.1,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                              if (item != null)
+                                _buildSheetHeader(
+                                  item, 
+                                  l10n, 
+                                  settings,
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
-                                      border: Border.all(color: ArtisanalTheme.ink, width: 2),
-                                      borderRadius: BorderRadius.circular(4),
+                                      color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: Text(
-                                      "ATELIER",
-                                      style: ArtisanalTheme.receipt(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w900,
-                                        color: ArtisanalTheme.ink,
-                                      ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        _buildModeToggleButton(
+                                          icon: Icons.inventory_2_outlined,
+                                          isSelected: !isEditMode,
+                                          onTap: () => setSheetState(() => isEditMode = false),
+                                        ),
+                                        _buildModeToggleButton(
+                                          icon: Icons.edit_note_outlined,
+                                          isSelected: isEditMode,
+                                          onTap: () => setSheetState(() => isEditMode = true),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ),
-                              Text(
-                                (item == null
-                                        ? l10n.addIngredient
-                                        : l10n.updateIngredient)
-                                    .toUpperCase(),
-                                style: ArtisanalTheme.hand(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.5,
-                                  color: ArtisanalTheme.ink,
+                                
+                              if (item != null && !isEditMode)
+                                _buildQuickAdjustView(
+                                  item: item,
+                                  settings: settings,
+                                  l10n: l10n,
+                                  qtyController: quickAddController,
+                                  costController: quickCostController,
+                                  selectedUnit: selectedUnit,
+                                  onUnitSelected: (u) => setSheetState(() => selectedUnit = u),
+                                  onSave: () {
+                                    final addVal = double.tryParse(quickAddController.text.replaceAll(',', '').trim()) ?? 0;
+                                    final costVal = double.tryParse(quickCostController.text.replaceAll(',', '').trim()) ?? 0;
+                                    
+                                    final addedGrams = settings.convertToGrams(addVal, selectedUnit);
+                                    final newStock = item.currentStock + addedGrams;
+                                    final newPrice = item.purchasePrice + costVal;
+
+                                    ref.read(pantryProvider.notifier).updateItem(
+                                      item.copyWith(
+                                        currentStock: newStock,
+                                        purchasePrice: newPrice,
+                                        lastUpdated: DateTime.now(),
+                                      ),
+                                    );
+                                    HapticFeedback.mediumImpact();
+                                    Navigator.pop(context);
+                                  },
+                                )
+                              else
+                                _buildMetadataEditView(
+                                  item: item ?? PantryItem(id: '', name: '', purchasePrice: 0, targetQuantity: 0, lastUpdated: DateTime.now()),
+                                  settings: settings,
+                                  l10n: l10n,
+                                  nameController: nameController,
+                                  priceController: priceController,
+                                  targetQtyController: targetQtyController,
+                                  currentStockController: currentStockController,
+                                  categoryNotifier: categoryNotifier,
+                                  activeCategories: activeCategories,
+                                  categoriesMap: categoriesMap,
+                                  selectedUnit: selectedUnit,
+                                  onCategorySelected: (cat) => categoryNotifier.value = cat,
+                                  onUnitSelected: (newUnit) {
+                                    if (newUnit == selectedUnit) return;
+                                    final oldUnit = selectedUnit;
+                                    setSheetState(() {
+                                      selectedUnit = newUnit;
+                                      for (var ctrl in [currentStockController, targetQtyController]) {
+                                        final val = double.tryParse(ctrl.text.replaceAll(',', '').trim()) ?? 0;
+                                        if (val > 0) {
+                                          final grams = settings.convertToGrams(val, oldUnit);
+                                          final converted = settings.fromGrams(grams, newUnit);
+                                          ctrl.text = converted.toStringAsFixed((newUnit == 'g' || newUnit == 'oz') ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '');
+                                        }
+                                      }
+                                    });
+                                  },
+                                  onSave: () {
+                                    final name = nameController.text.trim();
+                                    if (name.isEmpty) return;
+
+                                    final stockVal = double.tryParse(currentStockController.text.replaceAll(',', '').trim()) ?? 0;
+                                    final targetVal = double.tryParse(targetQtyController.text.replaceAll(',', '').trim()) ?? 0;
+                                    final priceVal = double.tryParse(priceController.text.replaceAll(',', '').trim()) ?? 0;
+
+                                    final newItem = PantryItem(
+                                      id: item?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                                      name: name,
+                                      category: categoryNotifier.value,
+                                      currentStock: settings.convertToGrams(stockVal, selectedUnit),
+                                      targetQuantity: settings.convertToGrams(targetVal, selectedUnit),
+                                      unit: selectedUnit,
+                                      purchasePrice: priceVal,
+                                      lastUpdated: DateTime.now(),
+                                      imageUrl: item?.imageUrl ?? '',
+                                    );
+
+                                    if (item == null) {
+                                      ref.read(pantryProvider.notifier).addItem(newItem);
+                                    } else {
+                                      ref.read(pantryProvider.notifier).updateItem(newItem);
+                                    }
+                                    HapticFeedback.mediumImpact();
+                                    Navigator.pop(context);
+                                  },
+                                  onDelete: item != null ? () {
+                                    ref.read(pantryProvider.notifier).deleteItem(item.id);
+                                    Navigator.pop(context);
+                                  } : null,
                                 ),
-                              ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 24),
-
-                        _buildLedgerField(
-                          label: l10n.ingredientName,
-                          controller: nameController,
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Horizontal Scroll Category Picker
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.categoryName.toUpperCase(),
-                              style: ArtisanalTheme.hand(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
-                                letterSpacing: 1.0,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              height: 40,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: activeCategories.length,
-                                separatorBuilder: (context, index) => const SizedBox(width: 8),
-                                itemBuilder: (context, index) {
-                                  final cat = activeCategories[index];
-                                  final color = Color(categoriesMap[cat] ?? 0xFFFDFCFB);
-                                  
-                                  return ValueListenableBuilder<String>(
-                                    valueListenable: categoryNotifier,
-                                    builder: (context, selectedCat, child) {
-                                      final isSelected = selectedCat == cat;
-                                      return GestureDetector(
-                                        onTap: () {
-                                          categoryNotifier.value = cat;
-                                          HapticFeedback.selectionClick();
-                                        },
-                                        child: AnimatedContainer(
-                                          duration: const Duration(milliseconds: 200),
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                          decoration: BoxDecoration(
-                                            color: isSelected ? color : color.withValues(alpha: 0.3),
-                                            borderRadius: BorderRadius.circular(20),
-                                            border: Border.all(
-                                              color: isSelected 
-                                                ? ArtisanalTheme.ink 
-                                                : ArtisanalTheme.ink.withValues(alpha: 0.1),
-                                              width: isSelected ? 1.5 : 0.5,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              cat,
-                                              style: ArtisanalTheme.hand(
-                                                fontSize: 12,
-                                                fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal,
-                                                color: isSelected ? ArtisanalTheme.ink : ArtisanalTheme.ink.withValues(alpha: 0.5),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                         // CENTRAL UNIT SELECTOR
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              l10n.unitLabel.toUpperCase(),
-                              style: ArtisanalTheme.hand(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
-                                letterSpacing: 1.0,
-                              ),
-                            ),
-                            _buildUnitToggle(
-                              selectedUnit,
-                              [
-                                ...(settings.measurementSystem == 'metric'
-                                    ? ['g', 'kg']
-                                    : ['oz', 'lb']),
-                                'pcs',
-                              ],
-                              (val) => setSheetState(() => selectedUnit = val),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildLedgerField(
-                                label: l10n.currentStockLabel,
-                                controller: currentQtyController,
-                                keyboardType: TextInputType.number,
-                                suffixText: selectedUnit,
-                                hintText: "0",
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: _buildLedgerField(
-                                label: l10n.inventoryGoal,
-                                controller: targetQtyController,
-                                keyboardType: TextInputType.number,
-                                suffixText: selectedUnit,
-                                hintText: "0",
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-
-                        _buildLedgerField(
-                          label: l10n.purchasePriceLabel,
-                          controller: priceController,
-                          keyboardType: TextInputType.number,
-                          suffixText: settings.currencyFormat.currencySymbol,
-                          hintText: "0",
-                        ),
-                        const SizedBox(height: 32),
-
-                        SizedBox(
-                          width: double.infinity,
-                          height: 60,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (nameController.text.trim().isEmpty) return;
-
-                              final inputStock =
-                                  double.tryParse(currentQtyController.text) ??
-                                  0;
-                              final inputTarget =
-                                  double.tryParse(targetQtyController.text) ??
-                                  0;
-
-                              final newItem = PantryItem(
-                                id:
-                                    item?.id ??
-                                    DateTime.now()
-                                        .millisecondsSinceEpoch
-                                        .toString(),
-                                name: nameController.text.trim(),
-                                category: categoryNotifier.value,
-                                currentStock: settings.convertToGrams(
-                                    inputStock, selectedUnit),
-                                targetQuantity: settings.convertToGrams(
-                                    inputTarget, selectedUnit),
-                                unit: selectedUnit,
-                                purchasePrice:
-                                    double.tryParse(priceController.text) ?? 0,
-                                lastUpdated: DateTime.now(),
-                                imageUrl: item?.imageUrl ?? '',
-                              );
-
-                              if (item == null) {
-                                ref.read(pantryProvider.notifier).addItem(newItem);
-                              } else {
-                                ref
-                                    .read(pantryProvider.notifier)
-                                    .updateItem(newItem);
-                              }
-
-                              HapticFeedback.mediumImpact();
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: ArtisanalTheme.ink,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              (item == null
-                                      ? l10n.addIngredient
-                                      : l10n.saveChanges)
-                                  .toUpperCase(),
-                              style: ArtisanalTheme.hand(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 2.0,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildUnitToggle(
-    String activeUnit,
-    List<String> units,
-    Function(String) onSelected,
-  ) {
+  void _showQuickUpdateSheet(AppLocalizations l10n, PantryItem item) {
+    _showPantryItemSheet(l10n, item);
+  }
+
+  void _showEditDetailsSheet(AppLocalizations l10n, [PantryItem? item]) {
+    _showPantryItemSheet(l10n, item);
+  }
+
+  Widget _buildQuickAdjustView({
+    required PantryItem item,
+    required dynamic settings,
+    required AppLocalizations l10n,
+    required TextEditingController qtyController,
+    required TextEditingController costController,
+    required String selectedUnit,
+    required Function(String) onUnitSelected,
+    required VoidCallback onSave,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Stock Display as a "Wax Seal"
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: qtyController,
+            builder: (context, value, _) {
+              final incrementStr = value.text.trim();
+              final incrementValue = double.tryParse(incrementStr.replaceAll(',', '')) ?? 0.0;
+              final projectedStock = item.currentStock + incrementValue;
+              
+              return Stack(
+                // Scalloped Ledger Card Look
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  // Paper Card
+                  ClipPath(
+                    clipper: ScallopedClipper(radius: 8),
+                    child: Container(
+                      width: 200,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: ArtisanalTheme.surface,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text(
+                                settings.formatWeight(projectedStock, item.unit).split(' ')[0],
+                                style: ArtisanalTheme.hand(
+                                  fontSize: 44,
+                                  fontWeight: FontWeight.w600,
+                                  color: incrementValue > 0 ? ArtisanalTheme.primary : ArtisanalTheme.ink,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                item.unit,
+                                style: ArtisanalTheme.receipt(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: ArtisanalTheme.ink.withValues(alpha: 0.3),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            l10n.currentStockLabel.toUpperCase(),
+                            style: ArtisanalTheme.receipt(
+                              fontSize: 9,
+                              color: ArtisanalTheme.ink.withValues(alpha: 0.4),
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  // Handwritten Red Ink Annotation for increment
+                  if (incrementStr.isNotEmpty && incrementValue != 0)
+                    Positioned(
+                      top: -15,
+                      right: -10,
+                      child: Transform.rotate(
+                        angle: 0.15,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "+ $incrementStr",
+                              style: ArtisanalTheme.hand(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: ArtisanalTheme.redInk,
+                              ),
+                            ),
+                            // A small hand-drawn underline
+                            Container(
+                              width: 40,
+                              height: 1.5,
+                              decoration: BoxDecoration(
+                                color: ArtisanalTheme.redInk.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(1),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+          
+          // Input Section (Transparent)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Column(
+              children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          l10n.unitLabel.toUpperCase(),
+                          style: ArtisanalTheme.receipt(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        _buildUnitToggle(
+                          selectedUnit,
+                          [
+                            ...(settings.measurementSystem == 'metric'
+                                ? ['g', 'kg']
+                                : ['oz', 'lb']),
+                            'pcs',
+                          ],
+                          onUnitSelected,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildArtisanalField(
+                            label: l10n.quantityToAdd,
+                            controller: qtyController,
+                            keyboardType: TextInputType.number,
+                            suffix: selectedUnit,
+                            icon: Icons.add_circle_outline,
+                            hintText: '0',
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildArtisanalField(
+                            label: l10n.totalCostForBatch,
+                            controller: costController,
+                            keyboardType: TextInputType.number,
+                            suffix: settings.currencySymbol,
+                            icon: Icons.payments_outlined,
+                            hintText: '0',
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 32),
+          
+          // Quick Update Actions
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    height: 56,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      l10n.cancel.toUpperCase(),
+                      style: ArtisanalTheme.receipt(
+                        fontWeight: FontWeight.bold,
+                        color: ArtisanalTheme.ink.withValues(alpha: 0.4),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: GestureDetector(
+                  onTap: onSave,
+                  child: Container(
+                    height: 56,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: ArtisanalTheme.ink,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      l10n.saveChanges.toUpperCase(),
+                      style: ArtisanalTheme.receipt(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetadataEditView({
+    required PantryItem item,
+    required dynamic settings,
+    required AppLocalizations l10n,
+    required TextEditingController nameController,
+    required TextEditingController priceController,
+    required TextEditingController targetQtyController,
+    required TextEditingController currentStockController,
+    required ValueNotifier<String> categoryNotifier,
+    required List<String> activeCategories,
+    required Map<String, int> categoriesMap,
+    required String selectedUnit,
+    required Function(String) onCategorySelected,
+    required Function(String) onUnitSelected,
+    required VoidCallback onSave,
+    VoidCallback? onDelete,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          // Name & Category Section
+          _buildArtisanalField(
+            label: l10n.ingredientName,
+            controller: nameController,
+            icon: Icons.label_outline,
+            hintText: l10n.ingredientNameHint,
+          ),
+          
+          const SizedBox(height: 24),
+          
+          Text(
+            l10n.categoryName.toUpperCase(),
+            style: ArtisanalTheme.receipt(
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+              color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+              letterSpacing: 1.0,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 40,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: activeCategories.length,
+              separatorBuilder: (_, index) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final cat = activeCategories[index];
+                final color = Color(categoriesMap[cat] ?? 0xFFFDFCFB);
+                return ValueListenableBuilder<String>(
+                  valueListenable: categoryNotifier,
+                  builder: (context, selectedCat, _) {
+                    final isSelected = selectedCat == cat;
+                    return GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        onCategorySelected(cat);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: isSelected ? color : color.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected ? ArtisanalTheme.ink.withValues(alpha: 0.2) : Colors.transparent,
+                            width: 1,
+                          ),
+                          boxShadow: isSelected ? [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            )
+                          ] : null,
+                        ),
+                        child: Text(
+                          "#$cat",
+                          style: ArtisanalTheme.hand(
+                            fontSize: 13,
+                            color: isSelected ? ArtisanalTheme.ink : ArtisanalTheme.ink.withValues(alpha: 0.4),
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 32),
+          
+          // Lined Paper Section for Metadata (Transparent)
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      l10n.unitLabel.toUpperCase(),
+                      style: ArtisanalTheme.receipt(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    _buildUnitToggle(selectedUnit, ['g', 'kg', 'pcs'], onUnitSelected),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildArtisanalField(
+                        label: l10n.currentStockLabel,
+                        controller: currentStockController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        suffix: selectedUnit,
+                        isPencil: true,
+                      ),
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: _buildArtisanalField(
+                        label: l10n.inventoryGoal.toUpperCase(),
+                        controller: targetQtyController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        suffix: selectedUnit,
+                        isPencil: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                _buildArtisanalField(
+                  label: l10n.purchasePriceLabel,
+                  controller: priceController,
+                  keyboardType: TextInputType.number,
+                  icon: Icons.payments_outlined,
+                  suffix: '₩',
+                  hintText: '0',
+                  isPencil: true,
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 40),
+          // Horizontal Actions
+          Row(
+            children: [
+              if (item.id.isNotEmpty) ...[
+                GestureDetector(
+                  onTap: () => _showDeleteConfirmation(item, l10n),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: ArtisanalTheme.redInk.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.delete_outline, color: ArtisanalTheme.redInk, size: 24),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: GestureDetector(
+                  onTap: onSave,
+                  child: Container(
+                    height: 56,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: ArtisanalTheme.ink,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      l10n.saveChanges.toUpperCase(),
+                      style: ArtisanalTheme.receipt(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  void _manageCategories(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const CategoryManagerSheet(),
+    );
+  }
+
+  Widget _buildArtisanalField({
+    required String label,
+    required TextEditingController controller,
+    IconData? icon,
+    TextInputType? keyboardType,
+    String? suffix,
+    String? suffixText,
+    String? hintText,
+    bool isPencil = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 14,
+                color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label.toUpperCase(),
+              style: isPencil
+                  ? ArtisanalTheme.hand(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                      letterSpacing: 1.0,
+                    )
+                  : ArtisanalTheme.receipt(
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                      letterSpacing: 1.0,
+                    ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          style: isPencil
+              ? ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.primary)
+              : ArtisanalTheme.receipt(fontSize: 16, color: ArtisanalTheme.ink, fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            hintText: hintText,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            hintStyle: ArtisanalTheme.hand(
+              fontSize: 18,
+              color: ArtisanalTheme.ink.withValues(alpha: 0.2),
+            ),
+            suffixText: suffix ?? suffixText,
+            suffixStyle: ArtisanalTheme.hand(
+              fontSize: 14,
+              color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
+            ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+                width: 1,
+              ),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: ArtisanalTheme.ink.withValues(alpha: 0.2),
+                width: 1.5,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showDeleteConfirmation(PantryItem item, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.dangerousAction),
+        content: Text(l10n.deleteConfirmationMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.keepData),
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(pantryProvider.notifier).deleteItem(item.id);
+              Navigator.pop(context); // Dialog
+              Navigator.pop(this.context); // Sheet
+            },
+            child: Text(
+              l10n.deleteButton,
+              style: const TextStyle(color: ArtisanalTheme.redInk),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUnitToggle(String activeUnit, List<String> units, Function(String) onSelected) {
     return Container(
       height: 32,
       padding: const EdgeInsets.all(2),
@@ -1074,71 +1432,33 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     );
   }
 
-  void _manageCategories(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const CategoryManagerSheet(),
-    );
-  }
-
-  Widget _buildLedgerField({
-    required String label,
-    required TextEditingController controller,
-    TextInputType? keyboardType,
-    String? suffixText,
-    Widget? suffix,
-    String? hintText,
+  Widget _buildModeToggleButton({
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label.toUpperCase(),
-          style: ArtisanalTheme.hand(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
-            letterSpacing: 1.0,
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            )
+          ] : null,
         ),
-        const SizedBox(height: 4),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          style: ArtisanalTheme.hand(fontSize: 16),
-          decoration: InputDecoration(
-            isDense: true,
-            hintText: hintText,
-            hintStyle: ArtisanalTheme.hand(
-              fontSize: 14,
-              color: ArtisanalTheme.ink.withValues(alpha: 0.2),
-            ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 8),
-            suffix: suffix,
-            suffixText: suffix == null ? suffixText : null,
-            // Ensure suffix is always visible
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            suffixStyle: ArtisanalTheme.hand(
-              color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
-              fontSize: 14,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                color: ArtisanalTheme.ink.withValues(alpha: 0.1),
-              ),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: ArtisanalTheme.ink, width: 1.5),
-            ),
-          ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: isSelected ? ArtisanalTheme.ink : ArtisanalTheme.ink.withValues(alpha: 0.3),
         ),
-      ],
+      ),
     );
   }
 }
@@ -1161,4 +1481,28 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) => true;
+}
+
+class _DottedLinePainter extends CustomPainter {
+  final Color color;
+  _DottedLinePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = color
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    var dashWidth = 5;
+    var dashSpace = 3;
+    double startX = 0;
+    while (startX < size.width) {
+      canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
+      startX += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

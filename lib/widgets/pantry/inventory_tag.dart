@@ -8,9 +8,7 @@ import '../../l10n/app_localizations.dart';
 
 class InventoryTag extends ConsumerWidget {
   final PantryItem item;
-  final VoidCallback onRestock;
-
-  const InventoryTag({super.key, required this.item, required this.onRestock});
+  const InventoryTag({super.key, required this.item});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -96,7 +94,7 @@ class InventoryTag extends ConsumerWidget {
                     "#${item.category}",
                     style: ArtisanalTheme.hand(
                       fontSize: 8,
-                      color: ArtisanalTheme.secondary.withValues(alpha: 0.4),
+                      color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -144,15 +142,12 @@ class InventoryTag extends ConsumerWidget {
 
                   Align(
                     alignment: Alignment.bottomRight,
-                    child: GestureDetector(
-                      onTap: onRestock,
-                      child: Opacity(
-                        opacity: 0.3,
-                        child: Icon(
-                          Icons.edit_note,
-                          size: 14,
-                          color: ArtisanalTheme.ink,
-                        ),
+                    child: Opacity(
+                      opacity: 0.2,
+                      child: Icon(
+                        Icons.more_horiz,
+                        size: 14,
+                        color: ArtisanalTheme.ink,
                       ),
                     ),
                   ),
