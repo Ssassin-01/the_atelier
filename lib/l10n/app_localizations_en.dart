@@ -888,6 +888,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restockButton => 'Complete Restocking';
 
   @override
+  String get applyUpdate => 'Apply Update';
+
+  @override
+  String get deleteButton => 'Delete';
+
+  @override
+  String get deleteConfirmationMessage =>
+      'Are you sure you want to delete this ingredient? This action cannot be undone.';
+
+  @override
   String get inventoryGoal => 'Inventory Goal';
 
   @override

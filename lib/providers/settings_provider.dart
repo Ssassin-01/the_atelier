@@ -82,24 +82,28 @@ class SettingsState {
     if (originalUnit != null && _isWeightUnit(originalUnit)) {
       final scaledValue = fromGrams(valueInGrams, originalUnit);
       if (originalUnit == 'g' || originalUnit == 'oz') {
-        return "${scaledValue.toStringAsFixed(0)}$originalUnit";
+        return "${scaledValue.toStringAsFixed(0)} $originalUnit";
       }
-      return "${_formatDecimal(scaledValue)}$originalUnit";
+      return "${_formatDecimal(scaledValue)} $originalUnit";
+    }
+
+    if (originalUnit != null && !_isWeightUnit(originalUnit)) {
+      return "${_formatDecimal(valueInGrams)} $originalUnit";
     }
 
     if (measurementSystem == 'metric') {
       if (valueInGrams >= 1000) {
         double kg = valueInGrams / 1000;
-        return "${_formatDecimal(kg)}kg";
+        return "${_formatDecimal(kg)} kg";
       }
-      return "${valueInGrams.toStringAsFixed(0)}g";
+      return "${valueInGrams.toStringAsFixed(0)} g";
     } else {
       double oz = valueInGrams / 28.3495;
       if (oz >= 16) {
         double lb = oz / 16;
-        return "${_formatDecimal(lb)}lb";
+        return "${_formatDecimal(lb)} lb";
       }
-      return "${_formatDecimal(oz)}oz";
+      return "${_formatDecimal(oz)} oz";
     }
   }
 
@@ -107,10 +111,11 @@ class SettingsState {
     if (value == 0) return "0";
     // For values < 1, show more precision
     if (value < 1) {
-      return value.toStringAsFixed(3).replaceAll(RegExp(r'\.?0+$'), '');
+      final text = value.toStringAsFixed(3);
+      return text.contains('.') ? text.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '') : text;
     }
-    String formatted = value.toStringAsFixed(2);
-    return formatted.replaceAll(RegExp(r'\.?0+$'), '');
+    final text = value.toStringAsFixed(2);
+    return text.contains('.') ? text.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '') : text;
   }
 
   bool _isWeightUnit(String unit) {

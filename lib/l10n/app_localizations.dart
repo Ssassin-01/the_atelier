@@ -1802,6 +1802,24 @@ abstract class AppLocalizations {
   /// **'Complete Restocking'**
   String get restockButton;
 
+  /// No description provided for @applyUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Update'**
+  String get applyUpdate;
+
+  /// No description provided for @deleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteButton;
+
+  /// No description provided for @deleteConfirmationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this ingredient? This action cannot be undone.'**
+  String get deleteConfirmationMessage;
+
   /// No description provided for @inventoryGoal.
   ///
   /// In en, this message translates to:

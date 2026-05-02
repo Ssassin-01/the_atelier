@@ -874,6 +874,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get restockButton => '보충 완료';
 
   @override
+  String get applyUpdate => '업데이트 반영';
+
+  @override
+  String get deleteButton => '삭제';
+
+  @override
+  String get deleteConfirmationMessage =>
+      '이 식재료를 정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.';
+
+  @override
   String get inventoryGoal => '재고 목표량';
 
   @override

@@ -623,10 +623,14 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     final initialTarget = item != null ? settings.fromGrams(item.targetQuantity, selectedUnit) : 0.0;
 
     final currentStockController = TextEditingController(
-      text: item != null ? initialStock.toStringAsFixed((selectedUnit == 'g' || selectedUnit == 'oz') ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
+      text: item != null ? (selectedUnit == 'g' || selectedUnit == 'oz' || selectedUnit == 'pcs') 
+          ? initialStock.toStringAsFixed(0) 
+          : initialStock.toStringAsFixed(2).replaceAll(RegExp(r'\.?0+$'), '') : '',
     );
     final targetQtyController = TextEditingController(
-      text: item != null ? initialTarget.toStringAsFixed((selectedUnit == 'g' || selectedUnit == 'oz') ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '') : '',
+      text: item != null ? (selectedUnit == 'g' || selectedUnit == 'oz' || selectedUnit == 'pcs') 
+          ? initialTarget.toStringAsFixed(0) 
+          : initialTarget.toStringAsFixed(2).replaceAll(RegExp(r'\.?0+$'), '') : '',
     );
 
     final categoryNotifier = ValueNotifier<String>(
@@ -766,7 +770,9 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                         if (val > 0) {
                                           final grams = settings.convertToGrams(val, oldUnit);
                                           final converted = settings.fromGrams(grams, newUnit);
-                                          ctrl.text = converted.toStringAsFixed((newUnit == 'g' || newUnit == 'oz') ? 0 : 2).replaceAll(RegExp(r'\.?0+$'), '');
+                                          ctrl.text = (newUnit == 'g' || newUnit == 'oz' || newUnit == 'pcs')
+                                              ? converted.toStringAsFixed(0)
+                                              : converted.toStringAsFixed(2).replaceAll(RegExp(r'\.?0+$'), '');
                                         }
                                       }
                                     });
@@ -847,8 +853,9 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
             valueListenable: qtyController,
             builder: (context, value, _) {
               final incrementStr = value.text.trim();
-              final incrementValue = double.tryParse(incrementStr.replaceAll(',', '')) ?? 0.0;
-              final projectedStock = item.currentStock + incrementValue;
+              final incrementValueRaw = double.tryParse(incrementStr.replaceAll(',', '')) ?? 0.0;
+              final incrementInGrams = settings.convertToGrams(incrementValueRaw, selectedUnit);
+              final projectedStock = item.currentStock + incrementInGrams;
               
               return Stack(
                 // Scalloped Ledger Card Look
@@ -880,16 +887,18 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                             textBaseline: TextBaseline.alphabetic,
                             children: [
                               Text(
-                                settings.formatWeight(projectedStock, item.unit).split(' ')[0],
+                                (selectedUnit == 'g' || selectedUnit == 'oz' || selectedUnit == 'pcs')
+                                    ? settings.fromGrams(projectedStock, selectedUnit).toStringAsFixed(0)
+                                    : settings.fromGrams(projectedStock, selectedUnit).toStringAsFixed(2).replaceAll(RegExp(r'\.?0+$'), ''),
                                 style: ArtisanalTheme.hand(
                                   fontSize: 44,
                                   fontWeight: FontWeight.w600,
-                                  color: incrementValue > 0 ? ArtisanalTheme.primary : ArtisanalTheme.ink,
+                                  color: incrementInGrams > 0 ? ArtisanalTheme.primary : ArtisanalTheme.ink,
                                 ),
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                item.unit,
+                                selectedUnit,
                                 style: ArtisanalTheme.receipt(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -913,7 +922,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                   ),
                   
                   // Handwritten Red Ink Annotation for increment
-                  if (incrementStr.isNotEmpty && incrementValue != 0)
+                  if (incrementStr.isNotEmpty && incrementInGrams != 0)
                     Positioned(
                       top: -15,
                       right: -10,
