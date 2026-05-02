@@ -15,6 +15,7 @@ import '../widgets/pantry/category_manager_sheet.dart';
 import '../widgets/staggered_drop_animation.dart';
 import '../widgets/custom_clippers.dart';
 import '../widgets/masking_tape.dart';
+import '../providers/transaction_provider.dart';
 
 class PantryManagementScreen extends ConsumerStatefulWidget {
   const PantryManagementScreen({super.key});
@@ -98,7 +99,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     int missingInfoCount = 0;
 
     for (var item in pantryItems) {
-      totalVaultValue += item.purchasePrice * item.currentStock;
+      totalVaultValue += item.unitPrice * item.currentStock;
       final stockPercent = item.targetQuantity > 0
           ? item.currentStock / item.targetQuantity
           : 0.0;
@@ -410,9 +411,12 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     if (items.isEmpty) {
       return Center(
         child: Text(
-          l10n.emptyState,
+          '등록된 식재료가 없습니다.\n새로운 재료를 추가해보세요!',
           textAlign: TextAlign.center,
-          style: ArtisanalTheme.hand(color: ArtisanalTheme.secondary),
+          style: ArtisanalTheme.hand(
+            color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+            fontSize: 16,
+          ),
         ),
       );
     }
@@ -621,6 +625,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     
     final initialStock = item != null ? settings.fromGrams(item.currentStock, selectedUnit) : 0.0;
     final initialTarget = item != null ? settings.fromGrams(item.targetQuantity, selectedUnit) : 0.0;
+    final initialPurchaseQty = item != null ? settings.fromGrams(item.purchaseQuantity > 0 ? item.purchaseQuantity : item.targetQuantity, selectedUnit) : 0.0;
 
     final currentStockController = TextEditingController(
       text: item != null ? (selectedUnit == 'g' || selectedUnit == 'oz' || selectedUnit == 'pcs') 
@@ -631,6 +636,11 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
       text: item != null ? (selectedUnit == 'g' || selectedUnit == 'oz' || selectedUnit == 'pcs') 
           ? initialTarget.toStringAsFixed(0) 
           : initialTarget.toStringAsFixed(2).replaceAll(RegExp(r'\.?0+$'), '') : '',
+    );
+    final purchaseQtyController = TextEditingController(
+      text: item != null ? (selectedUnit == 'g' || selectedUnit == 'oz' || selectedUnit == 'pcs') 
+          ? initialPurchaseQty.toStringAsFixed(0) 
+          : initialPurchaseQty.toStringAsFixed(2).replaceAll(RegExp(r'\.?0+$'), '') : '',
     );
 
     final categoryNotifier = ValueNotifier<String>(
@@ -733,12 +743,19 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                     
                                     final addedGrams = settings.convertToGrams(addVal, selectedUnit);
                                     final newStock = item.currentStock + addedGrams;
-                                    final newPrice = item.purchasePrice + costVal;
+                                    
+                                    // Record as expense if cost was provided
+                                    if (costVal > 0) {
+                                      ref.read(transactionProvider.notifier).addPantryPurchase(
+                                        item.name, 
+                                        costVal,
+                                        relatedItemId: item.id,
+                                      );
+                                    }
 
                                     ref.read(pantryProvider.notifier).updateItem(
                                       item.copyWith(
                                         currentStock: newStock,
-                                        purchasePrice: newPrice,
                                         lastUpdated: DateTime.now(),
                                       ),
                                     );
@@ -754,6 +771,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                   nameController: nameController,
                                   priceController: priceController,
                                   targetQtyController: targetQtyController,
+                                  purchaseQtyController: purchaseQtyController,
                                   currentStockController: currentStockController,
                                   categoryNotifier: categoryNotifier,
                                   activeCategories: activeCategories,
@@ -783,6 +801,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
 
                                     final stockVal = double.tryParse(currentStockController.text.replaceAll(',', '').trim()) ?? 0;
                                     final targetVal = double.tryParse(targetQtyController.text.replaceAll(',', '').trim()) ?? 0;
+                                    final purchaseQtyVal = double.tryParse(purchaseQtyController.text.replaceAll(',', '').trim()) ?? 0;
                                     final priceVal = double.tryParse(priceController.text.replaceAll(',', '').trim()) ?? 0;
 
                                     final newItem = PantryItem(
@@ -791,6 +810,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                                       category: categoryNotifier.value,
                                       currentStock: settings.convertToGrams(stockVal, selectedUnit),
                                       targetQuantity: settings.convertToGrams(targetVal, selectedUnit),
+                                      purchaseQuantity: settings.convertToGrams(purchaseQtyVal, selectedUnit),
                                       unit: selectedUnit,
                                       purchasePrice: priceVal,
                                       lastUpdated: DateTime.now(),
@@ -799,6 +819,14 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
 
                                     if (item == null) {
                                       ref.read(pantryProvider.notifier).addItem(newItem);
+                                      // If initial price is set when creating, record as expense
+                                      if (priceVal > 0) {
+                                        ref.read(transactionProvider.notifier).addPantryPurchase(
+                                          name, 
+                                          priceVal,
+                                          relatedItemId: newItem.id,
+                                        );
+                                      }
                                     } else {
                                       ref.read(pantryProvider.notifier).updateItem(newItem);
                                     }
@@ -1078,6 +1106,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
     required TextEditingController nameController,
     required TextEditingController priceController,
     required TextEditingController targetQtyController,
+    required TextEditingController purchaseQtyController,
     required TextEditingController currentStockController,
     required ValueNotifier<String> categoryNotifier,
     required List<String> activeCategories,
@@ -1203,7 +1232,7 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                     const SizedBox(width: 24),
                     Expanded(
                       child: _buildArtisanalField(
-                        label: l10n.inventoryGoal.toUpperCase(),
+                        label: '최소 유지 재고 (알림)',
                         controller: targetQtyController,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         suffix: selectedUnit,
@@ -1213,14 +1242,30 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
                   ],
                 ),
                 const SizedBox(height: 24),
-                _buildArtisanalField(
-                  label: l10n.purchasePriceLabel,
-                  controller: priceController,
-                  keyboardType: TextInputType.number,
-                  icon: Icons.payments_outlined,
-                  suffix: '₩',
-                  hintText: '0',
-                  isPencil: true,
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildArtisanalField(
+                        label: '구매 시 수량 (원가 기준)',
+                        controller: purchaseQtyController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        suffix: selectedUnit,
+                        isPencil: true,
+                      ),
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: _buildArtisanalField(
+                        label: l10n.purchasePriceLabel,
+                        controller: priceController,
+                        keyboardType: TextInputType.number,
+                        icon: Icons.payments_outlined,
+                        suffix: '₩',
+                        hintText: '0',
+                        isPencil: true,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -1328,6 +1373,18 @@ class _PantryManagementScreenState extends ConsumerState<PantryManagementScreen>
         TextField(
           controller: controller,
           keyboardType: keyboardType,
+          onChanged: (value) {
+            // Prevent leading zeros unless it's a decimal (0.)
+            if (keyboardType == TextInputType.number || keyboardType?.decimal == true) {
+              if (value.length > 1 && value.startsWith('0') && value[1] != '.') {
+                final newValue = value.replaceFirst(RegExp(r'^0+'), '');
+                controller.value = controller.value.copyWith(
+                  text: newValue.isEmpty ? '0' : newValue,
+                  selection: TextSelection.fromPosition(TextPosition(offset: newValue.length)),
+                );
+              }
+            }
+          },
           style: isPencil
               ? ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.primary)
               : ArtisanalTheme.receipt(fontSize: 16, color: ArtisanalTheme.ink, fontWeight: FontWeight.bold),

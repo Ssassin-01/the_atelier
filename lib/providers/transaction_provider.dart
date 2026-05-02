@@ -51,4 +51,18 @@ class TransactionNotifier extends StateNotifier<List<BusinessTransaction>> {
     );
     await addTransaction(tx);
   }
+
+  /// Records the purchase of ingredients as an expense
+  Future<void> addPantryPurchase(String itemName, double cost, {String? relatedItemId}) async {
+    final tx = BusinessTransaction(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      date: DateTime.now(),
+      type: 'expense',
+      amount: cost,
+      category: 'Ingredients',
+      description: 'Purchase: $itemName',
+      relatedItemId: relatedItemId,
+    );
+    await addTransaction(tx);
+  }
 }

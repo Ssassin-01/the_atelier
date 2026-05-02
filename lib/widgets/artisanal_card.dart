@@ -60,7 +60,7 @@ class ArtisanalCard extends StatelessWidget {
                         color: ArtisanalTheme.primary.withValues(alpha: 0.7),
                       ),
                     ),
-                    ?action,
+                    if (action != null) action!,
                   ],
                 ),
                 const SizedBox(height: 4),

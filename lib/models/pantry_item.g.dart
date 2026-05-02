@@ -21,6 +21,7 @@ class PantryItemAdapter extends TypeAdapter<PantryItem> {
       name: fields[1] as String,
       purchasePrice: fields[2] as double,
       targetQuantity: fields[3] as double,
+      purchaseQuantity: fields[9] as double,
       unit: fields[4] as String,
       currentStock: fields[5] as double,
       lastUpdated: fields[6] as DateTime,
@@ -32,7 +33,7 @@ class PantryItemAdapter extends TypeAdapter<PantryItem> {
   @override
   void write(BinaryWriter writer, PantryItem obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class PantryItemAdapter extends TypeAdapter<PantryItem> {
       ..writeByte(7)
       ..write(obj.imageUrl)
       ..writeByte(8)
-      ..write(obj.category);
+      ..write(obj.category)
+      ..writeByte(9)
+      ..write(obj.purchaseQuantity);
   }
 
   @override

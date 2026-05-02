@@ -70,16 +70,32 @@ class PantryDashboard extends ConsumerWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          l10n.inventoryValueReport.toUpperCase(),
-                          style: ArtisanalTheme.hand(
-                            color: ArtisanalTheme.secondary.withValues(
-                              alpha: 0.5,
+                        Row(
+                          children: [
+                            Text(
+                              l10n.inventoryValueReport.toUpperCase(),
+                              style: ArtisanalTheme.hand(
+                                color: ArtisanalTheme.secondary.withValues(
+                                  alpha: 0.5,
+                                ),
+                                letterSpacing: 2.0,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            letterSpacing: 2.0,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () {
+                                HapticFeedback.mediumImpact();
+                                _showCalculationInfo(context, l10n);
+                              },
+                              child: Icon(
+                                Icons.info_outline,
+                                size: 12,
+                                color: ArtisanalTheme.secondary.withValues(alpha: 0.3),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -263,6 +279,71 @@ class PantryDashboard extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showCalculationInfo(BuildContext context, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFFDFCF7),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        title: Row(
+          children: [
+            const Icon(Icons.calculate_outlined, size: 20, color: ArtisanalTheme.ink),
+            const SizedBox(width: 8),
+            Text(
+              "자산 가치 계산 방식",
+              style: ArtisanalTheme.hand(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "현재 보유한 재고의 가치를 아래 공식으로 계산합니다:",
+              style: ArtisanalTheme.hand(fontSize: 14, color: ArtisanalTheme.secondary),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: ArtisanalTheme.ink.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                "(구매 가격 ÷ 구매 시 수량) × 현재 실재고",
+                textAlign: TextAlign.center,
+                style: ArtisanalTheme.receipt(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: ArtisanalTheme.ink,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "* 구매 시 수량이 0인 경우, 설정된 최소 유지 재고를 기준으로 계산합니다 (호환용).",
+              style: ArtisanalTheme.hand(
+                fontSize: 11,
+                color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              "확인",
+              style: ArtisanalTheme.hand(fontWeight: FontWeight.bold, color: ArtisanalTheme.ink),
+            ),
+          ),
+        ],
       ),
     );
   }

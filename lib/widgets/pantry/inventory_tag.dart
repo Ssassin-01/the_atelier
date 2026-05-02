@@ -70,7 +70,7 @@ class InventoryTag extends ConsumerWidget {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -135,24 +135,24 @@ class InventoryTag extends ConsumerWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   _buildHandDrawnProgress(stockPercent, isLow),
-
-                  const SizedBox(height: 2),
-
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Opacity(
-                      opacity: 0.2,
-                      child: Icon(
-                        Icons.more_horiz,
-                        size: 14,
-                        color: ArtisanalTheme.ink,
-                      ),
-                    ),
-                  ),
                 ],
               ),
+            ),
+          ),
+        ),
+
+        // Options icon moved to top right
+        Positioned(
+          top: 14,
+          right: 14,
+          child: Opacity(
+            opacity: 0.2,
+            child: Icon(
+              Icons.more_horiz,
+              size: 14,
+              color: ArtisanalTheme.ink,
             ),
           ),
         ),
@@ -207,33 +207,53 @@ class InventoryTag extends ConsumerWidget {
   }
 
   Widget _buildHandDrawnProgress(double percent, bool isLow) {
-    return Container(
-      height: 6,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Stack(
-        children: [
-          FractionallySizedBox(
-            alignment: Alignment.centerLeft,
-            widthFactor: percent,
-            child: Container(
-              decoration: BoxDecoration(
+    return Column(
+      children: [
+        Container(
+          height: 6,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Stack(
+            children: [
+              FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: percent,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isLow
+                        ? ArtisanalTheme.redInk.withValues(alpha: 0.5)
+                        : ArtisanalTheme.ink.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              // "Scribble" lines on the progress
+              Positioned.fill(
+                child: CustomPaint(painter: ScribblePainter(percent)),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              "${(percent * 100).toStringAsFixed(0)}%",
+              style: ArtisanalTheme.hand(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
                 color: isLow
-                    ? ArtisanalTheme.redInk.withValues(alpha: 0.5)
-                    : ArtisanalTheme.ink.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(10),
+                    ? ArtisanalTheme.redInk.withValues(alpha: 0.6)
+                    : ArtisanalTheme.secondary.withValues(alpha: 0.5),
               ),
             ),
-          ),
-          // "Scribble" lines on the progress
-          Positioned.fill(
-            child: CustomPaint(painter: ScribblePainter(percent)),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }

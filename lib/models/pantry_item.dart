@@ -14,7 +14,7 @@ class PantryItem extends HiveObject {
   final double purchasePrice; // The price paid originally (reference price)
 
   @HiveField(3)
-  final double targetQuantity; // The goal quantity to maintain (Standard Base)
+  final double targetQuantity; // The goal quantity to maintain (Alert Level)
 
   @HiveField(4)
   final String unit; // kg, g, ml, etc.
@@ -31,11 +31,15 @@ class PantryItem extends HiveObject {
   @HiveField(8)
   final String category;
 
+  @HiveField(9)
+  final double purchaseQuantity; // The quantity corresponding to the purchasePrice
+
   PantryItem({
     required this.id,
     required this.name,
     required this.purchasePrice,
     required this.targetQuantity,
+    this.purchaseQuantity = 0,
     this.unit = 'g',
     this.currentStock = 0,
     required this.lastUpdated,
@@ -43,10 +47,12 @@ class PantryItem extends HiveObject {
     this.category = 'Others',
   });
 
-  /// Calculates the cost per single unit (e.g. per gram/ml) based on the target price/qty
+  /// Calculates the cost per single unit (e.g. per gram/ml) based on the purchase price/qty
   double get unitPrice {
-    if (targetQuantity <= 0) return 0;
-    return purchasePrice / targetQuantity;
+    // Fallback to targetQuantity if purchaseQuantity is not set (for migration/legacy data)
+    final baseQty = purchaseQuantity > 0 ? purchaseQuantity : targetQuantity;
+    if (baseQty <= 0) return 0;
+    return purchasePrice / baseQty;
   }
 
   PantryItem copyWith({
@@ -54,6 +60,7 @@ class PantryItem extends HiveObject {
     String? name,
     double? purchasePrice,
     double? targetQuantity,
+    double? purchaseQuantity,
     String? unit,
     double? currentStock,
     DateTime? lastUpdated,
@@ -65,6 +72,7 @@ class PantryItem extends HiveObject {
       name: name ?? this.name,
       purchasePrice: purchasePrice ?? this.purchasePrice,
       targetQuantity: targetQuantity ?? this.targetQuantity,
+      purchaseQuantity: purchaseQuantity ?? this.purchaseQuantity,
       unit: unit ?? this.unit,
       currentStock: currentStock ?? this.currentStock,
       lastUpdated: lastUpdated ?? this.lastUpdated,
