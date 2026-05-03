@@ -408,5 +408,17 @@
   "cameraAccessDesc": "레시피와 식재료의 사진을 직접 촬영하여 기록하기 위해 카메라를 사용합니다.",
   "galleryAccessDesc": "멋진 결과물 사진을 불러오기 위해 사용합니다. 최신 기기에서는 전체 권한 없이도 안전하게 사진을 선택할 수 있습니다.",
   "systemSettings": "시스템 설정 열기",
-  "iUnderstand": "확인"
+  "iUnderstand": "확인",
+  "atelierMode": "아뜰리에 운영 모드",
+  "creativeMode": "창작 모드 (취미)",
+  "proMode": "경영 모드 (프로)",
+  "creativeModeDesc": "레시피 기록과 스케치에 집중하는 심플한 노트 모드입니다.",
+  "proModeDesc": "매출 등록과 재고 차감, 손익 분석 기능이 활성화됩니다.",
+  "studioLog": "공방 일지",
+  "studioLogDesc": "당신의 꾸준한 창작 활동을 기록합니다.",
+  "activity": "창작 활동",
+  "effort": "기록의 흔적",
+  "totalRecipes": "전체 레시피",
+  "totalComponents": "세부 공정",
+  "totalSteps": "작성된 단계"
 }

@@ -29,6 +29,12 @@ class Recipe extends HiveObject {
   @HiveField(7)
   DateTime createdAt;
 
+  @HiveField(8)
+  double? sellingPrice;
+
+  @HiveField(9)
+  double? targetYield;
+
   Recipe({
     required this.id,
     required this.name,
@@ -38,5 +44,7 @@ class Recipe extends HiveObject {
     required this.components,
     this.tags = const [],
     required this.createdAt,
+    this.sellingPrice,
+    this.targetYield,
   });
 }

@@ -10,9 +10,11 @@ import 'theme/artisanal_theme.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/recipe_archive_screen.dart';
 import 'screens/add_recipe_screen.dart';
-import 'screens/business_ledger_screen.dart';
+import 'screens/business_analytics_screen.dart';
+import 'screens/studio_log_screen.dart';
 import 'screens/settings_screen.dart';
 import 'providers/locale_provider.dart';
+import 'providers/settings_provider.dart';
 import 'models/recipe.dart';
 import 'models/component.dart';
 import 'models/ingredient.dart';
@@ -163,14 +165,14 @@ class MyAtelierApp extends ConsumerWidget {
   }
 }
 
-class MainScaffold extends StatefulWidget {
+class MainScaffold extends ConsumerStatefulWidget {
   const MainScaffold({super.key});
 
   @override
-  State<MainScaffold> createState() => _MainScaffoldState();
+  ConsumerState<MainScaffold> createState() => _MainScaffoldState();
 }
 
-class _MainScaffoldState extends State<MainScaffold> {
+class _MainScaffoldState extends ConsumerState<MainScaffold> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -181,12 +183,21 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> screens = [
+    final settings = ref.watch(settingsProvider);
+    final isBusiness = settings.isBusinessMode;
+
+    // Define potential screens
+    final List<Widget> allScreens = [
       const DashboardScreen(),
       const RecipeArchiveScreen(),
-      const BusinessLedgerScreen(),
+      isBusiness ? const BusinessAnalyticsScreen() : const StudioLogScreen(),
       const SettingsScreen(),
     ];
+
+    // Safety check for index out of bounds when switching modes
+    if (_selectedIndex >= allScreens.length) {
+      _selectedIndex = allScreens.length - 1;
+    }
 
     final l10n = AppLocalizations.of(context);
 
@@ -198,13 +209,11 @@ class _MainScaffoldState extends State<MainScaffold> {
         notchMargin: 8.0,
         color: ArtisanalTheme.background.withValues(alpha: 0.95),
         elevation: 10,
-        padding:
-            EdgeInsets.zero, // Remove internal padding to maximize hit area
+        padding: EdgeInsets.zero,
         child: SizedBox(
           height: 80,
           child: Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.stretch, // Make children fill full height
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 child: _buildNavItem(
@@ -222,13 +231,13 @@ class _MainScaffoldState extends State<MainScaffold> {
                   l10n.journal,
                 ),
               ),
-              const SizedBox(width: 80), // Larger space for the draw FAB
+              const SizedBox(width: 80), // FAB space
               Expanded(
                 child: _buildNavItem(
                   2,
-                  Icons.payments_outlined,
-                  Icons.payments,
-                  l10n.pantry,
+                  isBusiness ? Icons.analytics_outlined : Icons.insights,
+                  isBusiness ? Icons.analytics : Icons.insights,
+                  isBusiness ? l10n.businessAnalytics : l10n.studioLog,
                 ),
               ),
               Expanded(
@@ -244,36 +253,30 @@ class _MainScaffoldState extends State<MainScaffold> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Consumer(
-        builder: (context, ref, child) {
-          return SizedBox(
-            height: 72,
-            width: 72,
-            child: FloatingActionButton(
-              onPressed: () {
-                _triggerFeedback();
-                // Ensure fresh state for new recipe
-                ref.invalidate(recipeDraftProvider);
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AddRecipeScreen(onBack: () => Navigator.pop(context)),
-                  ),
-                );
-              },
-              backgroundColor: ArtisanalTheme.primary,
-              elevation: 6,
-              shape: const CircleBorder(
-                side: BorderSide(color: Colors.white, width: 4),
+      floatingActionButton: SizedBox(
+        height: 72,
+        width: 72,
+        child: FloatingActionButton(
+          onPressed: () {
+            _triggerFeedback();
+            ref.invalidate(recipeDraftProvider);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    AddRecipeScreen(onBack: () => Navigator.pop(context)),
               ),
-              child: const Icon(Icons.draw, color: Colors.white, size: 32),
-            ),
-          );
-        },
+            );
+          },
+          backgroundColor: ArtisanalTheme.primary,
+          elevation: 6,
+          shape: const CircleBorder(
+            side: BorderSide(color: Colors.white, width: 4),
+          ),
+          child: const Icon(Icons.draw, color: Colors.white, size: 32),
+        ),
       ),
-      body: IndexedStack(index: _selectedIndex, children: screens),
+      body: IndexedStack(index: _selectedIndex, children: allScreens),
     );
   }
 

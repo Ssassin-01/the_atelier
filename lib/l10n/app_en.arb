@@ -410,5 +410,17 @@
   "cameraAccessDesc": "We use the camera to let you take photos of your recipes and ingredients directly within the app.",
   "galleryAccessDesc": "Used to import your masterpiece photos. On modern devices, you can pick photos safely even without full access.",
   "systemSettings": "System Settings",
-  "iUnderstand": "I Understand"
+  "iUnderstand": "I Understand",
+  "atelierMode": "Atelier Mode",
+  "creativeMode": "Creative Mode (Hobbyist)",
+  "proMode": "Professional Mode (Pro)",
+  "creativeModeDesc": "Focus on recipe logging and sketching with a simplified note experience.",
+  "proModeDesc": "Enable sales tracking, stock deduction, and business analytics tools.",
+  "studioLog": "Studio Log",
+  "studioLogDesc": "Record your steady creative activities.",
+  "activity": "Creative Activity",
+  "effort": "Traces of Effort",
+  "totalRecipes": "Total Recipes",
+  "totalComponents": "Sub-components",
+  "totalSteps": "Written Steps"
 }

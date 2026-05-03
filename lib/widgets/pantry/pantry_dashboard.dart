@@ -67,47 +67,74 @@ class PantryDashboard extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              l10n.inventoryValueReport.toUpperCase(),
-                              style: ArtisanalTheme.hand(
-                                color: ArtisanalTheme.secondary.withValues(
-                                  alpha: 0.5,
+                    if (ref.watch(settingsProvider).isBusinessMode)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                l10n.inventoryValueReport.toUpperCase(),
+                                style: ArtisanalTheme.hand(
+                                  color: ArtisanalTheme.secondary.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                  letterSpacing: 2.0,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                letterSpacing: 2.0,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            GestureDetector(
-                              onTap: () {
-                                HapticFeedback.mediumImpact();
-                                _showCalculationInfo(context, l10n);
-                              },
-                              child: Icon(
-                                Icons.info_outline,
-                                size: 12,
-                                color: ArtisanalTheme.secondary.withValues(alpha: 0.3),
+                              const SizedBox(width: 4),
+                              GestureDetector(
+                                onTap: () {
+                                  HapticFeedback.mediumImpact();
+                                  _showCalculationInfo(context, l10n);
+                                },
+                                child: Icon(
+                                  Icons.info_outline,
+                                  size: 12,
+                                  color: ArtisanalTheme.secondary.withValues(alpha: 0.3),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          ref.watch(settingsProvider).format(totalVaultValue),
-                          style: ArtisanalTheme.hand(
-                            fontWeight: FontWeight.w900,
-                            color: ArtisanalTheme.ink,
-                            fontSize: 32,
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(height: 4),
+                          Text(
+                            ref.watch(settingsProvider).format(totalVaultValue),
+                            style: ArtisanalTheme.hand(
+                              fontWeight: FontWeight.w900,
+                              color: ArtisanalTheme.ink,
+                              fontSize: 32,
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.pantryLedger.toUpperCase(),
+                            style: ArtisanalTheme.hand(
+                              color: ArtisanalTheme.secondary.withValues(
+                                alpha: 0.5,
+                              ),
+                              letterSpacing: 2.0,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            l10n.stable.toUpperCase(),
+                            style: ArtisanalTheme.hand(
+                              fontWeight: FontWeight.w900,
+                              color: ArtisanalTheme.ink,
+                              fontSize: 32,
+                            ),
+                          ),
+                        ],
+                      ),
                     Icon(
                       Icons.auto_graph_outlined,
                       color: ArtisanalTheme.ink.withValues(alpha: 0.1),
@@ -137,13 +164,14 @@ class PantryDashboard extends ConsumerWidget {
                       onTap: onLowStockTap,
                       isSelected: activeFilter == 'lowStock',
                     ),
-                    _buildModernStat(
-                      l10n.missingInfo,
-                      missingInfoCount.toString(),
-                      isAlert: missingInfoCount > 0,
-                      onTap: onMissingInfoTap,
-                      isSelected: activeFilter == 'missingInfo',
-                    ),
+                    if (ref.watch(settingsProvider).isBusinessMode)
+                      _buildModernStat(
+                        l10n.missingInfo,
+                        missingInfoCount.toString(),
+                        isAlert: missingInfoCount > 0,
+                        onTap: onMissingInfoTap,
+                        isSelected: activeFilter == 'missingInfo',
+                      ),
                   ],
                 ),
               ],
@@ -174,14 +202,24 @@ class PantryDashboard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Text(
-                ref.watch(settingsProvider).format(totalVaultValue),
-                style: ArtisanalTheme.hand(
-                  fontWeight: FontWeight.w900,
-                  color: ArtisanalTheme.ink,
-                  fontSize: 20,
+              if (ref.watch(settingsProvider).isBusinessMode)
+                Text(
+                  ref.watch(settingsProvider).format(totalVaultValue),
+                  style: ArtisanalTheme.hand(
+                    fontWeight: FontWeight.w900,
+                    color: ArtisanalTheme.ink,
+                    fontSize: 20,
+                  ),
+                )
+              else
+                Text(
+                  l10n.pantry.toUpperCase(),
+                  style: ArtisanalTheme.hand(
+                    fontWeight: FontWeight.w900,
+                    color: ArtisanalTheme.ink,
+                    fontSize: 16,
+                  ),
                 ),
-              ),
               const SizedBox(width: 12),
               Container(
                 width: 1,

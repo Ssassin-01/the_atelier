@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -83,6 +84,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 8),
+                _buildModeSelector(l10n, settings),
+                const SizedBox(height: 28),
                 _buildSettingsGroup(l10n.preferences, [
                   _settingsItem(
                     Icons.language,
@@ -154,6 +157,110 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildModeSelector(AppLocalizations l10n, SettingsState settings) {
+    final isPro = settings.isBusinessMode;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.atelierMode.toUpperCase(),
+                style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.6))
+                    .copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+              ),
+              const SizedBox(height: 2),
+              Container(height: 1.5, color: ArtisanalTheme.ink.withValues(alpha: 0.1), width: 60),
+            ],
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: _modeCard(
+                l10n.creativeMode,
+                l10n.creativeModeDesc,
+                Icons.edit_note,
+                !isPro,
+                () => ref.read(settingsProvider.notifier).updateBusinessMode(false),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _modeCard(
+                l10n.proMode,
+                l10n.proModeDesc,
+                Icons.analytics_outlined,
+                isPro,
+                () => ref.read(settingsProvider.notifier).updateBusinessMode(true),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _modeCard(String title, String desc, IconData icon, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        onTap();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? ArtisanalTheme.surface : ArtisanalTheme.background.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.ink.withValues(alpha: 0.1),
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: ArtisanalTheme.primary.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+          ] : [],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.ink.withValues(alpha: 0.3),
+              size: 24,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: ArtisanalTheme.hand(
+                fontSize: 18,
+                color: isSelected ? ArtisanalTheme.ink : ArtisanalTheme.ink.withValues(alpha: 0.4),
+              ).copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              desc,
+              style: ArtisanalTheme.hand(
+                fontSize: 13,
+                color: ArtisanalTheme.ink.withValues(alpha: 0.4),
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -87,12 +87,16 @@ class RecipeDraft {
   String description;
   String? mainImagePath;
   List<RecipeComponentDraft> components;
+  double? sellingPrice;
+  double? targetYield;
 
   RecipeDraft({
     this.name = '',
     this.description = '',
     this.mainImagePath,
     List<RecipeComponentDraft>? components,
+    this.sellingPrice,
+    this.targetYield,
   }) : components =
            components ??
            [
@@ -109,12 +113,16 @@ class RecipeDraft {
     String? description,
     String? mainImagePath,
     List<RecipeComponentDraft>? components,
+    double? sellingPrice,
+    double? targetYield,
   }) {
     return RecipeDraft(
       name: name ?? this.name,
       description: description ?? this.description,
       mainImagePath: mainImagePath ?? this.mainImagePath,
       components: components ?? this.components,
+      sellingPrice: sellingPrice ?? this.sellingPrice,
+      targetYield: targetYield ?? this.targetYield,
     );
   }
 
@@ -123,6 +131,8 @@ class RecipeDraft {
       name: recipe.name,
       description: recipe.description ?? '',
       mainImagePath: recipe.mainImageUrl,
+      sellingPrice: recipe.sellingPrice,
+      targetYield: recipe.targetYield,
       components: recipe.components
           .map(
             (c) => RecipeComponentDraft(
@@ -178,6 +188,8 @@ class AddRecipeScreen extends ConsumerStatefulWidget {
 class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _yieldController = TextEditingController();
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, FocusNode> _focusNodes = {};
   final Map<String, GlobalKey> _photoKeys = {};
@@ -205,6 +217,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   void dispose() {
     _nameController.dispose();
     _descController.dispose();
+    _priceController.dispose();
+    _yieldController.dispose();
     for (var c in _controllers.values) {
       c.dispose();
     }
@@ -229,6 +243,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
           final draft = RecipeDraft.fromModel(existing, settings);
           _nameController.text = draft.name;
           _descController.text = draft.description;
+          _priceController.text = draft.sellingPrice?.toString() ?? '';
+          _yieldController.text = draft.targetYield?.toString() ?? '';
           ref.read(recipeDraftProvider.notifier).state = draft;
         }
       });
@@ -237,6 +253,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
         ref.invalidate(recipeDraftProvider);
         _nameController.clear();
         _descController.clear();
+        _priceController.clear();
+        _yieldController.clear();
       });
     }
   }
@@ -461,6 +479,11 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     ],
                   ),
                 ),
+
+                if (settings.isBusinessMode) ...[
+                  const SizedBox(height: 32),
+                  _buildBusinessFields(l10n, settings, draft, notifier),
+                ],
 
                 const SizedBox(height: 48),
 
@@ -700,8 +723,10 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
           DateTime.now().millisecondsSinceEpoch.toString(),
       name: draft.name,
       description: draft.description,
-      mainImageUrl: draft.mainImagePath,
+       mainImageUrl: draft.mainImagePath,
       createdAt: DateTime.now(),
+      sellingPrice: draft.sellingPrice,
+      targetYield: draft.targetYield,
       components: draft.components
           .map(
             (c) => model.RecipeComponent(
@@ -1120,6 +1145,114 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
           child: Icon(icon, color: Colors.white, size: isSmall ? 14 : 20),
         ),
       ),
+    );
+  }
+
+  Widget _buildBusinessFields(
+    AppLocalizations l10n,
+    SettingsState settings,
+    RecipeDraft draft,
+    StateController<RecipeDraft> notifier,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: ArtisanalTheme.primary.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.analytics_outlined, size: 18, color: ArtisanalTheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                l10n.businessInsights.toUpperCase(),
+                style: ArtisanalTheme.hand(
+                  fontSize: 13,
+                  letterSpacing: 1.5,
+                  fontWeight: FontWeight.bold,
+                  color: ArtisanalTheme.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildBusinessInput(
+                  label: l10n.suggestedSalePrice.replaceAll("(3x)", "").trim(),
+                  controller: _priceController,
+                  prefix: settings.currencySymbol,
+                  onChanged: (val) {
+                    final price = double.tryParse(val);
+                    notifier.update((s) => s.copyWith(sellingPrice: price));
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildBusinessInput(
+                  label: l10n.yieldLabel,
+                  controller: _yieldController,
+                  suffix: settings.weightUnit,
+                  onChanged: (val) {
+                    final yieldVal = double.tryParse(val);
+                    notifier.update((s) => s.copyWith(targetYield: yieldVal));
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBusinessInput({
+    required String label,
+    required TextEditingController controller,
+    String? prefix,
+    String? suffix,
+    required Function(String) onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: ArtisanalTheme.hand(
+            fontSize: 12,
+            color: ArtisanalTheme.ink.withValues(alpha: 0.5),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          onChanged: onChanged,
+          style: GoogleFonts.notoSerif(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: ArtisanalTheme.ink,
+          ),
+          decoration: InputDecoration(
+            prefixText: prefix != null ? "$prefix " : null,
+            suffixText: suffix,
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.black12),
+            ),
+            focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: ArtisanalTheme.primary),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

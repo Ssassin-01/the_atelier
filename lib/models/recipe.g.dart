@@ -25,13 +25,15 @@ class RecipeAdapter extends TypeAdapter<Recipe> {
       components: (fields[5] as List).cast<RecipeComponent>(),
       tags: (fields[6] as List).cast<String>(),
       createdAt: fields[7] as DateTime,
+      sellingPrice: fields[8] as double?,
+      targetYield: fields[9] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Recipe obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +49,11 @@ class RecipeAdapter extends TypeAdapter<Recipe> {
       ..writeByte(6)
       ..write(obj.tags)
       ..writeByte(7)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(8)
+      ..write(obj.sellingPrice)
+      ..writeByte(9)
+      ..write(obj.targetYield);
   }
 
   @override

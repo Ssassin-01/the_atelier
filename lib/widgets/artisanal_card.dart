@@ -22,6 +22,7 @@ class ArtisanalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final actionWidget = action;
     return Transform.rotate(
       angle: rotation,
       child: Stack(
@@ -60,7 +61,7 @@ class ArtisanalCard extends StatelessWidget {
                         color: ArtisanalTheme.primary.withValues(alpha: 0.7),
                       ),
                     ),
-                    if (action != null) action!,
+                    if (actionWidget case final a?) a,
                   ],
                 ),
                 const SizedBox(height: 4),

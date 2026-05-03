@@ -181,6 +181,11 @@ class _JournalPagePreview extends StatelessWidget {
                           const SizedBox(height: 36),
                         ],
 
+                        if (settings.isBusinessMode && (draft.sellingPrice != null || draft.targetYield != null)) ...[
+                          _buildBusinessSummary(draft),
+                          const SizedBox(height: 36),
+                        ],
+
                         const SizedBox(height: 32),
 
                         // Draft Components
@@ -195,6 +200,64 @@ class _JournalPagePreview extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildBusinessSummary(RecipeDraft draft) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: ArtisanalTheme.primary.withValues(alpha: 0.03),
+        border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.1)),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          if (draft.sellingPrice != null)
+            Column(
+              children: [
+                Text(
+                  "PRICE",
+                  style: ArtisanalTheme.hand(
+                    fontSize: 12,
+                    color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                Text(
+                  settings.format(draft.sellingPrice!),
+                  style: ArtisanalTheme.hand(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: ArtisanalTheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          if (draft.targetYield != null)
+            Column(
+              children: [
+                Text(
+                  "YIELD",
+                  style: ArtisanalTheme.hand(
+                    fontSize: 12,
+                    color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                Text(
+                  settings.formatWeight(draft.targetYield!, settings.weightUnit),
+                  style: ArtisanalTheme.hand(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: ArtisanalTheme.ink,
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }

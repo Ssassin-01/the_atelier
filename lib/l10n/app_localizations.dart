@@ -2323,6 +2323,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I Understand'**
   String get iUnderstand;
+
+  /// No description provided for @atelierMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Atelier Mode'**
+  String get atelierMode;
+
+  /// No description provided for @creativeMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Creative Mode (Hobbyist)'**
+  String get creativeMode;
+
+  /// No description provided for @proMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Professional Mode (Pro)'**
+  String get proMode;
+
+  /// No description provided for @creativeModeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus on recipe logging and sketching with a simplified note experience.'**
+  String get creativeModeDesc;
+
+  /// No description provided for @proModeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable sales tracking, stock deduction, and business analytics tools.'**
+  String get proModeDesc;
+
+  /// No description provided for @studioLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Studio Log'**
+  String get studioLog;
+
+  /// No description provided for @studioLogDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Record your steady creative activities.'**
+  String get studioLogDesc;
+
+  /// No description provided for @activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Creative Activity'**
+  String get activity;
+
+  /// No description provided for @effort.
+  ///
+  /// In en, this message translates to:
+  /// **'Traces of Effort'**
+  String get effort;
+
+  /// No description provided for @totalRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Recipes'**
+  String get totalRecipes;
+
+  /// No description provided for @totalComponents.
+  ///
+  /// In en, this message translates to:
+  /// **'Sub-components'**
+  String get totalComponents;
+
+  /// No description provided for @totalSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Written Steps'**
+  String get totalSteps;
 }
 
 class _AppLocalizationsDelegate

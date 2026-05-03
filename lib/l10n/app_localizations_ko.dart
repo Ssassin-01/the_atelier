@@ -1145,4 +1145,40 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get iUnderstand => '확인';
+
+  @override
+  String get atelierMode => '아뜰리에 운영 모드';
+
+  @override
+  String get creativeMode => '창작 모드 (취미)';
+
+  @override
+  String get proMode => '경영 모드 (프로)';
+
+  @override
+  String get creativeModeDesc => '레시피 기록과 스케치에 집중하는 심플한 노트 모드입니다.';
+
+  @override
+  String get proModeDesc => '매출 등록과 재고 차감, 손익 분석 기능이 활성화됩니다.';
+
+  @override
+  String get studioLog => '공방 일지';
+
+  @override
+  String get studioLogDesc => '당신의 꾸준한 창작 활동을 기록합니다.';
+
+  @override
+  String get activity => '창작 활동';
+
+  @override
+  String get effort => '기록의 흔적';
+
+  @override
+  String get totalRecipes => '전체 레시피';
+
+  @override
+  String get totalComponents => '세부 공정';
+
+  @override
+  String get totalSteps => '작성된 단계';
 }

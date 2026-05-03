@@ -11,6 +11,7 @@ class SettingsState {
   final String atelierName;
   final String atelierContact;
   final Map<String, double> customRates;
+  final bool isBusinessMode;
 
   SettingsState({
     required this.measurementSystem,
@@ -19,6 +20,7 @@ class SettingsState {
     required this.atelierName,
     required this.atelierContact,
     this.customRates = const {},
+    this.isBusinessMode = true,
   });
 
   // Backward compatibility getter for code that still uses weightUnit
@@ -163,6 +165,7 @@ class SettingsState {
     String? atelierName,
     String? atelierContact,
     Map<String, double>? customRates,
+    bool? isBusinessMode,
   }) {
     return SettingsState(
       measurementSystem: measurementSystem ?? this.measurementSystem,
@@ -171,6 +174,7 @@ class SettingsState {
       atelierName: atelierName ?? this.atelierName,
       atelierContact: atelierContact ?? this.atelierContact,
       customRates: customRates ?? this.customRates,
+      isBusinessMode: isBusinessMode ?? this.isBusinessMode,
     );
   }
 }
@@ -196,6 +200,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
             customRates: Map<String, double>.from(
               _box.get('customRates', defaultValue: <String, double>{}),
             ),
+            isBusinessMode: _box.get('isBusinessMode', defaultValue: true),
           ),
         ) {
     checkAndRefreshRates();
@@ -260,6 +265,11 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       atelierName: name ?? state.atelierName,
       atelierContact: contact ?? state.atelierContact,
     );
+  }
+
+  void updateBusinessMode(bool value) {
+    _box.put('isBusinessMode', value);
+    state = state.copyWith(isBusinessMode: value);
   }
 }
 

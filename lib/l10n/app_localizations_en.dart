@@ -1170,4 +1170,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get iUnderstand => 'I Understand';
+
+  @override
+  String get atelierMode => 'Atelier Mode';
+
+  @override
+  String get creativeMode => 'Creative Mode (Hobbyist)';
+
+  @override
+  String get proMode => 'Professional Mode (Pro)';
+
+  @override
+  String get creativeModeDesc =>
+      'Focus on recipe logging and sketching with a simplified note experience.';
+
+  @override
+  String get proModeDesc =>
+      'Enable sales tracking, stock deduction, and business analytics tools.';
+
+  @override
+  String get studioLog => 'Studio Log';
+
+  @override
+  String get studioLogDesc => 'Record your steady creative activities.';
+
+  @override
+  String get activity => 'Creative Activity';
+
+  @override
+  String get effort => 'Traces of Effort';
+
+  @override
+  String get totalRecipes => 'Total Recipes';
+
+  @override
+  String get totalComponents => 'Sub-components';
+
+  @override
+  String get totalSteps => 'Written Steps';
 }
