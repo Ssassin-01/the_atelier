@@ -35,6 +35,7 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
   
   late AnimationController _cartBounceController;
   late Animation<double> _cartBounce;
+  late AnimationController _windController;
 
   @override
   void initState() {
@@ -44,6 +45,11 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
       duration: const Duration(milliseconds: 600),
     );
     _cartBounce = CurvedAnimation(parent: _cartBounceController, curve: Curves.elasticOut);
+
+    _windController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
   }
 
   void _addItem() {
@@ -86,6 +92,7 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
     _inputController.dispose();
     _focusNode.dispose();
     _cartBounceController.dispose();
+    _windController.dispose();
     super.dispose();
   }
 
@@ -125,8 +132,8 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
-                    child: _buildArtisanal3DParchment(context, l10n),
+                    padding: const EdgeInsets.fromLTRB(30, 20, 45, 20),
+                    child: _buildTrue3DMemoBlock(context, l10n),
                   ),
                 ),
                 SliverToBoxAdapter(
@@ -145,48 +152,64 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
     );
   }
 
-  Widget _buildArtisanal3DParchment(BuildContext context, AppLocalizations l10n) {
+  Widget _buildTrue3DMemoBlock(BuildContext context, AppLocalizations l10n) {
+    return AnimatedBuilder(
+      animation: _windController,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: True3DMemoBlockPainter(windValue: _windController.value),
+          child: Container(
+            width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 460),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(40, 50, 40, 50),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('MARKET JOURNAL', style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black12)),
+                      _build3DPushPin(),
+                    ],
+                  ),
+                  const Divider(height: 50, color: Colors.black12),
+                  ..._toBuyList.asMap().entries.map((entry) => _buildShoppingRow(entry.key, entry.value)).toList(),
+                  if (_isAdding) _buildInputRow(l10n) else _buildAddTrigger(l10n),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _build3DPushPin() {
     return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 50,
-            offset: const Offset(0, 25),
+      width: 30,
+      height: 30,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            top: 15,
+            left: 15,
+            child: Container(width: 12, height: 12, decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.15), shape: BoxShape.circle)),
+          ),
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [Colors.redAccent, Colors.red.shade900],
+                center: const Alignment(-0.3, -0.3),
+              ),
+              boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: const Offset(2, 2))],
+            ),
           ),
         ],
-      ),
-      child: ClipPath(
-        clipper: ZigZagClipper(),
-        child: Container(
-          width: double.infinity,
-          constraints: const BoxConstraints(minHeight: 450),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFFEFDF9), Color(0xFFF2EEE2)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('MARKET LIST', style: ArtisanalTheme.hand(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black38)),
-                    const Icon(Icons.push_pin, color: Colors.redAccent, size: 26),
-                  ],
-                ),
-                const Divider(height: 50, color: Colors.black12),
-                ..._toBuyList.asMap().entries.map((entry) => _buildShoppingRow(entry.key, entry.value)).toList(),
-                if (_isAdding) _buildInputRow(l10n) else _buildAddTrigger(l10n),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -201,7 +224,7 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 20)],
-            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.1)),
           ),
           child: Text(item.name, style: ArtisanalTheme.hand(fontSize: 22)),
         ),
@@ -361,6 +384,97 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
   }
 }
 
+class True3DMemoBlockPainter extends CustomPainter {
+  final double windValue;
+  True3DMemoBlockPainter({required this.windValue});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    double thickness = 14.0; // Thick stack
+    final blockColor = const Color(0xFFF2EEE2);
+    final blockDark = const Color(0xFFDCD4C4);
+    
+    // 1. Shadow for the entire block
+    Path shadow = Path()
+      ..moveTo(thickness, thickness)
+      ..lineTo(size.width + thickness, thickness)
+      ..lineTo(size.width + thickness + 5, size.height + thickness + 10)
+      ..lineTo(thickness - 5, size.height + thickness + 10)
+      ..close();
+    canvas.drawPath(shadow, Paint()..color = Colors.black.withValues(alpha: 0.15)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 25));
+
+    // 2. Right Face (Thickness)
+    Path rightFace = Path()
+      ..moveTo(size.width, 0)
+      ..lineTo(size.width + thickness, thickness)
+      ..lineTo(size.width + thickness, size.height + thickness)
+      ..lineTo(size.width, size.height)
+      ..close();
+    canvas.drawPath(rightFace, Paint()..color = blockDark);
+
+    // 3. Bottom Face (Thickness)
+    Path bottomFace = Path()
+      ..moveTo(0, size.height)
+      ..lineTo(size.width, size.height)
+      ..lineTo(size.width + thickness, size.height + thickness)
+      ..lineTo(thickness, size.height + thickness)
+      ..close();
+    canvas.drawPath(bottomFace, Paint()..color = blockDark);
+
+    // 4. Page Lines Texture on Thickness
+    final linePaint = Paint()..color = Colors.black.withValues(alpha: 0.08)..strokeWidth = 0.5;
+    for (int i = 2; i < thickness; i += 3) {
+      // Horizontal lines on bottom face
+      canvas.drawLine(Offset(i.toDouble(), size.height + i), Offset(size.width + i, size.height + i), linePaint);
+      // Vertical-ish lines on right face
+      canvas.drawLine(Offset(size.width + i, i.toDouble()), Offset(size.width + i, size.height + i), linePaint);
+    }
+
+    // 5. The Top Sheet (Animated)
+    double wave = math.sin(windValue * math.pi * 2) * 8;
+    final topSheetPaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Color(0xFFFEFDF9), Color(0xFFF2EEE2)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(Offset.zero & size)
+      ..style = PaintingStyle.fill;
+
+    double foldSize = 45.0;
+    Path topSheet = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height - foldSize + (wave * 0.4))
+      ..lineTo(size.width - foldSize, size.height + wave)
+      ..lineTo(0, size.height + wave)
+      ..close();
+
+    // Subtle contact shadow between top sheet and block
+    canvas.drawPath(topSheet.shift(const Offset(0, 2)), Paint()..color = Colors.black12..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
+    canvas.drawPath(topSheet, topSheetPaint);
+
+    // 6. Realistic Fold (Flipped corner)
+    final foldPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [const Color(0xFFD0C8B8), const Color(0xFFFDFCF7)],
+        begin: Alignment.bottomRight,
+        end: Alignment.topLeft,
+      ).createShader(Rect.fromLTWH(size.width - foldSize, size.height - foldSize, foldSize, foldSize));
+    
+    Path foldPath = Path()
+      ..moveTo(size.width, size.height - foldSize + (wave * 0.4))
+      ..lineTo(size.width - foldSize, size.height + wave)
+      ..lineTo(size.width - foldSize * 0.15, size.height + wave - foldSize * 0.15)
+      ..close();
+    
+    canvas.drawPath(foldPath.shift(const Offset(1, 1)), Paint()..color = Colors.black26..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
+    canvas.drawPath(foldPath, foldPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant True3DMemoBlockPainter oldDelegate) => oldDelegate.windValue != windValue;
+}
+
 class Final3DCartPainter extends CustomPainter {
   final bool isHovering;
   final int itemCount;
@@ -370,17 +484,11 @@ class Final3DCartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2 + 10);
-    
-    // Geometry Data
     double depth = 70;
-    
-    // Bottom (Floor)
     Offset b1 = center + const Offset(-60, 10); 
     Offset b2 = center + const Offset(60, 10);
     Offset b3 = center + const Offset(80, 50);
     Offset b4 = center + const Offset(-40, 50);
-
-    // Top (Rim)
     Offset t1 = b1 + Offset(-40, -depth);
     Offset t2 = b2 + Offset(40, -depth);
     Offset t3 = b3 + Offset(50, -depth);
@@ -389,25 +497,16 @@ class Final3DCartPainter extends CustomPainter {
     final Color metalBase = isHovering ? ArtisanalTheme.primary : const Color(0xFF333333);
     final Color metalLight = isHovering ? ArtisanalTheme.primary.withValues(alpha: 0.6) : const Color(0xFF777777);
 
-    // 1. Shadow
     Path shadow = Path()..moveTo(b1.dx, b1.dy)..lineTo(b2.dx, b2.dy)..lineTo(b3.dx, b3.dy)..lineTo(b4.dx, b4.dy)..close();
     canvas.drawPath(shadow, Paint()..color = Colors.black.withValues(alpha: 0.1)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15));
 
-    // 2. Far-side Wheels (Rendered behind)
     _draw3DWheel(canvas, b1, 14, metalBase);
     _draw3DWheel(canvas, b2, 14, metalBase);
-
-    // 3. Far-side Handle (t1) - Rendered behind the walls
     _drawHandle(canvas, t1, -1, metalBase, metalLight);
-
-    // 4. Far-side Walls
-    _drawThickWall(canvas, t1, t2, b2, b1, metalBase, metalLight, divisions: 5); // Back
-    _drawThickWall(canvas, t1, t4, b4, b1, metalBase, metalLight, divisions: 4); // Left
-
-    // 5. Bottom
+    _drawThickWall(canvas, t1, t2, b2, b1, metalBase, metalLight, divisions: 5);
+    _drawThickWall(canvas, t1, t4, b4, b1, metalBase, metalLight, divisions: 4);
     _drawThickWall(canvas, b1, b2, b3, b4, metalBase, metalLight, divisions: 5);
 
-    // 6. Items
     if (itemCount > 0) {
       final itemPaint = Paint()..color = ArtisanalTheme.primary.withValues(alpha: 0.3);
       final rand = math.Random(1);
@@ -416,18 +515,12 @@ class Final3DCartPainter extends CustomPainter {
       }
     }
 
-    // 7. Near-side Walls
-    _drawThickWall(canvas, t2, t3, b3, b2, metalBase, metalLight, divisions: 4); // Right
-    _drawThickWall(canvas, t4, t3, b3, b4, metalBase, metalLight, divisions: 5); // Front
-
-    // 8. Near-side Handle (t4) - Rendered AT THE FRONT (on top of walls)
+    _drawThickWall(canvas, t2, t3, b3, b2, metalBase, metalLight, divisions: 4);
+    _drawThickWall(canvas, t4, t3, b3, b4, metalBase, metalLight, divisions: 5);
     _drawHandle(canvas, t4, -1, metalBase, metalLight);
-
-    // 9. Near-side Wheels (Rendered in front)
     _draw3DWheel(canvas, b3, 12, metalBase);
     _draw3DWheel(canvas, b4, 12, metalBase);
 
-    // 10. Top Rim (Rendered last for crispness)
     _drawTubeLine(canvas, t1, t2, 7.0, metalBase, metalLight);
     _drawTubeLine(canvas, t2, t3, 7.0, metalBase, metalLight);
     _drawTubeLine(canvas, t3, t4, 7.0, metalBase, metalLight);
