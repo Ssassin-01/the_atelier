@@ -37,105 +37,29 @@ void main() async {
 
   try {
     // Open boxes
-    final recipeBox = await Hive.openBox<Recipe>('recipes');
+    // If opening fails (usually due to model mismatch), we clear and restart
+    Box<Recipe>? recipeBox;
+    try {
+      recipeBox = await Hive.openBox<Recipe>('recipes');
+    } catch (e) {
+      debugPrint("Recipe box corrupted, resetting: $e");
+      await Hive.deleteBoxFromDisk('recipes');
+      recipeBox = await Hive.openBox<Recipe>('recipes');
+    }
+
     final pantryBox = await Hive.openBox<PantryItem>('pantry');
-    final transactionBox = await Hive.openBox<BusinessTransaction>(
-      'transactions',
-    );
+    final transactionBox = await Hive.openBox<BusinessTransaction>('transactions');
     await Hive.openBox('settings');
 
-    // Populate with mock data only if boxes are empty (first run)
+    // Populate with mock data only if boxes are empty (first run or after reset)
     if (recipeBox.isEmpty) {
       for (var recipe in getMockRecipes()) {
         await recipeBox.put(recipe.id, recipe);
       }
     }
-
-    if (transactionBox.isEmpty) {
-      await transactionBox.putAll({
-        'tx1': BusinessTransaction(
-          id: 'tx1',
-          date: DateTime.now().subtract(const Duration(days: 1)),
-          type: 'expense',
-          amount: 840.50,
-          category: 'Ingredients',
-          description: 'Artisan Flour Mill - 200kg',
-        ),
-        'tx2': BusinessTransaction(
-          id: 'tx2',
-          date: DateTime.now().subtract(const Duration(days: 3)),
-          type: 'expense',
-          amount: 1120.00,
-          category: 'Ingredients',
-          description: 'Normandy Butter Co. - 50kg',
-        ),
-        'tx3': BusinessTransaction(
-          id: 'tx3',
-          date: DateTime.now().subtract(const Duration(days: 2)),
-          type: 'sale',
-          amount: 2500.00,
-          category: 'Product Sale',
-          description: 'Weekend Market Sales',
-        ),
-      });
-    }
-
-    if (pantryBox.isEmpty) {
-      await pantryBox.putAll({
-        'p1': PantryItem(
-          id: 'p1',
-          name: 'Organic Spelt Flour',
-          purchasePrice: 45000,
-          targetQuantity: 2000,
-          unit: 'g',
-          currentStock: 1500,
-          lastUpdated: DateTime.now(),
-          imageUrl:
-              r'C:\Users\user b\Desktop\img1.png', // Correct local path if needed
-        ),
-        'p2': PantryItem(
-          id: 'p2',
-          name: 'Artisanal Bread Flour',
-          purchasePrice: 38000,
-          targetQuantity: 2000,
-          unit: 'g',
-          currentStock: 1500,
-          lastUpdated: DateTime.now(),
-        ),
-        'p3': PantryItem(
-          id: 'p3',
-          name: 'Normandy Butter',
-          purchasePrice: 112000,
-          targetQuantity: 500,
-          unit: 'g',
-          currentStock: 450,
-          lastUpdated: DateTime.now(),
-        ),
-        'p4': PantryItem(
-          id: 'p4',
-          name: 'Farm Fresh Eggs',
-          purchasePrice: 8000,
-          targetQuantity: 30,
-          unit: 'pcs',
-          currentStock: 12,
-          lastUpdated: DateTime.now(),
-        ),
-      });
-    }
   } catch (e) {
-    debugPrint("Hive initialization failed, some data might be lost: $e");
-    // Clear potentially corrupted boxes to allow app to start
-    await Hive.deleteBoxFromDisk('recipes');
-    await Hive.deleteBoxFromDisk('pantry');
-    await Hive.deleteBoxFromDisk('transactions');
-
-    // Re-open fresh empty boxes so the UI doesn't crash
-    await Hive.openBox<Recipe>('recipes');
-    await Hive.openBox<PantryItem>('pantry');
-    await Hive.openBox<BusinessTransaction>('transactions');
-    await Hive.openBox('settings');
-
-    debugPrint("Corrupted boxes handled. Starting with a fresh state.");
+    debugPrint("Critical Hive initialization failed: $e");
+    // Fallback to ensure app at least starts
   }
 
   runApp(const ProviderScope(child: MyAtelierApp()));

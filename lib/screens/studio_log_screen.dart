@@ -24,6 +24,7 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
   late TextEditingController _searchController;
   late ScrollController _scrollController;
   String _searchQuery = '';
+  RecipeFilter _recipeFilter = RecipeFilter.all;
 
   // Sequences
   late Animation<double> _lidOpacity;
@@ -105,10 +106,19 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
     final l10n = AppLocalizations.of(context);
     final allRecipes = ref.watch(recipeListProvider);
 
-    // Filter recipes based on search query
+    // Filter recipes based on search query AND status
     final recipes = allRecipes.where((recipe) {
-      if (_searchQuery.isEmpty) return true;
-      return recipe.name.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesSearch = _searchQuery.isEmpty ||
+          recipe.name.toLowerCase().contains(_searchQuery.toLowerCase());
+      
+      bool matchesStatus = true;
+      if (_recipeFilter == RecipeFilter.completed) {
+        matchesStatus = !recipe.isDraft;
+      } else if (_recipeFilter == RecipeFilter.draft) {
+        matchesStatus = recipe.isDraft;
+      }
+      
+      return matchesSearch && matchesStatus;
     }).toList();
 
     return Container(
@@ -136,7 +146,7 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
                       child: Column(
                         children: [
                           const SizedBox(height: 20),
-                          _buildChalkboard(context, l10n, recipes),
+                          _buildChalkboard(context, l10n, recipes, allRecipes),
                           _buildSearchParchment(context, l10n),
                           ..._buildShelvesList(context, recipes, l10n),
                           SizedBox(
@@ -519,6 +529,7 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
     BuildContext context,
     AppLocalizations l10n,
     List<Recipe> recipes,
+    List<Recipe> allRecipes,
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -556,40 +567,57 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
               borderRadius: BorderRadius.circular(2),
               gradient: const RadialGradient(
                 center: Alignment.center,
-                radius: 1.1,
-                colors: [Color(0xFF2A2A2A), Color(0xFF0F0F0F)],
+                radius: 1.2,
+                colors: [
+                  Color(0xFF2E3D2E), // Deep Forest Green (Center)
+                  Color(0xFF1B241B), // Deeper Forest Green (Edge)
+                ],
               ),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.04),
-                width: 1,
+                color: const Color(0xFFC4A484).withValues(alpha: 0.15), // Subtle gold/wood tone border
+                width: 1.5,
               ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildChalkStat(l10n.totalRecipes, recipes.length.toString()),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Colors.white.withValues(alpha: 0.05),
-                ),
-                _buildChalkStat(
-                  l10n.totalSteps,
-                  recipes
-                      .fold(
-                        0,
-                        (sum, r) =>
-                            sum +
-                            r.components.fold(0, (s, c) => s + c.steps.length),
-                      )
-                      .toString(),
-                ),
-                if (recipes.isEmpty) ...[
-                  Container(
-                    width: 1,
-                    height: 40,
-                    color: Colors.white.withValues(alpha: 0.05),
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => setState(() => _recipeFilter = RecipeFilter.all),
+                    child: _buildChalkStat(
+                      l10n.totalRecipes,
+                      allRecipes.length.toString(),
+                      isActive: _recipeFilter == RecipeFilter.all,
+                    ),
                   ),
+                ),
+                _buildChalkDivider(),
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => setState(() => _recipeFilter = RecipeFilter.completed),
+                    child: _buildChalkStat(
+                      l10n.currentLanguage == '한국어' ? '작성된 레시피' : 'COMPLETED',
+                      allRecipes.where((r) => !r.isDraft).length.toString(),
+                      isActive: _recipeFilter == RecipeFilter.completed,
+                    ),
+                  ),
+                ),
+                _buildChalkDivider(),
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => setState(() => _recipeFilter = RecipeFilter.draft),
+                    child: _buildChalkStat(
+                      l10n.currentLanguage == '한국어' ? '작성 중 레시피' : 'DRAFTING',
+                      allRecipes.where((r) => r.isDraft).length.toString(),
+                      isActive: _recipeFilter == RecipeFilter.draft,
+                    ),
+                  ),
+                ),
+                if (allRecipes.isEmpty) ...[
+                  _buildChalkDivider(),
                   GestureDetector(
                     onTap: () =>
                         ref.read(recipeListProvider.notifier).seedSamples(),
@@ -622,31 +650,31 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
     );
   }
 
-  Widget _buildChalkStat(String label, String value) {
+  Widget _buildChalkStat(String label, String value, {bool isActive = true}) {
     return Column(
       children: [
         Text(
           value,
           style:
               ArtisanalTheme.hand(
-                color: Colors.white.withValues(alpha: 0.98),
+                color: isActive ? Colors.white.withValues(alpha: 0.98) : Colors.white.withValues(alpha: 0.3),
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
               ).copyWith(
-                shadows: [
+                shadows: isActive ? [
                   Shadow(
                     color: Colors.black.withValues(alpha: 0.6),
                     offset: const Offset(1, 1),
                     blurRadius: 4,
                   ),
-                ],
+                ] : [],
               ),
         ),
         const SizedBox(height: 4),
         Text(
           label.toUpperCase(),
           style: ArtisanalTheme.hand(
-            color: Colors.white38,
+            color: isActive ? Colors.white.withValues(alpha: 0.6) : Colors.white.withValues(alpha: 0.2),
             fontSize: 10,
             letterSpacing: 2,
           ),
@@ -1154,6 +1182,17 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
                     height: 1.1,
                   ),
                 ),
+                if (recipe.isDraft) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    '작업 중',
+                    style: ArtisanalTheme.hand(
+                      fontSize: 8,
+                      color: ArtisanalTheme.redInk.withValues(alpha: 0.8),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 2),
                 Container(
                   width: 20,
@@ -1307,4 +1346,14 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
       ),
     );
   }
+
+  Widget _buildChalkDivider() {
+    return Container(
+      width: 1,
+      height: 40,
+      color: Colors.white.withValues(alpha: 0.05),
+    );
+  }
 }
+
+enum RecipeFilter { all, completed, draft }

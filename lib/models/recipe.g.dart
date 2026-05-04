@@ -27,13 +27,14 @@ class RecipeAdapter extends TypeAdapter<Recipe> {
       createdAt: fields[7] as DateTime,
       sellingPrice: fields[8] as double?,
       targetYield: fields[9] as double?,
+      isDraft: fields[10] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Recipe obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class RecipeAdapter extends TypeAdapter<Recipe> {
       ..writeByte(8)
       ..write(obj.sellingPrice)
       ..writeByte(9)
-      ..write(obj.targetYield);
+      ..write(obj.targetYield)
+      ..writeByte(10)
+      ..write(obj.isDraft);
   }
 
   @override

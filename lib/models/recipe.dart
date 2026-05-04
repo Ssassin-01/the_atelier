@@ -35,6 +35,9 @@ class Recipe extends HiveObject {
   @HiveField(9)
   double? targetYield;
 
+  @HiveField(10)
+  bool isDraft;
+
   Recipe({
     required this.id,
     required this.name,
@@ -46,5 +49,6 @@ class Recipe extends HiveObject {
     required this.createdAt,
     this.sellingPrice,
     this.targetYield,
+    this.isDraft = false,
   });
 }

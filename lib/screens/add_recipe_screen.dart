@@ -89,6 +89,7 @@ class RecipeDraft {
   List<RecipeComponentDraft> components;
   double? sellingPrice;
   double? targetYield;
+  bool isDraft;
 
   RecipeDraft({
     this.name = '',
@@ -97,6 +98,7 @@ class RecipeDraft {
     List<RecipeComponentDraft>? components,
     this.sellingPrice,
     this.targetYield,
+    this.isDraft = false,
   }) : components =
            components ??
            [
@@ -115,6 +117,7 @@ class RecipeDraft {
     List<RecipeComponentDraft>? components,
     double? sellingPrice,
     double? targetYield,
+    bool? isDraft,
   }) {
     return RecipeDraft(
       name: name ?? this.name,
@@ -123,6 +126,7 @@ class RecipeDraft {
       components: components ?? this.components,
       sellingPrice: sellingPrice ?? this.sellingPrice,
       targetYield: targetYield ?? this.targetYield,
+      isDraft: isDraft ?? this.isDraft,
     );
   }
 
@@ -133,6 +137,7 @@ class RecipeDraft {
       mainImagePath: recipe.mainImageUrl,
       sellingPrice: recipe.sellingPrice,
       targetYield: recipe.targetYield,
+      isDraft: recipe.isDraft,
       components: recipe.components
           .map(
             (c) => RecipeComponentDraft(
@@ -321,7 +326,17 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                 },
               ),
               TextButton(
-                onPressed: () => _saveRecipe(context, ref, draft, settings),
+                onPressed: () => _saveRecipe(context, ref, draft, settings, isDraft: true),
+                child: Text(
+                  l10n.currentLanguage == '한국어' ? '임시저장' : 'DRAFT',
+                  style: ArtisanalTheme.hand(
+                    fontSize: 16,
+                    color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () => _saveRecipe(context, ref, draft, settings, isDraft: false),
                 child: Text(
                   'SAVE',
                   style: ArtisanalTheme.hand(
@@ -651,8 +666,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     BuildContext context,
     WidgetRef ref,
     RecipeDraft draft,
-    SettingsState settings,
-  ) async {
+    SettingsState settings, {
+    bool isDraft = false,
+  }) async {
     final l10n = AppLocalizations.of(context);
     if (draft.name.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -727,6 +743,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
       createdAt: DateTime.now(),
       sellingPrice: draft.sellingPrice,
       targetYield: draft.targetYield,
+      isDraft: isDraft,
       components: draft.components
           .map(
             (c) => model.RecipeComponent(
