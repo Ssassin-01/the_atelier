@@ -606,57 +606,62 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
             color: ArtisanalTheme.background,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppLocalizations.of(context).atelierProfile,
-                style: ArtisanalTheme.hand(fontSize: 28, color: ArtisanalTheme.ink)
-                    .copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.customizeStudioDesc,
-                style: ArtisanalTheme.hand(fontSize: 16, color: ArtisanalTheme.ink.withValues(alpha: 0.5)),
-              ),
-              const SizedBox(height: 32),
-              _buildStylizedField(l10n.atelierNameLabel, nameController, Icons.store_outlined),
-              const SizedBox(height: 20),
-              _buildStylizedField(l10n.contactInfoLabel, contactController, Icons.alternate_email),
-              const SizedBox(height: 40),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(l10n.cancel, style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.4))),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        ref.read(settingsProvider.notifier).updateAtelierProfile(
-                          name: nameController.text,
-                          contact: contactController.text,
-                        );
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ArtisanalTheme.ink,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context).atelierProfile,
+                  style: ArtisanalTheme.hand(fontSize: 28, color: ArtisanalTheme.ink)
+                      .copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.customizeStudioDesc,
+                  style: ArtisanalTheme.hand(fontSize: 16, color: ArtisanalTheme.ink.withValues(alpha: 0.5)),
+                ),
+                const SizedBox(height: 32),
+                _buildStylizedField(l10n.atelierNameLabel, nameController, Icons.store_outlined),
+                const SizedBox(height: 20),
+                _buildStylizedField(l10n.contactInfoLabel, contactController, Icons.alternate_email),
+                const SizedBox(height: 40),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(l10n.cancel, style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.4))),
                       ),
-                      child: Text(l10n.saveProfile, style: ArtisanalTheme.hand(fontSize: 18, color: Colors.white)),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-            ],
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          ref.read(settingsProvider.notifier).updateAtelierProfile(
+                            name: nameController.text,
+                            contact: contactController.text,
+                          );
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ArtisanalTheme.ink,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: Text(l10n.saveProfile, style: ArtisanalTheme.hand(fontSize: 18, color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

@@ -8,7 +8,6 @@ import 'models/pantry_item.dart';
 import 'models/transaction.dart';
 import 'theme/artisanal_theme.dart';
 import 'screens/dashboard_screen.dart';
-import 'screens/recipe_archive_screen.dart';
 import 'screens/add_recipe_screen.dart';
 import 'screens/business_ledger_screen.dart';
 import 'screens/studio_log_screen.dart';

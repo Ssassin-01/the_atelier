@@ -6,7 +6,6 @@ import '../l10n/app_localizations.dart';
 import '../services/recipe_service.dart';
 import '../models/recipe.dart';
 import '../widgets/artisanal_image.dart';
-import '../widgets/masking_tape.dart';
 import '../widgets/custom_clippers.dart';
 import 'recipe_detail_screen.dart';
 

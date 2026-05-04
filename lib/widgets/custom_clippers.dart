@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 class SerratedClipper extends CustomClipper<Path> {
   final double toothWidth;
@@ -88,68 +89,41 @@ class ScallopedClipper extends CustomClipper<Path> {
 class TornPaperClipper extends CustomClipper<Path> {
   final double intensity;
   final int seed;
-  final bool top;
   final bool bottom;
-  final bool left;
-  final bool right;
 
   TornPaperClipper({
-    this.intensity = 2.0,
+    this.intensity = 4.0,
     this.seed = 0,
-    this.top = true,
     this.bottom = true,
-    this.left = false,
-    this.right = false,
   });
 
   @override
   Path getClip(Size size) {
     var path = Path();
+    // Use a fixed seed for consistency within a single render
+    final random = math.Random(seed);
 
-    // Starting point
-    double startY = top ? intensity : 0;
-    path.moveTo(0, startY);
+    path.moveTo(0, 0);
+    path.lineTo(size.width, 0);
 
-    // Top Edge
-    if (top) {
-      for (double x = 0; x <= size.width; x += 6) {
-        path.lineTo(x, ((x + seed).toInt() % 12 < 6) ? 0 : intensity);
+    if (bottom) {
+      path.lineTo(size.width, size.height - intensity);
+      
+      // Generate jittery torn edge
+      double x = size.width;
+      while (x > 0) {
+        // Random step between 2 and 5 pixels for natural irregularity
+        x -= 2 + random.nextDouble() * 3;
+        if (x < 0) x = 0;
+        
+        // Random height jitter
+        double yJitter = random.nextDouble() * intensity;
+        path.lineTo(x, size.height - yJitter);
       }
-    } else {
-      path.lineTo(size.width, 0);
-    }
-
-    // Right Edge
-    if (right) {
-      for (double y = 0; y <= size.height; y += 6) {
-        path.lineTo(
-          size.width - (((y + seed).toInt() % 12 < 6) ? 0 : intensity),
-          y,
-        );
-      }
+      path.lineTo(0, size.height - intensity);
     } else {
       path.lineTo(size.width, size.height);
-    }
-
-    // Bottom Edge
-    if (bottom) {
-      for (double x = size.width; x >= 0; x -= 6) {
-        path.lineTo(
-          x,
-          size.height - (((x + seed).toInt() % 12 < 6) ? 0 : intensity),
-        );
-      }
-    } else {
       path.lineTo(0, size.height);
-    }
-
-    // Left Edge
-    if (left) {
-      for (double y = size.height; y >= 0; y -= 6) {
-        path.lineTo(((y + seed).toInt() % 12 < 6) ? 0 : intensity, y);
-      }
-    } else {
-      path.lineTo(0, 0);
     }
 
     path.close();
