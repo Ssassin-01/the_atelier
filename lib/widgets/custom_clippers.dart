@@ -159,3 +159,27 @@ class TornPaperClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => true;
 }
+class ZigZagClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    path.lineTo(0, size.height - 10);
+    
+    double x = 0;
+    double y = size.height - 10;
+    double increment = 10;
+    
+    while (x < size.width) {
+      x += increment;
+      y = (y == size.height - 10) ? size.height : size.height - 10;
+      path.lineTo(x, y);
+    }
+    
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}

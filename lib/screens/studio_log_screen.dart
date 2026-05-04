@@ -6,6 +6,8 @@ import '../l10n/app_localizations.dart';
 import '../services/recipe_service.dart';
 import '../models/recipe.dart';
 import '../widgets/artisanal_image.dart';
+import '../widgets/masking_tape.dart';
+import '../widgets/custom_clippers.dart';
 import 'recipe_detail_screen.dart';
 
 class StudioLogScreen extends ConsumerStatefulWidget {
@@ -19,6 +21,9 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
   Recipe? _selectedRecipe;
   Offset _startOffset = Offset.zero;
   late AnimationController _previewController;
+  late TextEditingController _searchController;
+  late ScrollController _scrollController;
+  String _searchQuery = '';
   
   // Sequences
   late Animation<double> _lidOpacity;
@@ -33,6 +38,8 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
+    _searchController = TextEditingController();
+    _scrollController = ScrollController();
 
     _lidOpacity = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(parent: _previewController, curve: const Interval(0.0, 0.3, curve: Curves.easeIn)),
@@ -54,6 +61,8 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
   @override
   void dispose() {
     _previewController.dispose();
+    _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -81,7 +90,13 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final recipes = ref.watch(recipeListProvider);
+    final allRecipes = ref.watch(recipeListProvider);
+    
+    // Filter recipes based on search query
+    final recipes = allRecipes.where((recipe) {
+      if (_searchQuery.isEmpty) return true;
+      return recipe.name.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
 
     return Container(
       color: const Color(0xFFF0EBE3),
@@ -91,6 +106,7 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
             child: Scaffold(
               backgroundColor: const Color(0xFFF0EBE3),
               body: CustomScrollView(
+                controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
                 slivers: [
                   _buildSliverAppBar(context, l10n),
@@ -108,8 +124,9 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
                         children: [
                           const SizedBox(height: 20),
                           _buildChalkboard(context, l10n, recipes),
+                          _buildSearchParchment(context, l10n),
                           ..._buildShelvesList(context, recipes, l10n),
-                          const SizedBox(height: 100),
+                          SizedBox(height: MediaQuery.of(context).viewInsets.bottom + 100),
                         ],
                       ),
                     ),
@@ -411,7 +428,7 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
 
   Widget _buildChalkboard(BuildContext context, AppLocalizations l10n, List<Recipe> recipes) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10), // Reduced from 20
       child: Transform(
         transform: Matrix4.identity()
           ..setEntry(3, 2, 0.0012)
@@ -506,7 +523,7 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
 
   Widget _buildSingleArtisanalShelf(BuildContext context, List<Recipe> recipes, int shelfIndex, AppLocalizations l10n) {
     return Container(
-      margin: const EdgeInsets.only(top: 100, bottom: 40),
+      margin: const EdgeInsets.only(top: 45, bottom: 35), // Increased from 10 for better breathing room
       child: Stack(
         alignment: Alignment.bottomCenter,
         clipBehavior: Clip.none,
@@ -807,6 +824,131 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSearchParchment(BuildContext context, AppLocalizations l10n) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(40, 0, 40, 0), // Top padding 0
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 1. TOP METALLIC ORDER RAIL
+            Container(
+              width: 300,
+              height: 10,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFBDBDBD), Color(0xFFEEEEEE), Color(0xFF9E9E9E)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(5),
+                  topRight: Radius.circular(5),
+                ),
+              ),
+            ),
+            
+            // 2. COMPACT HANGING RECEIPT
+            Transform.translate(
+              offset: const Offset(0, -2),
+              child: Container(
+                width: 270,
+                child: ClipPath(
+                  clipper: ZigZagClipper(),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Compact Search Input
+                        TextField(
+                          controller: _searchController,
+                          onChanged: (val) {
+                            setState(() => _searchQuery = val);
+                            if (val.isNotEmpty) {
+                              // Scroll down to bring the results into view
+                              _scrollController.animateTo(
+                                220, // Approximate height to bring shelves to top
+                                duration: const Duration(milliseconds: 400),
+                                curve: Curves.easeOutCubic,
+                              );
+                            }
+                          },
+                          style: ArtisanalTheme.hand(
+                            fontSize: 18,
+                            color: ArtisanalTheme.ink,
+                          ),
+                          cursorColor: ArtisanalTheme.ink,
+                          decoration: InputDecoration(
+                            hintText: l10n.currentLanguage == '한국어' ? 'SEARCH...' : 'SEARCH...',
+                            hintStyle: ArtisanalTheme.hand(
+                              fontSize: 18,
+                              color: ArtisanalTheme.ink.withValues(alpha: 0.15),
+                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Colors.black.withValues(alpha: 0.3),
+                              size: 18,
+                            ),
+                            suffixIcon: _searchQuery.isNotEmpty 
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, size: 18),
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() => _searchQuery = '');
+                                  },
+                                )
+                              : null,
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 4),
+                        Text(
+                          '----------------------------',
+                          style: TextStyle(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            letterSpacing: 2,
+                            fontSize: 10,
+                          ),
+                        ),
+                        
+                        // Small Date/Order Info (Minimal)
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Text(
+                            'ORDER #0001',
+                            style: ArtisanalTheme.hand(
+                              fontSize: 9,
+                              color: Colors.black.withValues(alpha: 0.15),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

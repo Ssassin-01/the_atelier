@@ -5,6 +5,7 @@ class MaskingTape extends StatelessWidget {
   final double width;
   final Color color;
   final double rotation;
+  final double opacity;
 
   const MaskingTape({
     super.key,
@@ -12,6 +13,7 @@ class MaskingTape extends StatelessWidget {
     this.width = 120,
     this.color = const Color(0xFFE2DCC8),
     this.rotation = -0.05,
+    this.opacity = 0.7,
   });
 
   @override
@@ -22,7 +24,7 @@ class MaskingTape extends StatelessWidget {
         width: width,
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.7),
+          color: color.withValues(alpha: opacity),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -34,7 +36,7 @@ class MaskingTape extends StatelessWidget {
         child: ClipPath(
           clipper: _TapeEdgeClipper(),
           child: Container(
-            color: color.withValues(alpha: 0.3),
+            color: color.withValues(alpha: opacity * 0.4),
             alignment: Alignment.center,
             child: label != null
                 ? Text(
