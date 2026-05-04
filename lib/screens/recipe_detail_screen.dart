@@ -99,14 +99,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
   }
 
   void _onEdit() {
-    // Map existing recipe to draft
-    // Map existing recipe to draft using the centralized factory
     final draft = RecipeDraft.fromModel(widget.recipe, ref.read(settingsProvider));
-
-    // Seed the provider
     ref.read(recipeDraftProvider.notifier).state = draft;
-
-    // Navigate to AddRecipeScreen in edit mode
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -126,6 +120,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
       (r) => r.id == widget.recipe.id,
       orElse: () => widget.recipe,
     );
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: ArtisanalTheme.background,
@@ -163,45 +158,48 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
               const SizedBox(width: 8),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              background: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 80),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: Text(
-                        recipe.name,
-                        textAlign: TextAlign.center,
-                        style: ArtisanalTheme.lightTheme.textTheme.displayMedium
-                            ?.copyWith(fontSize: 34),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Stack(
-                      alignment: Alignment.topCenter,
-                      clipBehavior: Clip.none,
-                      children: [
-                        const WashiTape(width: 100, rotation: -0.05),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: PolaroidCard(
-                            width: 280,
-                            image: ArtisanalImage(
-                              imagePath: recipe.mainImageUrl,
-                              recipeName: recipe.name,
-                              fit: BoxFit.cover,
-                            ),
-                            title: DateFormat(
-                              'yyyy.MM.dd',
-                            ).format(recipe.createdAt),
-                          ),
+              background: Container(
+                color: ArtisanalTheme.background,
+                child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 80),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Text(
+                          recipe.name,
+                          textAlign: TextAlign.center,
+                          style: ArtisanalTheme.lightTheme.textTheme.displayMedium
+                              ?.copyWith(fontSize: 34),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 100),
-                  ],
+                      ),
+                      const SizedBox(height: 12),
+                      Stack(
+                        alignment: Alignment.topCenter,
+                        clipBehavior: Clip.none,
+                        children: [
+                          const WashiTape(width: 100, rotation: -0.05),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: PolaroidCard(
+                              width: 280,
+                              image: ArtisanalImage(
+                                imagePath: recipe.mainImageUrl,
+                                recipeName: recipe.name,
+                                fit: BoxFit.cover,
+                              ),
+                              title: DateFormat(
+                                'yyyy.MM.dd',
+                              ).format(recipe.createdAt),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -211,103 +209,84 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
             child: CrumpleEffect(
               controller: _crumpleController,
               child: Container(
+                constraints: BoxConstraints(minHeight: screenHeight),
                 decoration: const BoxDecoration(
-                  color: ArtisanalTheme.background,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(36),
                     topRight: Radius.circular(36),
                   ),
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/wood_texture_light.png'),
+                    // ── THE QUALITY FIX ──
+                    // fitWidth + repeatY prevents stretching while filling long lists.
+                    fit: BoxFit.fitWidth,
+                    repeat: ImageRepeat.repeatY, 
+                    alignment: Alignment.topCenter,
+                    filterQuality: FilterQuality.high,
+                  ),
                 ),
-                child: Stack(
-                  alignment: Alignment.topCenter,
+                clipBehavior: Clip.antiAlias,
+                child: Column(
                   children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(36),
-                            topRight: Radius.circular(36),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                SummaryNoteScreen(recipe: recipe),
                           ),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.black.withValues(alpha: 0.04),
-                              Colors.transparent,
-                            ],
+                        ),
+                        icon: const Icon(Icons.menu_book, size: 20),
+                        label: Text(
+                          l10n.openJournalSummary,
+                          style: ArtisanalTheme.hand(fontSize: 18),
+                        ),
+                        style: TextButton.styleFrom(
+                          foregroundColor: ArtisanalTheme.ink,
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
                           ),
                         ),
                       ),
                     ),
 
-                    Column(
-                      children: [
-                        const SizedBox(height: 16),
-                        Container(
-                          width: 40,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: ArtisanalTheme.ink.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-
-                        Center(
-                          child: TextButton.icon(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    SummaryNoteScreen(recipe: recipe),
-                              ),
-                            ),
-                            icon: const Icon(Icons.menu_book, size: 20),
-                            label: Text(
-                              l10n.openJournalSummary,
-                              style: ArtisanalTheme.hand(fontSize: 18),
-                            ),
-                            style: TextButton.styleFrom(
-                              foregroundColor: ArtisanalTheme.ink,
-                              backgroundColor: ArtisanalTheme.secondary
-                                  .withValues(alpha: 0.05),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
-                              ),
+                    const SizedBox(height: 60),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        children: [
+                          ...recipe.components.map(
+                            (comp) => Padding(
+                              padding: const EdgeInsets.only(bottom: 32),
+                              child: AnimatedRecipePostIt(component: comp),
                             ),
                           ),
-                        ),
-
-                        const SizedBox(height: 60),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Column(
-                            children: [
-                              ...recipe.components.map(
-                                (comp) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 32),
-                                  child: AnimatedRecipePostIt(component: comp),
-                                ),
-                              ),
-                              if (recipe.description != null &&
-                                  recipe.description!.isNotEmpty) ...[
-                                const SizedBox(height: 10),
-                                _DescriptionCard(
-                                  description: recipe.description!,
-                                ),
-                                const SizedBox(height: 32),
-                              ],
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 100),
-                      ],
+                          if (recipe.description != null &&
+                              recipe.description!.isNotEmpty) ...[
+                            const SizedBox(height: 10),
+                            _DescriptionCard(
+                              description: recipe.description!,
+                            ),
+                            const SizedBox(height: 32),
+                          ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
@@ -384,7 +363,6 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
           alignment: Alignment.topCenter,
           clipBehavior: Clip.none,
           children: [
-            // INTERACTIVE FLIP BUILDER
             AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
@@ -411,7 +389,6 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
               },
             ),
 
-            // Tab Indicators
             Positioned(
               top: 25,
               child: Row(
@@ -424,17 +401,15 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
               ),
             ),
 
-            // DYNAMIC WASHI TAPE (Reacts to flip tension)
             AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
-                // Sticker tilts slightly as the paper flips
                 final tension = math.sin(_controller.value * math.pi) * 0.04;
                 return Positioned(
                   top: -15,
                   child: WashiTape(
                     width: 90,
-                    rotation: 0.012 + tension, // Add dynamic tilt
+                    rotation: 0.012 + tension,
                     opacity: 0.85,
                   ),
                 );
@@ -684,9 +659,9 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
               color: const Color(0xFFFEF9E7),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 15,
-                  offset: const Offset(6, 6),
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 20,
+                  offset: const Offset(8, 10),
                 ),
               ],
             ),
@@ -724,7 +699,7 @@ class _DescriptionCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(16, 40, 16, 32),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFFDF5), // Warm parchment
+                color: const Color(0xFFFFFDF5),
                 borderRadius: BorderRadius.circular(2),
                 boxShadow: [
                   BoxShadow(
