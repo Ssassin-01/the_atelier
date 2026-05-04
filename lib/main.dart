@@ -13,6 +13,7 @@ import 'screens/add_recipe_screen.dart';
 import 'screens/business_ledger_screen.dart';
 import 'screens/studio_log_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/pantry_shopping_screen.dart';
 import 'providers/locale_provider.dart';
 import 'providers/settings_provider.dart';
 import 'models/recipe.dart';
@@ -186,13 +187,20 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
     final settings = ref.watch(settingsProvider);
     final isBusiness = settings.isBusinessMode;
 
-    // Define potential screens
-    final List<Widget> allScreens = [
-      const DashboardScreen(),
-      const RecipeArchiveScreen(),
-      isBusiness ? const BusinessLedgerScreen() : const StudioLogScreen(),
-      const SettingsScreen(),
-    ];
+    // Define screens based on mode
+    final List<Widget> allScreens = isBusiness
+        ? [
+            const DashboardScreen(),
+            const BusinessLedgerScreen(),
+            const PantryShoppingScreen(), // Business also needs shopping!
+            const SettingsScreen(),
+          ]
+        : [
+            const DashboardScreen(),
+            const StudioLogScreen(),
+            const PantryShoppingScreen(),
+            const SettingsScreen(),
+          ];
 
     // Safety check for index out of bounds when switching modes
     if (_selectedIndex >= allScreens.length) {
@@ -218,26 +226,26 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
               Expanded(
                 child: _buildNavItem(
                   0,
-                  Icons.storefront_outlined,
-                  Icons.storefront,
+                  Icons.home_outlined,
+                  Icons.home,
                   l10n.dashboard,
                 ),
               ),
               Expanded(
                 child: _buildNavItem(
                   1,
-                  Icons.menu_book_outlined,
-                  Icons.menu_book,
-                  l10n.journal,
+                  isBusiness ? Icons.receipt_long_outlined : Icons.auto_awesome_outlined,
+                  isBusiness ? Icons.receipt_long : Icons.auto_awesome,
+                  isBusiness ? l10n.businessOperations : l10n.studioLog,
                 ),
               ),
               const SizedBox(width: 80), // FAB space
               Expanded(
                 child: _buildNavItem(
                   2,
-                  isBusiness ? Icons.analytics_outlined : Icons.insights,
-                  isBusiness ? Icons.analytics : Icons.insights,
-                  isBusiness ? l10n.businessAnalytics : l10n.studioLog,
+                  Icons.shopping_basket_outlined,
+                  Icons.shopping_basket,
+                  l10n.currentLanguage == '한국어' ? '장보기' : 'Shopping',
                 ),
               ),
               Expanded(
