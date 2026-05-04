@@ -295,11 +295,12 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               },
             ),
             title: Text(
-              l10n.atelierNotebook.toUpperCase(),
+              l10n.currentLanguage == '한국어' ? '레시피 작성' : 'NEW RECIPE',
               style: ArtisanalTheme.hand(
-                fontSize: 16,
-                color: ArtisanalTheme.secondary,
-                letterSpacing: 2,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: ArtisanalTheme.ink,
+                letterSpacing: 1.2,
               ),
             ),
             actions: [
@@ -674,10 +675,14 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            l10n.nameYourMasterpiece,
+            l10n.currentLanguage == '한국어' 
+                ? '먼저 레시피 이름을 작성해주세요!' 
+                : l10n.nameYourMasterpiece,
             style: ArtisanalTheme.hand(color: Colors.white),
           ),
-          backgroundColor: ArtisanalTheme.redInk,
+          backgroundColor: ArtisanalTheme.secondary.withValues(alpha: 0.9),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
       return;
@@ -849,8 +854,9 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                               )
                             : ArtisanalImage(
                                 imagePath: path,
-                                fit: BoxFit.cover,
+                                fit: BoxFit.contain, // Changed from cover to contain to see full sketch
                                 width: double.infinity,
+                                backgroundColor: const Color(0xFFF2EFED),
                               ),
                       ),
                       // Action Overlay when empty (or placeholder)

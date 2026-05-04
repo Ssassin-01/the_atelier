@@ -97,7 +97,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
               // ── LAYER 3: SCROLLABLE WORKBENCH CONTENT ───────────────────────
               CustomScrollView(
-                physics: const BouncingScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 slivers: [
                   const SliverToBoxAdapter(child: SizedBox(height: 64)),
 
@@ -196,7 +196,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                     ),
                   ),
 
-                  const SliverToBoxAdapter(child: SizedBox(height: 56)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 32)),
 
                   // 5. Atelier Signature
                   SliverToBoxAdapter(

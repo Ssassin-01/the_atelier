@@ -125,40 +125,39 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
       color: const Color(0xFFF0EBE3),
       child: Stack(
         children: [
-          ClipRect(
-            child: Scaffold(
-              backgroundColor: const Color(0xFFF0EBE3),
-              body: CustomScrollView(
-                controller: _scrollController,
-                physics: const ClampingScrollPhysics(),
-                slivers: [
-                  _buildSliverAppBar(context, l10n),
-                  SliverToBoxAdapter(
-                    child: Container(
-                      width: MediaQuery.of(context).size.width + 2,
-                      decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/wallpaper.png'),
-                          repeat: ImageRepeat.repeat,
-                          opacity: 0.12,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 20),
-                          _buildChalkboard(context, l10n, recipes, allRecipes),
-                          _buildSearchParchment(context, l10n),
-                          ..._buildShelvesList(context, recipes, l10n),
-                          SizedBox(
-                            height:
-                                MediaQuery.of(context).viewInsets.bottom + 100,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+          // Fixed Wallpaper Background
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/wallpaper.png'),
+                  repeat: ImageRepeat.repeat,
+                  opacity: 0.12,
+                ),
               ),
+            ),
+          ),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            body: CustomScrollView(
+              controller: _scrollController,
+              physics: const ClampingScrollPhysics(),
+              slivers: [
+                _buildSliverAppBar(context, l10n),
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      _buildChalkboard(context, l10n, recipes, allRecipes),
+                      _buildSearchParchment(context, l10n),
+                      ..._buildShelvesList(context, recipes, l10n),
+                      SizedBox(
+                        height: MediaQuery.of(context).viewInsets.bottom + 100,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
 

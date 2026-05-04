@@ -161,16 +161,20 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
           if (_editingId != null) _finishEditing();
           FocusScope.of(context).unfocus();
         },
-        child: Container(
-          decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/wallpaper.png'),
-            repeat: ImageRepeat.repeat,
-            opacity: 0.12,
-          ),
-        ),
         child: Stack(
           children: [
+            // Fixed Wallpaper Background
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/wallpaper.png'),
+                    repeat: ImageRepeat.repeat,
+                    opacity: 0.12,
+                  ),
+                ),
+              ),
+            ),
             CustomScrollView(
               controller: _scrollController,
               slivers: [
@@ -207,13 +211,11 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
               ],
             ),
             
-            // FLYING ITEM OVERLAY
             if (_flyingItemName != null) _buildFlyingItemOverlay(),
           ],
         ),
       ),
-    ),
-);
+    );
   }
 
   Widget _buildSectionHeader(String title, {Key? sectionKey}) {

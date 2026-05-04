@@ -486,7 +486,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchRecipes => '레시피를 검색하세요...';
 
   @override
-  String get recentlyBaked => '최근 구워낸 기록들';
+  String get recentlyBaked => '최근 기록';
 
   @override
   String get emptyState => '기록된 레시피가 없습니다. 첫 연구를 시작해보세요!';

@@ -8,6 +8,7 @@ class ArtisanalImage extends StatelessWidget {
   final double? width;
   final double? height;
   final BoxFit fit;
+  final Color? backgroundColor;
 
   const ArtisanalImage({
     super.key,
@@ -16,6 +17,7 @@ class ArtisanalImage extends StatelessWidget {
     this.width,
     this.height,
     this.fit = BoxFit.cover,
+    this.backgroundColor,
   });
 
   @override
@@ -24,34 +26,39 @@ class ArtisanalImage extends StatelessWidget {
       return _buildPlaceholder();
     }
 
-    if (imagePath!.startsWith('http')) {
-      return Image.network(
-        imagePath!,
+    final result = imagePath!.startsWith('http')
+        ? Image.network(
+            imagePath!,
+            width: width,
+            height: height,
+            fit: fit,
+            errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+          )
+        : imagePath!.startsWith('assets/')
+            ? Image.asset(
+                imagePath!,
+                width: width,
+                height: height,
+                fit: fit,
+                errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+              )
+            : Image.file(
+                File(imagePath!),
+                width: width,
+                height: height,
+                fit: fit,
+                errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+              );
+
+    if (backgroundColor != null) {
+      return Container(
         width: width,
         height: height,
-        fit: fit,
-        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
-      );
-    } else if (imagePath!.startsWith('assets/')) {
-      return Image.asset(
-        imagePath!,
-        width: width,
-        height: height,
-        fit: fit,
-        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
-      );
-    } else {
-      final file = File(imagePath!);
-      if (!file.existsSync()) return _buildPlaceholder();
-      
-      return Image.file(
-        file,
-        width: width,
-        height: height,
-        fit: fit,
-        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+        color: backgroundColor,
+        child: result,
       );
     }
+    return result;
   }
 
   Widget _buildPlaceholder() {
@@ -62,10 +69,10 @@ class ArtisanalImage extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Use the smaller dimension to keep the circle within bounds
-        final size = constraints.maxWidth.isFinite 
-            ? constraints.maxWidth 
+        final size = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
             : (width ?? 200.0);
-            
+
         return Container(
           width: width,
           height: height,
@@ -81,7 +88,8 @@ class ArtisanalImage extends StatelessWidget {
                   height: size * 0.7,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFF4E342E), width: 1.5),
+                    border:
+                        Border.all(color: const Color(0xFF4E342E), width: 1.5),
                   ),
                 ),
               ),

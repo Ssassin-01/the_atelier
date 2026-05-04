@@ -153,7 +153,8 @@ class _JournalPagePreview extends StatelessWidget {
                                     aspectRatio: 4 / 3,
                                     child: ArtisanalImage(
                                       imagePath: draft.mainImagePath!,
-                                      fit: BoxFit.cover,
+                                      fit: BoxFit.contain,
+                                      backgroundColor: Colors.white,
                                     ),
                                   ),
                                 ),
@@ -320,7 +321,8 @@ class _ComponentPreview extends StatelessWidget {
                           aspectRatio: 1,
                           child: ArtisanalImage(
                             imagePath: component.imagePath!,
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
+                            backgroundColor: Colors.white,
                           ),
                         ),
                       ),
