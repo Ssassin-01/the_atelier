@@ -10,7 +10,7 @@ import 'theme/artisanal_theme.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/recipe_archive_screen.dart';
 import 'screens/add_recipe_screen.dart';
-import 'screens/business_analytics_screen.dart';
+import 'screens/business_ledger_screen.dart';
 import 'screens/studio_log_screen.dart';
 import 'screens/settings_screen.dart';
 import 'providers/locale_provider.dart';
@@ -190,7 +190,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
     final List<Widget> allScreens = [
       const DashboardScreen(),
       const RecipeArchiveScreen(),
-      isBusiness ? const BusinessAnalyticsScreen() : const StudioLogScreen(),
+      isBusiness ? const BusinessLedgerScreen() : const StudioLogScreen(),
       const SettingsScreen(),
     ];
 
