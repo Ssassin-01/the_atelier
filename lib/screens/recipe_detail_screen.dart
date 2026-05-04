@@ -190,6 +190,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                             width: 280,
                             image: ArtisanalImage(
                               imagePath: recipe.mainImageUrl,
+                              recipeName: recipe.name,
                               fit: BoxFit.cover,
                             ),
                             title: DateFormat(
@@ -445,7 +446,7 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
     );
   }
 
-  Widget _buildMiniPolaroid(String imagePath) {
+  Widget _buildMiniPolaroid(String? imagePath) {
     return Container(
       width: 80,
       padding: const EdgeInsets.fromLTRB(6, 6, 6, 18),
@@ -461,7 +462,11 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
       ),
       child: AspectRatio(
         aspectRatio: 1,
-        child: ArtisanalImage(imagePath: imagePath, fit: BoxFit.cover),
+        child: ArtisanalImage(
+          imagePath: imagePath,
+          recipeName: widget.component.title,
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
@@ -687,15 +692,14 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
             ),
             child: child,
           ),
-          if (imageUrl != null)
-            Positioned(
-              top: 50,
-              right: 15,
-              child: Transform.rotate(
-                angle: 0.08,
-                child: _buildMiniPolaroid(imageUrl),
-              ),
+          Positioned(
+            top: 50,
+            right: 15,
+            child: Transform.rotate(
+              angle: 0.08,
+              child: _buildMiniPolaroid(imageUrl),
             ),
+          ),
         ],
       ),
     );

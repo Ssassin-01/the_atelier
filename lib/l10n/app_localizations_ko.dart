@@ -1181,4 +1181,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get totalSteps => '작성된 단계';
+
+  @override
+  String get loadSamples => '샘플 데이터 로드';
+
+  @override
+  String get viewFullRecipe => '전체 레시피 보기';
+
+  @override
+  String get artisanalArchive => '아티장 아카이브';
+
+  @override
+  String get crafting => '작업 중...';
 }

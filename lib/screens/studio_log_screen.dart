@@ -69,10 +69,12 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
   }
 
   void _closePreview() {
+    _previewController.duration = const Duration(milliseconds: 500); // Fast close
     _previewController.reverse().then((_) {
       setState(() {
         _selectedRecipe = null;
       });
+      _previewController.duration = const Duration(milliseconds: 1200); // Reset for next open
     });
   }
 
@@ -106,7 +108,7 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
                         children: [
                           const SizedBox(height: 20),
                           _buildChalkboard(context, l10n, recipes),
-                          ..._buildShelvesList(context, recipes),
+                          ..._buildShelvesList(context, recipes, l10n),
                           const SizedBox(height: 100),
                         ],
                       ),
@@ -117,18 +119,19 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
             ),
           ),
           
-          if (_selectedRecipe != null) _buildSeamlessPreviewOverlay(context),
+          if (_selectedRecipe != null) _buildSeamlessPreviewOverlay(context, l10n),
         ],
       ),
     );
   }
 
-  Widget _buildSeamlessPreviewOverlay(BuildContext context) {
+  Widget _buildSeamlessPreviewOverlay(BuildContext context, AppLocalizations l10n) {
     final screenSize = MediaQuery.of(context).size;
-    // Adjust center offset for the new rectangular canvas
     final canvasWidth = 280.0;
     final canvasHeight = 340.0;
-    final centerOffset = Offset(screenSize.width / 2 - canvasWidth / 2, screenSize.height / 2 - canvasHeight / 2 - 40);
+    
+    const double topPadding = 100.0;
+    final centerOffset = Offset(screenSize.width / 2 - canvasWidth / 2, topPadding);
 
     return AnimatedBuilder(
       animation: _previewController,
@@ -139,10 +142,11 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
           _flyProgress.value,
         )!;
 
-        // Animate size of the paper canvas
         final currentWidth = 75.0 + ((canvasWidth - 75.0) * _flyProgress.value);
         final currentHeight = 75.0 + ((canvasHeight - 75.0) * _flyProgress.value);
         final paperCornerRadius = 2.0 + (6.0 * _flyProgress.value);
+        final initial = _selectedRecipe!.name.isNotEmpty ? _selectedRecipe!.name[0].toUpperCase() : '?';
+        final hasImage = _selectedRecipe!.mainImageUrl != null && _selectedRecipe!.mainImageUrl!.isNotEmpty;
 
         return Stack(
           children: [
@@ -154,7 +158,162 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
               ),
             ),
 
-            // CLOSE BUTTON (Top Right)
+
+            if (_previewController.value > 0.9)
+              Positioned.fill(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  padding: const EdgeInsets.only(top: topPadding, bottom: 80),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          final recipe = _selectedRecipe!;
+                          _closePreview();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => RecipeDetailScreen(recipe: recipe)),
+                          );
+                        },
+                        child: Stack(
+                          alignment: Alignment.topCenter,
+                          clipBehavior: Clip.none, // Allow sticker to bleed out
+                          children: [
+                            // 1. THE WHITE PAPER CANVAS
+                            Container(
+                              width: canvasWidth,
+                              height: canvasHeight,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(paperCornerRadius),
+                                boxShadow: [
+                                  BoxShadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 30, offset: const Offset(0, 15)),
+                                ],
+                              ),
+                              child: Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  child: (_selectedRecipe!.mainImageUrl != null && _selectedRecipe!.mainImageUrl!.isNotEmpty)
+                                      ? ArtisanalImage(imagePath: _selectedRecipe!.mainImageUrl, fit: BoxFit.cover)
+                                      : Container(
+                                          color: const Color(0xFFFDFCF7),
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              Opacity(
+                                                opacity: 0.15,
+                                                child: Container(
+                                                  width: canvasWidth * 0.7,
+                                                  height: canvasWidth * 0.7,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(color: const Color(0xFF4E342E), width: 1.5),
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                initial,
+                                                style: ArtisanalTheme.hand(
+                                                  fontSize: 120,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: const Color(0xFF4E342E),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ),
+                            // 2. THE MASKING TAPE STICKER (OUTER)
+                            if (_previewController.value > 0.95)
+                              Positioned(
+                                top: -16, // Truly overlaps the white edge now
+                                child: Opacity(
+                                  opacity: _textReveal.value,
+                                  child: Transform.rotate(
+                                    angle: -0.04,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFF9E5),
+                                        borderRadius: BorderRadius.circular(1),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.15),
+                                            blurRadius: 4,
+                                            offset: const Offset(1, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            width: 6,
+                                            height: 6,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF8B6B58).withValues(alpha: 0.2),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            l10n.viewFullRecipe.toUpperCase(),
+                                            style: ArtisanalTheme.hand(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: const Color(0xFF8B6B58),
+                                              letterSpacing: 1.2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      
+                      Opacity(
+                        opacity: _textReveal.value,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Column(
+                            children: [
+                              Text(
+                                _selectedRecipe!.name,
+                                textAlign: TextAlign.center,
+                                style: ArtisanalTheme.hand(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                              const SizedBox(height: 24),
+                              
+                              Text(
+                                _selectedRecipe!.description ?? l10n.artisanalArchive,
+                                textAlign: TextAlign.center,
+                                style: ArtisanalTheme.hand(fontSize: 17, color: Colors.white.withValues(alpha: 0.9), height: 1.5),
+                              ),
+                              const SizedBox(height: 60),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // CLOSE BUTTON (X) - Moved to top of stack
             if (_previewController.value > 0.8)
               Positioned(
                 top: 50,
@@ -166,27 +325,15 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
                     icon: const Icon(Icons.close, color: Colors.white, size: 32),
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white.withValues(alpha: 0.1),
-                      padding: const EdgeInsets.all(8),
                     ),
                   ),
                 ),
               ),
 
-            // THE FLYING ARTISANAL CANVAS
-            Positioned(
-              left: currentPos.dx,
-              top: currentPos.dy,
-              child: GestureDetector(
-                onTap: () {
-                  if (_previewController.value > 0.9) {
-                    final recipe = _selectedRecipe!;
-                    _closePreview();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RecipeDetailScreen(recipe: recipe)),
-                    );
-                  }
-                },
+            if (_previewController.value <= 0.9)
+              Positioned(
+                left: currentPos.dx,
+                top: currentPos.dy,
                 child: Transform.rotate(
                   angle: (1.0 - _flyProgress.value) * -0.5,
                   child: Container(
@@ -206,81 +353,35 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
                     ),
                     child: Column(
                       children: [
-                        // The Photo (Circular on plate, slightly rounded square on paper)
                         Expanded(
                           child: Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(math.max(100.0 * (1.0 - _flyProgress.value), 4.0)),
-                              boxShadow: [
-                                if (_flyProgress.value > 0.5)
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 10,
-                                    spreadRadius: -2,
-                                  ),
-                              ],
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(math.max(100.0 * (1.0 - _flyProgress.value), 4.0)),
-                              child: ArtisanalImage(
-                                imagePath: _selectedRecipe!.mainImageUrl,
-                                fit: BoxFit.cover,
-                              ),
+                              child: hasImage
+                                  ? ArtisanalImage(imagePath: _selectedRecipe!.mainImageUrl, fit: BoxFit.cover)
+                                  : Container(
+                                      color: const Color(0xFFFDFCF7),
+                                      child: Center(
+                                        child: Text(
+                                          initial,
+                                          style: ArtisanalTheme.hand(
+                                            fontSize: 40.0 + (80.0 * _flyProgress.value),
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF4E342E),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                             ),
                           ),
                         ),
-                        // Paper Bottom Space (for text reveal)
-                        if (_flyProgress.value > 0.7)
-                          SizedBox(height: 20 * _flyProgress.value),
+                        if (_flyProgress.value > 0.7) SizedBox(height: 20 * _flyProgress.value),
                       ],
                     ),
-                  ),
-                ),
-              ),
-            ),
-
-            // TEXT REVEAL (Layered on top of the canvas area)
-            if (_previewController.value > 0.8)
-              Positioned(
-                top: centerOffset.dy + canvasHeight + 10,
-                left: 0,
-                right: 0,
-                child: Opacity(
-                  opacity: _textReveal.value,
-                  child: Column(
-                    children: [
-                      Text(
-                        _selectedRecipe!.name,
-                        textAlign: TextAlign.center,
-                        style: ArtisanalTheme.hand(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Text(
-                          _selectedRecipe!.description ?? "Artisanal bakery archive...",
-                          textAlign: TextAlign.center,
-                          style: ArtisanalTheme.hand(fontSize: 16, color: Colors.white.withValues(alpha: 0.85)),
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.5)),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          "TAP TO OPEN FULL RECIPE",
-                          style: ArtisanalTheme.hand(
-                            fontSize: 11,
-                            color: ArtisanalTheme.primary,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ),
               ),
@@ -346,6 +447,23 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
                 _buildChalkStat(l10n.totalRecipes, recipes.length.toString()),
                 Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.05)),
                 _buildChalkStat(l10n.totalSteps, recipes.fold(0, (sum, r) => sum + r.components.fold(0, (s, c) => s + c.steps.length)).toString()),
+                if (recipes.isEmpty) ...[
+                  Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.05)),
+                  GestureDetector(
+                    onTap: () => ref.read(recipeListProvider.notifier).seedSamples(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.auto_awesome, color: Color(0xFFC4A484), size: 24),
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.loadSamples.toUpperCase(),
+                          style: ArtisanalTheme.hand(color: const Color(0xFFC4A484), fontSize: 8, letterSpacing: 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -376,17 +494,17 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
     );
   }
 
-  List<Widget> _buildShelvesList(BuildContext context, List<Recipe> recipes) {
+  List<Widget> _buildShelvesList(BuildContext context, List<Recipe> recipes, AppLocalizations l10n) {
     const int itemsPerShelf = 3;
     final int shelfCount = math.max((recipes.length / itemsPerShelf).ceil(), 3);
     
     return List.generate(shelfCount, (index) {
       final shelfRecipes = recipes.skip(index * itemsPerShelf).take(itemsPerShelf).toList();
-      return _buildSingleArtisanalShelf(context, shelfRecipes, index);
+      return _buildSingleArtisanalShelf(context, shelfRecipes, index, l10n);
     });
   }
 
-  Widget _buildSingleArtisanalShelf(BuildContext context, List<Recipe> recipes, int shelfIndex) {
+  Widget _buildSingleArtisanalShelf(BuildContext context, List<Recipe> recipes, int shelfIndex, AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.only(top: 100, bottom: 40),
       child: Stack(
@@ -439,7 +557,7 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
               children: List.generate(3, (i) {
                 if (i < recipes.length) {
                   return Builder(builder: (itemContext) {
-                    return _buildInteractiveCloche(itemContext, recipes[i]);
+                    return _buildInteractiveCloche(itemContext, recipes[i], l10n);
                   });
                 } else {
                   return const SizedBox(width: 100);
@@ -470,7 +588,7 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
     );
   }
 
-  Widget _buildInteractiveCloche(BuildContext itemContext, Recipe recipe) {
+  Widget _buildInteractiveCloche(BuildContext itemContext, Recipe recipe, AppLocalizations l10n) {
     final isSelected = _selectedRecipe?.id == recipe.id;
     final hasImage = recipe.mainImageUrl != null && recipe.mainImageUrl!.isNotEmpty;
     
@@ -521,7 +639,42 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen> with TickerPr
                   child: ClipOval(
                     child: hasImage
                         ? ArtisanalImage(imagePath: recipe.mainImageUrl, fit: BoxFit.cover)
-                        : Container(color: const Color(0xFFF5F2EA)),
+                        : Container(
+                            color: const Color(0xFFFDFCF7),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Opacity(
+                                  opacity: 0.1,
+                                  child: Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: const Color(0xFF4E342E), width: 1),
+                                    ),
+                                  ),
+                                ),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      recipe.name.isNotEmpty ? recipe.name[0].toUpperCase() : '?',
+                                      style: ArtisanalTheme.hand(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF4E342E).withValues(alpha: 0.8),
+                                      ),
+                                    ),
+                                    Text(
+                                      l10n.crafting.toUpperCase(),
+                                      style: ArtisanalTheme.hand(fontSize: 4, color: const Color(0xFF4E342E), letterSpacing: 1),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                   ),
                 ),
               ),

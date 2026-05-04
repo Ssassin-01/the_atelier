@@ -422,5 +422,9 @@
   "effort": "Traces of Effort",
   "totalRecipes": "Total Recipes",
   "totalComponents": "Sub-components",
-  "totalSteps": "Written Steps"
+  "totalSteps": "Written Steps",
+  "loadSamples": "Load Sample Data",
+  "viewFullRecipe": "View Full Recipe",
+  "artisanalArchive": "Artisanal Archive",
+  "crafting": "Crafting..."
 }

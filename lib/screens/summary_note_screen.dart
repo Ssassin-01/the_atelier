@@ -188,8 +188,7 @@ class _JournalPage extends StatelessWidget {
     final title =
         recipe?.name ??
         (l10n.currentLanguage == '한국어' ? '이름 없는 연구' : 'Untitled Study');
-    final mainImage =
-        recipe?.mainImageUrl ?? 'assets/images/pumpkin_dessert.png';
+    final mainImage = recipe?.mainImageUrl;
     final components = recipe?.components ?? [];
 
     return Container(
@@ -277,6 +276,7 @@ class _JournalPage extends StatelessWidget {
                                   aspectRatio: 4 / 3,
                                   child: ArtisanalImage(
                                     imagePath: mainImage,
+                                    recipeName: title,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -371,43 +371,40 @@ class _RecipeSection extends ConsumerWidget {
                 ],
               ),
             ),
-            if (component.imageUrl != null &&
-                component.imageUrl!.isNotEmpty) ...[
-              const SizedBox(width: 16),
-              Transform.rotate(
-                angle: 0.05,
-                child: Stack(
-                  alignment: Alignment.topCenter,
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 6,
-                            offset: const Offset(2, 2),
-                          ),
-                        ],
-                      ),
-                      child: SizedBox(
-                        width: 110,
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: ArtisanalImage(
-                            imagePath: component.imageUrl!,
-                            fit: BoxFit.cover,
-                          ),
+            Transform.rotate(
+              angle: 0.05,
+              child: Stack(
+                alignment: Alignment.topCenter,
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(4, 4, 4, 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 6,
+                          offset: const Offset(2, 2),
+                        ),
+                      ],
+                    ),
+                    child: SizedBox(
+                      width: 110,
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: ArtisanalImage(
+                          imagePath: component.imageUrl,
+                          recipeName: component.title,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
-                    const Positioned(top: -10, child: MaskingTape(width: 60)),
-                  ],
-                ),
+                  ),
+                  const Positioned(top: -10, child: MaskingTape(width: 60)),
+                ],
               ),
-            ],
+            ),
           ],
         ),
         const SizedBox(height: 20),

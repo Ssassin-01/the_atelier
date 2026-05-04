@@ -420,5 +420,9 @@
   "effort": "기록의 흔적",
   "totalRecipes": "전체 레시피",
   "totalComponents": "세부 공정",
-  "totalSteps": "작성된 단계"
+  "totalSteps": "작성된 단계",
+  "loadSamples": "샘플 데이터 로드",
+  "viewFullRecipe": "전체 레시피 보기",
+  "artisanalArchive": "아티장 아카이브",
+  "crafting": "작업 중..."
 }

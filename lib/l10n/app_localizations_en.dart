@@ -1208,4 +1208,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get totalSteps => 'Written Steps';
+
+  @override
+  String get loadSamples => 'Load Sample Data';
+
+  @override
+  String get viewFullRecipe => 'View Full Recipe';
+
+  @override
+  String get artisanalArchive => 'Artisanal Archive';
+
+  @override
+  String get crafting => 'Crafting...';
 }

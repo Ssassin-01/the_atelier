@@ -2395,6 +2395,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Written Steps'**
   String get totalSteps;
+
+  /// No description provided for @loadSamples.
+  ///
+  /// In en, this message translates to:
+  /// **'Load Sample Data'**
+  String get loadSamples;
+
+  /// No description provided for @viewFullRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'View Full Recipe'**
+  String get viewFullRecipe;
+
+  /// No description provided for @artisanalArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Artisanal Archive'**
+  String get artisanalArchive;
+
+  /// No description provided for @crafting.
+  ///
+  /// In en, this message translates to:
+  /// **'Crafting...'**
+  String get crafting;
 }
 
 class _AppLocalizationsDelegate
