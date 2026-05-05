@@ -7,7 +7,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'models/pantry_item.dart';
 import 'models/transaction.dart';
 import 'theme/artisanal_theme.dart';
+import 'providers/navigation_provider.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/dashboard_basic_screen.dart';
 import 'screens/add_recipe_screen.dart';
 import 'screens/business_ledger_screen.dart';
 import 'screens/studio_log_screen.dart';
@@ -96,12 +98,9 @@ class MainScaffold extends ConsumerStatefulWidget {
 }
 
 class _MainScaffoldState extends ConsumerState<MainScaffold> {
-  int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    ref.read(navigationProvider.notifier).state = index;
   }
 
   @override
@@ -113,7 +112,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
     List<Widget> allScreens;
     if (mode == 'basic') {
       allScreens = [
-        const DashboardScreen(),
+        const DashboardBasicScreen(),
         const RecipeArchiveScreen(), // Classic recipe grid
         const PantryShoppingScreen(),
         const SettingsScreen(),
@@ -135,9 +134,13 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
       ];
     }
 
+    final selectedIndex = ref.watch(navigationProvider);
+
     // Safety check for index out of bounds when switching modes
-    if (_selectedIndex >= allScreens.length) {
-      _selectedIndex = allScreens.length - 1;
+    if (selectedIndex >= allScreens.length) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(navigationProvider.notifier).state = allScreens.length - 1;
+      });
     }
 
     final l10n = AppLocalizations.of(context);
@@ -218,7 +221,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
           child: const Icon(Icons.draw, color: Colors.white, size: 32),
         ),
       ),
-      body: IndexedStack(index: _selectedIndex, children: allScreens),
+      body: IndexedStack(index: ref.watch(navigationProvider), children: allScreens),
     );
   }
 
@@ -248,7 +251,8 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
     IconData activeIcon,
     String label,
   ) {
-    final isSelected = _selectedIndex == index;
+    final selectedIndex = ref.watch(navigationProvider);
+    final isSelected = selectedIndex == index;
     return Material(
       color: Colors.transparent,
       child: InkWell(
