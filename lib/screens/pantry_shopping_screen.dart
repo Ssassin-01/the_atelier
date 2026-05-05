@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math' as math;
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/settings_provider.dart';
 
 class ShoppingItem {
   final String id;
@@ -155,7 +156,7 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
     final l10n = AppLocalizations.of(context);
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF0EBE3),
+      backgroundColor: ArtisanalTheme.background,
       body: GestureDetector(
         onTap: () {
           if (_editingId != null) _finishEditing();
@@ -164,17 +165,18 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
         child: Stack(
           children: [
             // Fixed Wallpaper Background
-            Positioned.fill(
-              child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/wallpaper.png'),
-                    repeat: ImageRepeat.repeat,
-                    opacity: 0.12,
+            if (ref.watch(settingsProvider).appMode != 'basic')
+              Positioned.fill(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/wallpaper.png'),
+                      repeat: ImageRepeat.repeat,
+                      opacity: 0.12,
+                    ),
                   ),
                 ),
               ),
-            ),
             CustomScrollView(
               controller: _scrollController,
               slivers: [

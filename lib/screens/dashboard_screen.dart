@@ -79,21 +79,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           return Stack(
             children: [
               // ── LAYER 1: FIXED MASTER BACKGROUND (Wallpaper) ────────────────
-              Positioned.fill(
-                child: Image.asset(
-                  'assets/images/wallpaper.png',
-                  repeat: ImageRepeat.repeat,
-                  opacity: const AlwaysStoppedAnimation(0.12),
-                  fit: BoxFit.none,
+              if (ref.watch(settingsProvider).appMode != 'basic') ...[
+                Positioned.fill(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/wallpaper.png'),
+                        repeat: ImageRepeat.repeat,
+                        opacity: 0.12,
+                        fit: BoxFit.none,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
 
-              // ── LAYER 2: MASTER STAINS (Flour Dust) ─────────────────────────
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: _WorkbenchStainsPainter(),
+                // ── LAYER 2: MASTER STAINS (Flour Dust) ─────────────────────────
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: _WorkbenchStainsPainter(),
+                  ),
                 ),
-              ),
+              ],
 
               // ── LAYER 3: SCROLLABLE WORKBENCH CONTENT ───────────────────────
               CustomScrollView(

@@ -13,6 +13,7 @@ import 'screens/business_ledger_screen.dart';
 import 'screens/studio_log_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/pantry_shopping_screen.dart';
+import 'screens/recipe_archive_screen.dart'; // Import the recipe archive for basic mode
 import 'providers/locale_provider.dart';
 import 'providers/settings_provider.dart';
 import 'models/recipe.dart';
@@ -37,7 +38,6 @@ void main() async {
 
   try {
     // Open boxes
-    // If opening fails (usually due to model mismatch), we clear and restart
     Box<Recipe>? recipeBox;
     try {
       recipeBox = await Hive.openBox<Recipe>('recipes');
@@ -47,11 +47,11 @@ void main() async {
       recipeBox = await Hive.openBox<Recipe>('recipes');
     }
 
-    final pantryBox = await Hive.openBox<PantryItem>('pantry');
-    final transactionBox = await Hive.openBox<BusinessTransaction>('transactions');
+    await Hive.openBox<PantryItem>('pantry');
+    await Hive.openBox<BusinessTransaction>('transactions');
     await Hive.openBox('settings');
 
-    // Populate with mock data only if boxes are empty (first run or after reset)
+    // Populate with mock data only if boxes are empty
     if (recipeBox.isEmpty) {
       for (var recipe in getMockRecipes()) {
         await recipeBox.put(recipe.id, recipe);
@@ -59,7 +59,6 @@ void main() async {
     }
   } catch (e) {
     debugPrint("Critical Hive initialization failed: $e");
-    // Fallback to ensure app at least starts
   }
 
   runApp(const ProviderScope(child: MyAtelierApp()));
@@ -108,22 +107,33 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
-    final isBusiness = settings.isBusinessMode;
+    final mode = settings.appMode;
 
     // Define screens based on mode
-    final List<Widget> allScreens = isBusiness
-        ? [
-            const DashboardScreen(),
-            const BusinessLedgerScreen(),
-            const PantryShoppingScreen(), // Business also needs shopping!
-            const SettingsScreen(),
-          ]
-        : [
-            const DashboardScreen(),
-            const StudioLogScreen(),
-            const PantryShoppingScreen(),
-            const SettingsScreen(),
-          ];
+    List<Widget> allScreens;
+    if (mode == 'basic') {
+      allScreens = [
+        const DashboardScreen(),
+        const RecipeArchiveScreen(), // Classic recipe grid
+        const PantryShoppingScreen(),
+        const SettingsScreen(),
+      ];
+    } else if (mode == 'business') {
+      allScreens = [
+        const DashboardScreen(),
+        const BusinessLedgerScreen(),
+        const PantryShoppingScreen(),
+        const SettingsScreen(),
+      ];
+    } else {
+      // Creative mode
+      allScreens = [
+        const DashboardScreen(),
+        const StudioLogScreen(),
+        const PantryShoppingScreen(),
+        const SettingsScreen(),
+      ];
+    }
 
     // Safety check for index out of bounds when switching modes
     if (_selectedIndex >= allScreens.length) {
@@ -131,6 +141,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
     }
 
     final l10n = AppLocalizations.of(context);
+    final isKo = l10n.currentLanguage == '한국어';
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -151,15 +162,15 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                   0,
                   Icons.home_outlined,
                   Icons.home,
-                  l10n.dashboard,
+                  isKo ? '홈' : l10n.dashboard,
                 ),
               ),
               Expanded(
                 child: _buildNavItem(
                   1,
-                  isBusiness ? Icons.receipt_long_outlined : Icons.auto_awesome_outlined,
-                  isBusiness ? Icons.receipt_long : Icons.auto_awesome,
-                  isBusiness ? l10n.businessOperations : l10n.studioLog,
+                  _getSecondTabIcon(mode, false),
+                  _getSecondTabIcon(mode, true),
+                  _getSecondTabLabel(mode, l10n, isKo),
                 ),
               ),
               const SizedBox(width: 80), // FAB space
@@ -168,7 +179,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                   2,
                   Icons.shopping_basket_outlined,
                   Icons.shopping_basket,
-                  l10n.currentLanguage == '한국어' ? '장보기' : 'Shopping',
+                  isKo ? '장보기' : 'Shopping',
                 ),
               ),
               Expanded(
@@ -176,7 +187,7 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
                   3,
                   Icons.settings_outlined,
                   Icons.settings,
-                  l10n.settings,
+                  isKo ? '설정' : l10n.settings,
                 ),
               ),
             ],
@@ -209,6 +220,26 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
       ),
       body: IndexedStack(index: _selectedIndex, children: allScreens),
     );
+  }
+
+  IconData _getSecondTabIcon(String mode, bool active) {
+    if (mode == 'basic') {
+      return active ? Icons.menu_book : Icons.menu_book_outlined;
+    } else if (mode == 'business') {
+      return active ? Icons.receipt_long : Icons.receipt_long_outlined;
+    } else {
+      return active ? Icons.auto_awesome : Icons.auto_awesome_outlined;
+    }
+  }
+
+  String _getSecondTabLabel(String mode, AppLocalizations l10n, bool isKo) {
+    if (mode == 'basic') {
+      return isKo ? '레시피' : 'Recipes';
+    } else if (mode == 'business') {
+      return l10n.businessOperations;
+    } else {
+      return l10n.studioLog;
+    }
   }
 
   Widget _buildNavItem(

@@ -11,7 +11,7 @@ class SettingsState {
   final String atelierName;
   final String atelierContact;
   final Map<String, double> customRates;
-  final bool isBusinessMode;
+  final String appMode; // 'creative', 'business', or 'basic'
 
   SettingsState({
     required this.measurementSystem,
@@ -20,10 +20,11 @@ class SettingsState {
     required this.atelierName,
     required this.atelierContact,
     this.customRates = const {},
-    this.isBusinessMode = true,
+    this.appMode = 'business',
   });
 
-  // Backward compatibility getter for code that still uses weightUnit
+  // Backward compatibility getters
+  bool get isBusinessMode => appMode == 'business';
   String get weightUnit => measurementSystem == 'metric' ? 'g' : 'oz';
 
   NumberFormat get currencyFormat => NumberFormat.currency(
@@ -31,7 +32,6 @@ class SettingsState {
         decimalDigits: (currencySymbol == '₩' || currencySymbol == '¥' || currencySymbol == '￥' || currencySymbol == String.fromCharCode(8361)) ? 0 : 2,
       );
 
-  // Exchange rates relative to KRW (Base)
   double get exchangeRate {
     if (customRates.containsKey(currencyCode)) {
       return customRates[currencyCode]!;
@@ -53,7 +53,6 @@ class SettingsState {
     return amountInKRW * exchangeRate;
   }
 
-  // Weight Utility: Normalize any value+unit to Grams
   double toGrams(double value, String unit) {
     final u = unit.toLowerCase();
     switch (u) {
@@ -65,7 +64,6 @@ class SettingsState {
     }
   }
 
-  // Weight Utility: Convert Grams to a specific unit
   double fromGrams(double grams, String targetUnit) {
     final u = targetUnit.toLowerCase();
     switch (u) {
@@ -77,10 +75,7 @@ class SettingsState {
     }
   }
 
-  // Smart Formatting: Automatically chooses g/kg or oz/lb based on magnitude
   String formatWeight(double valueInGrams, [String? originalUnit]) {
-    // If an original unit is provided and it's not a weight unit, preserve it (e.g. 'pcs')
-    // If an original unit is provided and it's a weight unit, honor it without scaling
     if (originalUnit != null && _isWeightUnit(originalUnit)) {
       final scaledValue = fromGrams(valueInGrams, originalUnit);
       if (originalUnit == 'g' || originalUnit == 'oz') {
@@ -111,7 +106,6 @@ class SettingsState {
 
   String _formatDecimal(double value) {
     if (value == 0) return "0";
-    // For values < 1, show more precision
     if (value < 1) {
       final text = value.toStringAsFixed(3);
       return text.contains('.') ? text.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '') : text;
@@ -125,36 +119,26 @@ class SettingsState {
     return u == 'g' || u == 'kg' || u == 'oz' || u == 'lb';
   }
 
-  // For backward compatibility with screens that expect convertWeight
   double convertWeight(double value, String unit) {
     if (!_isWeightUnit(unit)) return value;
-    final grams = toGrams(value, unit);
-    // Returns grams for now as we prefer to use formatWeight for display
-    return grams;
+    return toGrams(value, unit);
   }
 
-  // Helper to convert from a specific unit to grams
   double convertToGrams(double value, String fromUnit) {
     return toGrams(value, fromUnit);
   }
 
-  // Helper to convert from grams to the "standard" display unit of the current system
   double convertToSystemDefault(double grams) {
     if (measurementSystem == 'metric') {
-      return grams; // Default is g
+      return grams;
     } else {
-      return grams / 28.3495; // Default is oz
+      return grams / 28.3495;
     }
   }
 
-  // Backward compatibility: Convert from current preferred system unit to a target unit
   double convertFromSystemUnit(double value, String targetUnit) {
     if (!_isWeightUnit(targetUnit)) return value;
-    
-    // 1. Convert current value (from system default) to Grams
     final grams = measurementSystem == 'metric' ? value : value * 28.3495;
-    
-    // 2. Convert Grams to targetUnit
     return fromGrams(grams, targetUnit);
   }
 
@@ -165,7 +149,7 @@ class SettingsState {
     String? atelierName,
     String? atelierContact,
     Map<String, double>? customRates,
-    bool? isBusinessMode,
+    String? appMode,
   }) {
     return SettingsState(
       measurementSystem: measurementSystem ?? this.measurementSystem,
@@ -174,7 +158,7 @@ class SettingsState {
       atelierName: atelierName ?? this.atelierName,
       atelierContact: atelierContact ?? this.atelierContact,
       customRates: customRates ?? this.customRates,
-      isBusinessMode: isBusinessMode ?? this.isBusinessMode,
+      appMode: appMode ?? this.appMode,
     );
   }
 }
@@ -200,7 +184,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
             customRates: Map<String, double>.from(
               _box.get('customRates', defaultValue: <String, double>{}),
             ),
-            isBusinessMode: _box.get('isBusinessMode', defaultValue: true),
+            appMode: _box.get('appMode', defaultValue: _box.get('isBusinessMode', defaultValue: true) ? 'business' : 'creative'),
           ),
         ) {
     checkAndRefreshRates();
@@ -242,12 +226,6 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     state = state.copyWith(measurementSystem: system);
   }
 
-  void updateWeightUnit(String unit) {
-    // Keep for backward compatibility, mapping to system
-    final system = (unit == 'oz' || unit == 'lb') ? 'imperial' : 'metric';
-    updateMeasurementSystem(system);
-  }
-
   void updateCurrencySymbol(String symbol) {
     _box.put('currencySymbol', symbol);
     String code = 'KRW';
@@ -267,9 +245,9 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     );
   }
 
-  void updateBusinessMode(bool value) {
-    _box.put('isBusinessMode', value);
-    state = state.copyWith(isBusinessMode: value);
+  void updateAppMode(String mode) {
+    _box.put('appMode', mode);
+    state = state.copyWith(appMode: mode);
   }
 }
 

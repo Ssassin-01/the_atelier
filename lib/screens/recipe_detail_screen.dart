@@ -205,89 +205,127 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
             ),
           ),
 
-          SliverToBoxAdapter(
-            child: CrumpleEffect(
-              controller: _crumpleController,
-              child: Container(
-                constraints: BoxConstraints(minHeight: screenHeight),
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(36),
-                    topRight: Radius.circular(36),
-                  ),
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/wood_texture_light.png'),
-                    // ── THE QUALITY FIX ──
-                    // fitWidth + repeatY prevents stretching while filling long lists.
-                    fit: BoxFit.fitWidth,
-                    repeat: ImageRepeat.repeatY, 
-                    alignment: Alignment.topCenter,
-                    filterQuality: FilterQuality.high,
-                  ),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: ArtisanalTheme.ink.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(2),
+          // ── BRIGHT 3D LIGHT MAPLE CUTTING BOARD ──
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
+            sliver: SliverToBoxAdapter(
+              child: CrumpleEffect(
+                controller: _crumpleController,
+                child: Container(
+                  constraints: BoxConstraints(minHeight: screenHeight * 0.7),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      // Warm, Lighter Side Thickness
+                      BoxShadow(
+                        color: const Color(0xFF8D6E63),
+                        offset: const Offset(0, 14),
+                        blurRadius: 0,
                       ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                SummaryNoteScreen(recipe: recipe),
-                          ),
-                        ),
-                        icon: const Icon(Icons.menu_book, size: 20),
-                        label: Text(
-                          l10n.openJournalSummary,
-                          style: ArtisanalTheme.hand(fontSize: 18),
-                        ),
-                        style: TextButton.styleFrom(
-                          foregroundColor: ArtisanalTheme.ink,
-                          backgroundColor: Colors.white.withValues(alpha: 0.2),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
-                          ),
-                        ),
+                      // Drop Shadow
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        offset: const Offset(0, 18),
+                        blurRadius: 25,
                       ),
+                    ],
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/cutting_board_texture.png'),
+                      fit: BoxFit.fitWidth,
+                      repeat: ImageRepeat.repeatY,
+                      alignment: Alignment.topCenter,
+                      filterQuality: FilterQuality.high,
                     ),
-
-                    const SizedBox(height: 60),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        children: [
-                          ...recipe.components.map(
-                            (comp) => Padding(
-                              padding: const EdgeInsets.only(bottom: 32),
-                              child: AnimatedRecipePostIt(component: comp),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 32),
+                      // Carved handle-hole
+                      Container(
+                        width: 70,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black.withValues(alpha: 0.5),
+                              Colors.black.withValues(alpha: 0.15),
+                            ],
+                          ),
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.white.withValues(alpha: 0.25),
+                              width: 1.5,
                             ),
                           ),
-                          if (recipe.description != null &&
-                              recipe.description!.isNotEmpty) ...[
-                            const SizedBox(height: 10),
-                            _DescriptionCard(
-                              description: recipe.description!,
+                        ),
+                        child: Center(
+                          child: Container(
+                            width: 66,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              color: Colors.black.withValues(alpha: 0.1),
                             ),
-                            const SizedBox(height: 32),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  SummaryNoteScreen(recipe: recipe),
+                            ),
+                          ),
+                          icon: const Icon(Icons.menu_book, size: 20),
+                          label: Text(
+                            l10n.openJournalSummary,
+                            style: ArtisanalTheme.hand(fontSize: 18),
+                          ),
+                          style: TextButton.styleFrom(
+                            foregroundColor: ArtisanalTheme.ink,
+                            backgroundColor: Colors.white.withValues(alpha: 0.3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 60),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          children: [
+                            ...recipe.components.map(
+                              (comp) => Padding(
+                                padding: const EdgeInsets.only(bottom: 32),
+                                child: AnimatedRecipePostIt(component: comp),
+                              ),
+                            ),
+                            if (recipe.description != null &&
+                                recipe.description!.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              _DescriptionCard(
+                                description: recipe.description!,
+                              ),
+                              const SizedBox(height: 32),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 100),
-                  ],
+                      const SizedBox(height: 100),
+                    ],
+                  ),
                 ),
               ),
             ),
