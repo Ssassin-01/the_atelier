@@ -11,6 +11,7 @@ import '../services/recipe_service.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/settings_provider.dart';
 import 'recipe_detail_screen.dart';
+import 'recipe_archive_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -137,10 +138,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                   // 3. Recently Baked Label
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 28.0),
-                      child: Text(
-                        l10n.recentlyBaked,
-                        style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 26),
+                      padding: const EdgeInsets.symmetric(horizontal: 28.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n.recentlyBaked,
+                            style: ArtisanalTheme.lightTheme.textTheme.displayMedium?.copyWith(fontSize: 26),
+                          ),
+                          InkWell(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const RecipeArchiveScreen()),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: Text(
+                                l10n.currentLanguage == '한국어' ? '모두 보기' : 'View All',
+                                style: ArtisanalTheme.hand(
+                                  fontSize: 16,
+                                  color: ArtisanalTheme.primary.withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
