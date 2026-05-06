@@ -16,6 +16,18 @@ class ShoppingItem {
     required this.name,
     this.quantity = 1.0,
   });
+
+  ShoppingItem copyWith({
+    String? id,
+    String? name,
+    double? quantity,
+  }) {
+    return ShoppingItem(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      quantity: quantity ?? this.quantity,
+    );
+  }
 }
 
 class PantryShoppingScreen extends ConsumerStatefulWidget {
@@ -47,6 +59,10 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
 
   // GlobalKey to find the "Purchased" section position
   final GlobalKey _purchasedSectionKey = GlobalKey();
+  
+  final List<String> _commonIngredients = [
+    '밀가루', '설탕', '버터', '달걀', '우유', '이스트', '소금', '베이킹파우더', '초콜릿', '생크림', '바닐라 익스트랙', '호두'
+  ];
 
   @override
   void initState() {
@@ -61,12 +77,19 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
       duration: const Duration(milliseconds: 700),
     );
     _flyingProgress = CurvedAnimation(parent: _flyingController, curve: Curves.easeInOutCubic);
+    
+    // Auto-save listener for new items
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus && _isAdding) {
+        _addItem();
+      }
+    });
   }
 
   void _addItem() {
-    if (_editingId != null) _finishEditing(); // Auto-finish previous edit
-    if (_inputController.text.trim().isEmpty) {
-      setState(() => _isAdding = false);
+    final text = _inputController.text.trim();
+    if (text.isEmpty) {
+      if (mounted) setState(() => _isAdding = false);
       return;
     }
     HapticFeedback.mediumImpact();
@@ -80,8 +103,38 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
     });
   }
 
+  Future<void> _toggleItem(ShoppingItem item, bool isPurchased) async {
+    if (_editingId != null) _finishEditing();
+    
+    HapticFeedback.lightImpact();
+    
+    final isBasic = ref.read(settingsProvider).appMode == 'basic';
+    
+    if (isBasic) {
+      // Immediate toggle for basic mode
+      setState(() {
+        if (isPurchased) {
+          _purchasedList.removeWhere((it) => it.id == item.id);
+          _toBuyList.add(item);
+        } else {
+          _toBuyList.removeWhere((it) => it.id == item.id);
+          _purchasedList.add(item);
+        }
+      });
+      return;
+    }
+
+    // Original toss sequence for other modes
+    if (!isPurchased) {
+      // Note: In creative/business mode, we need a BuildContext for the toss animation.
+      // This is handled by the individual row's callback.
+    } else {
+      _undoPurchase(item);
+    }
+  }
+
   Future<void> _startTossSequence(String id, String name, double qty, BuildContext itemContext) async {
-    if (_editingId != null) _finishEditing(); // Auto-finish edit before toss
+    if (_editingId != null) _finishEditing();
     final RenderBox itemBox = itemContext.findRenderObject() as RenderBox;
     final startPos = itemBox.localToGlobal(Offset.zero);
     
@@ -140,6 +193,195 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
     FocusScope.of(context).unfocus();
   }
 
+  void _clearAll() {
+    HapticFeedback.heavyImpact();
+    setState(() {
+      _toBuyList.clear();
+      _purchasedList.clear();
+    });
+  }
+
+  void _showQuickAddSheet(AppLocalizations l10n) {
+    bool isEditingFavorites = false;
+    final TextEditingController customController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
+          decoration: const BoxDecoration(
+            color: Color(0xFFFDFCF8), // Creamy off-white
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 20)],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.currentLanguage == '한국어' ? '식재료 창고' : 'Pantry Staples',
+                        style: ArtisanalTheme.hand(fontSize: 28, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink),
+                      ),
+                      Text(
+                        l10n.currentLanguage == '한국어' ? '자주 쓰는 재료를 관리하세요' : 'Manage your frequent items',
+                        style: ArtisanalTheme.hand(fontSize: 16, color: Colors.black26),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: () => setModalState(() => isEditingFavorites = !isEditingFavorites),
+                    icon: Icon(isEditingFavorites ? Icons.check_circle : Icons.edit, color: isEditingFavorites ? Colors.green : ArtisanalTheme.primary),
+                    tooltip: 'Edit Favorites',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              
+              // Ingredient Grid
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    ..._commonIngredients.map((name) {
+                      final localizedName = l10n.currentLanguage == '한국어' ? name : _getEnglishName(name);
+                      return _buildIngredientCard(
+                        localizedName, 
+                        isEditingFavorites, 
+                        () {
+                          if (isEditingFavorites) {
+                            setState(() => _commonIngredients.remove(name));
+                            setModalState(() {});
+                          } else {
+                            HapticFeedback.lightImpact();
+                            setState(() {
+                              final existing = _toBuyList.indexWhere((it) => it.name == localizedName);
+                              if (existing != -1) {
+                                _toBuyList[existing] = _toBuyList[existing].copyWith(quantity: _toBuyList[existing].quantity + 1);
+                              } else {
+                                _toBuyList.add(ShoppingItem(id: DateTime.now().toString() + name, name: localizedName));
+                              }
+                            });
+                          }
+                        }
+                      );
+                    }),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Add Custom Favorite
+              if (isEditingFavorites)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: TextField(
+                    controller: customController,
+                    style: ArtisanalTheme.hand(fontSize: 18),
+                    onSubmitted: (val) {
+                      if (val.trim().isNotEmpty) {
+                        setState(() => _commonIngredients.add(val.trim()));
+                        customController.clear();
+                        setModalState(() {});
+                      }
+                    },
+                    decoration: InputDecoration(
+                      hintText: l10n.currentLanguage == '한국어' ? '새 재료 추가...' : 'Add custom...',
+                      hintStyle: ArtisanalTheme.hand(color: Colors.black12),
+                      border: InputBorder.none,
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.add_circle, color: ArtisanalTheme.primary),
+                        onPressed: () {
+                          if (customController.text.trim().isNotEmpty) {
+                            setState(() => _commonIngredients.add(customController.text.trim()));
+                            customController.clear();
+                            setModalState(() {});
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIngredientCard(String name, bool isDeleteMode, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDeleteMode ? Colors.red.withValues(alpha: 0.2) : ArtisanalTheme.primary.withValues(alpha: 0.1),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(name, style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink)),
+            if (isDeleteMode) ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.remove_circle, size: 16, color: Colors.redAccent),
+            ] else ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.add, size: 16, color: ArtisanalTheme.primary),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getEnglishName(String ko) {
+    switch (ko) {
+      case '밀가루': return 'Flour';
+      case '설탕': return 'Sugar';
+      case '버터': return 'Butter';
+      case '달걀': return 'Eggs';
+      case '우유': return 'Milk';
+      case '이스트': return 'Yeast';
+      case '소금': return 'Salt';
+      case '베이킹파우더': return 'Baking Powder';
+      case '초콜릿': return 'Chocolate';
+      case '생크림': return 'Cream';
+      case '바닐라 익스트랙': return 'Vanilla';
+      case '호두': return 'Walnut';
+      default: return ko;
+    }
+  }
+
   @override
   void dispose() {
     _inputController.dispose();
@@ -154,18 +396,21 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final appMode = ref.watch(settingsProvider).appMode;
+    final isBasic = appMode == 'basic';
     
     return Scaffold(
       backgroundColor: ArtisanalTheme.background,
       body: GestureDetector(
         onTap: () {
           if (_editingId != null) _finishEditing();
+          if (_isAdding) _addItem(); // Auto-add if was adding
           FocusScope.of(context).unfocus();
         },
         child: Stack(
           children: [
             // Fixed Wallpaper Background
-            if (ref.watch(settingsProvider).appMode != 'basic')
+            if (!isBasic)
               Positioned.fill(
                 child: Container(
                   decoration: const BoxDecoration(
@@ -177,46 +422,225 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
                   ),
                 ),
               ),
-            CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverAppBar(
-                  expandedHeight: 80,
-                  floating: false,
-                  pinned: true,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  centerTitle: true,
-                  title: Text(
-                    l10n.currentLanguage == '한국어' ? '식재료 공정' : 'PANTRY PROCESS',
-                    style: ArtisanalTheme.hand(fontSize: 28, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink),
-                  ),
-                ),
-                
-                // SECTION 1: TO BUY
-                _buildSectionHeader(l10n.currentLanguage == '한국어' ? '계획' : 'PLANNING'),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 10, 45, 40),
-                    child: _buildNatural3DMemoPad(context, l10n),
-                  ),
-                ),
-
-                // SECTION 2: PURCHASED (FULFILLMENT)
-                _buildSectionHeader(l10n.currentLanguage == '한국어' ? '담은 제품' : 'COLLECTED', sectionKey: _purchasedSectionKey),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 10, 45, 100),
-                    child: _buildPurchasedParchment(context, l10n),
-                  ),
-                ),
-              ],
-            ),
             
-            if (_flyingItemName != null) _buildFlyingItemOverlay(),
+            isBasic ? _buildBasicLayout(l10n) : _buildCreativeLayout(l10n),
+            
+            if (!isBasic && _flyingItemName != null) _buildFlyingItemOverlay(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildBasicLayout(AppLocalizations l10n) {
+    return SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.currentLanguage == '한국어' ? '장보기 메모' : 'Shopping Note',
+                  style: ArtisanalTheme.hand(fontSize: 32, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink),
+                ),
+                IconButton(
+                  onPressed: _clearAll,
+                  icon: const Icon(Icons.refresh, color: Colors.black26),
+                  tooltip: 'Clear All',
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF9DB), // Classic Post-it Yellow
+                  borderRadius: BorderRadius.circular(2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Section: To Buy
+                    _buildBasicSectionTitle(l10n.currentLanguage == '한국어' ? '🛒 살 것' : '🛒 To Buy'),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        children: [
+                          ..._toBuyList.asMap().entries.map((entry) => _buildBasicRow(entry.key, entry.value, false)),
+                          if (_isAdding) _buildInputRow(l10n) else _buildAddTrigger(l10n),
+                          const SizedBox(height: 10),
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () => _showQuickAddSheet(l10n),
+                              icon: const Icon(Icons.auto_awesome, size: 18, color: ArtisanalTheme.primary),
+                              label: Text(
+                                l10n.currentLanguage == '한국어' ? '자주 쓰는 재료 추가' : 'Quick Add Ingredients',
+                                style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.primary),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Divider(height: 40, color: Colors.black12, thickness: 1),
+                    ),
+                    
+                    // Section: In Stock
+                    _buildBasicSectionTitle(l10n.currentLanguage == '한국어' ? '🧊 냉장고 안' : '🧊 In Stock'),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+                      child: _purchasedList.isEmpty 
+                        ? Center(child: Text(l10n.currentLanguage == '한국어' ? '비어 있음' : 'Empty', style: ArtisanalTheme.hand(color: Colors.black12, fontSize: 16)))
+                        : Column(
+                            children: _purchasedList.map((item) => _buildBasicRow(-1, item, true)).toList(),
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBasicSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 25, 20, 10),
+      child: Text(
+        title,
+        style: ArtisanalTheme.hand(fontSize: 18, fontWeight: FontWeight.bold, color: ArtisanalTheme.primary.withValues(alpha: 0.5), letterSpacing: 1),
+      ),
+    );
+  }
+
+  Widget _buildBasicRow(int index, ShoppingItem item, bool isPurchased) {
+    bool isEditing = _editingId == item.id;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black12, width: 0.5))),
+      child: Row(
+        children: [
+          Checkbox(
+            value: isPurchased,
+            onChanged: (_) => _toggleItem(item, isPurchased),
+            activeColor: ArtisanalTheme.primary,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            side: const BorderSide(color: Colors.black12, width: 1.5),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: isEditing
+                ? TapRegion(
+                    onTapOutside: (_) => _finishEditing(), // Save only when tapping outside the whole editing area
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _editController,
+                            autofocus: true,
+                            style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.primary),
+                            onSubmitted: (_) => _finishEditing(),
+                            decoration: const InputDecoration(border: InputBorder.none, isDense: true),
+                          ),
+                        ),
+                        _buildQtyControls(index, item),
+                      ],
+                    ),
+                  )
+                : GestureDetector(
+                    onTap: () => isPurchased ? _toggleItem(item, isPurchased) : _startEditing(item),
+                    child: Text(
+                      item.name, 
+                      style: ArtisanalTheme.hand(
+                        fontSize: 22, 
+                        color: isPurchased ? Colors.black26 : ArtisanalTheme.ink,
+                      ).copyWith(decoration: isPurchased ? TextDecoration.lineThrough : null),
+                    ),
+                  ),
+          ),
+          // Quantity and Delete button for Basic Mode (when not editing)
+          if (!isEditing && !isPurchased) ...[
+            GestureDetector(
+              onTap: () => _startEditing(item),
+              child: Text('x${item.quantity.toStringAsFixed(0)}', style: ArtisanalTheme.hand(fontSize: 18, color: Colors.black26)),
+            ),
+            
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.close, size: 18, color: Colors.black12),
+              onPressed: () {
+                setState(() => _toBuyList.removeAt(index));
+              },
+              constraints: const BoxConstraints(),
+              padding: EdgeInsets.zero,
+            ),
+          ],
+          if (isPurchased)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.black12),
+              onPressed: () {
+                setState(() => _purchasedList.removeWhere((it) => it.id == item.id));
+              },
+              constraints: const BoxConstraints(),
+              padding: EdgeInsets.zero,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCreativeLayout(AppLocalizations l10n) {
+    return CustomScrollView(
+      controller: _scrollController,
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 80,
+          floating: false,
+          pinned: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          title: Text(
+            l10n.currentLanguage == '한국어' ? '식재료 공정' : 'PANTRY PROCESS',
+            style: ArtisanalTheme.hand(fontSize: 28, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink),
+          ),
+        ),
+        
+        // SECTION 1: TO BUY
+        _buildSectionHeader(l10n.currentLanguage == '한국어' ? '계획' : 'PLANNING'),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(30, 10, 45, 40),
+            child: _buildNatural3DMemoPad(context, l10n),
+          ),
+        ),
+
+        // SECTION 2: PURCHASED (FULFILLMENT)
+        _buildSectionHeader(l10n.currentLanguage == '한국어' ? '담은 제품' : 'COLLECTED', sectionKey: _purchasedSectionKey),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(30, 10, 45, 100),
+            child: _buildPurchasedParchment(context, l10n),
+          ),
+        ),
+      ],
     );
   }
 
@@ -305,12 +729,32 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(child: Text('ORDER SHEET', style: ArtisanalTheme.hand(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black12))),
+                        IconButton(
+                          onPressed: _clearAll,
+                          icon: const Icon(Icons.refresh, size: 18, color: Colors.black12),
+                          tooltip: 'Reset List',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                        const SizedBox(width: 15),
                         _build3DPushPin(),
                       ],
                     ),
                     const Divider(height: 40, color: Colors.black12),
-                    ..._toBuyList.asMap().entries.map((entry) => _buildShoppingRow(entry.key, entry.value)).toList(),
+                    ..._toBuyList.asMap().entries.map((entry) => _buildShoppingRow(entry.key, entry.value)),
                     if (_isAdding) _buildInputRow(l10n) else _buildAddTrigger(l10n),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showQuickAddSheet(l10n),
+                        icon: const Icon(Icons.auto_awesome, size: 16),
+                        label: Text(l10n.currentLanguage == '한국어' ? '자주 쓰는 재료' : 'Quick Add', style: ArtisanalTheme.hand()),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: ArtisanalTheme.primary.withValues(alpha: 0.4),
+                          side: BorderSide(color: ArtisanalTheme.primary.withValues(alpha: 0.2)),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -335,30 +779,36 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
               Text('COLLECTED RECORD', style: ArtisanalTheme.hand(fontSize: 18, color: Colors.black12, letterSpacing: 2)),
               const SizedBox(height: 20),
               if (_purchasedList.isEmpty)
-                Center(child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Text(l10n.currentLanguage == '한국어' ? '아직 담은 제품이 없습니다' : 'Nothing collected yet', style: ArtisanalTheme.hand(color: Colors.black12, fontSize: 18)),
-                )),
-              ..._purchasedList.map((item) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    const Icon(Icons.check_circle, size: 20, color: ArtisanalTheme.primary),
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: Text(
-                        '${item.name} (x${item.quantity.toStringAsFixed(0)})', 
-                        style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.ink.withValues(alpha: 0.6)),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      l10n.currentLanguage == '한국어' ? '아직 담은 제품이 없습니다' : 'Nothing collected yet',
+                      style: ArtisanalTheme.hand(color: Colors.black12, fontSize: 18),
+                    ),
+                  ),
+                )
+              else
+                ..._purchasedList.map((item) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle, size: 20, color: ArtisanalTheme.primary),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Text(
+                              '${item.name} (x${item.quantity.toStringAsFixed(0)})',
+                              style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.ink.withValues(alpha: 0.6)),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.undo, size: 20, color: Colors.black26),
+                            onPressed: () => _undoPurchase(item),
+                            tooltip: 'Undo',
+                          ),
+                        ],
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.undo, size: 20, color: Colors.black26),
-                      onPressed: () => _undoPurchase(item),
-                      tooltip: 'Undo',
-                    ),
-                  ],
-                ),
-              )).toList(),
+                    )),
             ],
           ),
         ),
@@ -407,19 +857,22 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
               const SizedBox(width: 15),
               Expanded(
                 child: isEditing
-                    ? Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _editController,
-                              autofocus: true,
-                              style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.primary),
-                              onSubmitted: (_) => _finishEditing(),
-                              decoration: const InputDecoration(border: InputBorder.none, isDense: true),
+                    ? TapRegion(
+                        onTapOutside: (_) => _finishEditing(),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _editController,
+                                autofocus: true,
+                                style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.primary),
+                                onSubmitted: (_) => _finishEditing(),
+                                decoration: const InputDecoration(border: InputBorder.none, isDense: true),
+                              ),
                             ),
-                          ),
-                          _buildQtyControls(index, item),
-                        ],
+                            _buildQtyControls(index, item),
+                          ],
+                        ),
                       )
                     : GestureDetector(
                         onTap: () => _startEditing(item),
@@ -479,12 +932,12 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
         focusNode: _focusNode,
         autofocus: true,
         style: ArtisanalTheme.hand(fontSize: 24),
+        onSubmitted: (_) => _addItem(),
         decoration: InputDecoration(
           hintText: l10n.currentLanguage == '한국어' ? '추가...' : 'Add...',
           border: InputBorder.none,
           icon: const Icon(Icons.edit, size: 24, color: ArtisanalTheme.primary),
         ),
-        onSubmitted: (_) => _addItem(),
       ),
     );
   }

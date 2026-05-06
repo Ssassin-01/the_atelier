@@ -10,7 +10,6 @@ import '../services/recipe_service.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/settings_provider.dart';
 import 'recipe_detail_screen.dart';
-import 'recipe_archive_screen.dart';
 import '../providers/navigation_provider.dart';
 
 class DashboardBasicScreen extends ConsumerStatefulWidget {
