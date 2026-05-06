@@ -550,10 +550,9 @@ class _SalesSlipSheetState extends ConsumerState<SalesSlipSheet> {
                               focusNode: focusNode,
                               decoration: InputDecoration(
                                 hintText: l10n.addProductHint,
-                                hintStyle: TextStyle(
-                                  color: ArtisanalTheme.ink.withValues(
-                                    alpha: 0.1,
-                                  ),
+                                hintStyle: ArtisanalTheme.hand(
+                                  color: ArtisanalTheme.ink.withValues(alpha: 0.2),
+                                  fontSize: 14,
                                 ),
                                 border: InputBorder.none,
                                 isDense: true,

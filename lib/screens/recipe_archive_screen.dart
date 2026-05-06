@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../services/recipe_service.dart';
+import '../models/recipe.dart';
 import '../widgets/recipe_index_card.dart';
 import 'recipe_detail_screen.dart';
 
@@ -53,7 +54,11 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
     final l10n = AppLocalizations.of(context);
     final recipes = ref.watch(recipeListProvider);
 
-    final filtered = recipes.where((r) {
+    // Stable sorting by date (newest first)
+    final sortedRecipes = List<Recipe>.from(recipes)
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    final filtered = sortedRecipes.where((r) {
       final matchesSearch =
           _searchQuery.isEmpty ||
           r.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -262,6 +267,7 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                       delegate: SliverChildBuilderDelegate((context, index) {
                         final recipe = filtered[index];
                         return RecipeIndexCard(
+                          key: ValueKey(recipe.id),
                           recipe: recipe,
                           onTap: () => Navigator.push(
                             context,

@@ -1316,7 +1316,7 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
                         const SizedBox(height: 4),
                         Text(
                           '----------------------------',
-                          style: TextStyle(
+                          style: ArtisanalTheme.receipt(
                             color: Colors.black.withValues(alpha: 0.05),
                             letterSpacing: 2,
                             fontSize: 10,

@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart'; // Added for kIsWeb
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -193,6 +195,18 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
     FocusScope.of(context).unfocus();
   }
 
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
   void _clearAll() {
     HapticFeedback.heavyImpact();
     setState(() {
@@ -203,160 +217,365 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
 
   void _showQuickAddSheet(AppLocalizations l10n) {
     bool isEditingFavorites = false;
+    bool wasKeyboardVisible = false;
     final TextEditingController customController = TextEditingController();
+    final ScrollController modalScrollController = ScrollController();
+    final FocusNode customFocusNode = FocusNode();
+
+    void addNewIngredient(String val, StateSetter setModalState) {
+      if (val.trim().isEmpty) return;
+      final newName = val.trim();
+      
+      setState(() {
+        if (!_commonIngredients.contains(newName)) {
+          _commonIngredients.add(newName);
+        }
+        
+        final existing = _toBuyList.indexWhere((it) => it.name == newName);
+        if (existing != -1) {
+          _toBuyList[existing] = _toBuyList[existing].copyWith(
+            quantity: _toBuyList[existing].quantity + 1,
+          );
+        } else {
+          _toBuyList.add(ShoppingItem(
+            id: DateTime.now().toString() + newName,
+            name: newName,
+          ));
+        }
+        _scrollToBottom();
+      });
+
+      customController.clear();
+      setModalState(() {});
+      
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (modalScrollController.hasClients) {
+          modalScrollController.animateTo(
+            modalScrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+      HapticFeedback.mediumImpact();
+    }
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      barrierColor: Colors.black.withValues(alpha: 0.05),
       builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(context).viewInsets.bottom + 24),
-          decoration: const BoxDecoration(
-            color: Color(0xFFFDFCF8), // Creamy off-white
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 20)],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.currentLanguage == '한국어' ? '식재료 창고' : 'Pantry Staples',
-                        style: ArtisanalTheme.hand(fontSize: 28, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink),
-                      ),
-                      Text(
-                        l10n.currentLanguage == '한국어' ? '자주 쓰는 재료를 관리하세요' : 'Manage your frequent items',
-                        style: ArtisanalTheme.hand(fontSize: 16, color: Colors.black26),
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    onPressed: () => setModalState(() => isEditingFavorites = !isEditingFavorites),
-                    icon: Icon(isEditingFavorites ? Icons.check_circle : Icons.edit, color: isEditingFavorites ? Colors.green : ArtisanalTheme.primary),
-                    tooltip: 'Edit Favorites',
+        builder: (context, setModalState) {
+          final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+          final bool isKeyboardVisible = keyboardHeight > 0;
+          
+          // Trigger scroll to bottom when keyboard appears or focus is gained
+          if (isKeyboardVisible && !wasKeyboardVisible) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (modalScrollController.hasClients) {
+                modalScrollController.animateTo(
+                  modalScrollController.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeOutCubic,
+                );
+              }
+            });
+          }
+          wasKeyboardVisible = isKeyboardVisible;
+
+          return Padding(
+            padding: EdgeInsets.only(bottom: keyboardHeight),
+            child: Container(
+              height: MediaQuery.of(context).size.height * (isKeyboardVisible ? 0.85 : 0.55),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFDFCF8),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 30,
+                    offset: const Offset(0, -10),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              
-              // Ingredient Grid
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    ..._commonIngredients.map((name) {
-                      final localizedName = l10n.currentLanguage == '한국어' ? name : _getEnglishName(name);
-                      return _buildIngredientCard(
-                        localizedName, 
-                        isEditingFavorites, 
-                        () {
-                          if (isEditingFavorites) {
-                            setState(() => _commonIngredients.remove(name));
-                            setModalState(() {});
-                          } else {
-                            HapticFeedback.lightImpact();
-                            setState(() {
-                              final existing = _toBuyList.indexWhere((it) => it.name == localizedName);
-                              if (existing != -1) {
-                                _toBuyList[existing] = _toBuyList[existing].copyWith(quantity: _toBuyList[existing].quantity + 1);
-                              } else {
-                                _toBuyList.add(ShoppingItem(id: DateTime.now().toString() + name, name: localizedName));
-                              }
-                            });
-                          }
-                        }
-                      );
-                    }),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Add Custom Favorite
-              if (isEditingFavorites)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
+              child: Stack(
+                children: [
+                  // Background
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 0.08,
+                      child: kIsWeb
+                          ? Container(
+                              decoration: BoxDecoration(
+                                gradient: RadialGradient(
+                                  center: Alignment.topCenter,
+                                  radius: 1.5,
+                                  colors: [
+                                    ArtisanalTheme.primary.withValues(alpha: 0.2),
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                            )
+                          : Image.file(
+                              File(r'C:\Users\user b\.gemini\antigravity\brain\d6e27a52-f8db-4b74-899e-341c4de4f436\premium_dark_oak_pantry_shelf_texture_1778061659645.png'),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(),
+                            ),
+                    ),
                   ),
-                  child: TextField(
-                    controller: customController,
-                    style: ArtisanalTheme.hand(fontSize: 18),
-                    onSubmitted: (val) {
-                      if (val.trim().isNotEmpty) {
-                        setState(() => _commonIngredients.add(val.trim()));
-                        customController.clear();
-                        setModalState(() {});
-                      }
-                    },
-                    decoration: InputDecoration(
-                      hintText: l10n.currentLanguage == '한국어' ? '새 재료 추가...' : 'Add custom...',
-                      hintStyle: ArtisanalTheme.hand(color: Colors.black12),
-                      border: InputBorder.none,
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.add_circle, color: ArtisanalTheme.primary),
-                        onPressed: () {
-                          if (customController.text.trim().isNotEmpty) {
-                            setState(() => _commonIngredients.add(customController.text.trim()));
-                            customController.clear();
-                            setModalState(() {});
-                          }
-                        },
+
+                  // Content
+                  Positioned.fill(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) => Padding(
+                        padding: const EdgeInsets.fromLTRB(28, 16, 28, 16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Handle
+                            Center(
+                              child: Container(
+                                width: 48,
+                                height: 5,
+                                margin: const EdgeInsets.only(bottom: 24),
+                                decoration: BoxDecoration(
+                                  color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(2.5),
+                                ),
+                              ),
+                            ),
+
+                            // Header
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        isEditingFavorites ? Icons.edit_note : Icons.add_circle_outline, 
+                                        size: 28, 
+                                        color: ArtisanalTheme.primary.withValues(alpha: 0.6)
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        isEditingFavorites 
+                                          ? (l10n.currentLanguage == '한국어' ? '재료 수정' : 'Edit Ingredients')
+                                          : (l10n.currentLanguage == '한국어' ? '재료 창고' : 'Atelier Pantry'),
+                                        style: ArtisanalTheme.hand(
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.w900,
+                                          color: ArtisanalTheme.ink,
+                                          height: 1.1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                TextButton.icon(
+                                  onPressed: () {
+                                    HapticFeedback.mediumImpact();
+                                    setModalState(() => isEditingFavorites = !isEditingFavorites);
+                                  },
+                                  icon: Icon(
+                                    isEditingFavorites ? Icons.check : Icons.edit,
+                                    size: 18,
+                                    color: isEditingFavorites ? Colors.green.shade700 : ArtisanalTheme.primary,
+                                  ),
+                                  label: Text(
+                                    isEditingFavorites 
+                                      ? (l10n.currentLanguage == '한국어' ? '완료' : 'Done')
+                                      : (l10n.currentLanguage == '한국어' ? '수정' : 'Edit'),
+                                    style: ArtisanalTheme.hand(
+                                      fontSize: 16,
+                                      color: isEditingFavorites ? Colors.green.shade700 : ArtisanalTheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: isEditingFavorites ? Colors.green.withValues(alpha: 0.1) : ArtisanalTheme.primary.withValues(alpha: 0.05),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      side: BorderSide(
+                                        color: isEditingFavorites ? Colors.green.withValues(alpha: 0.2) : ArtisanalTheme.primary.withValues(alpha: 0.1),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Grid
+                            Expanded(
+                              child: SingleChildScrollView(
+                                controller: modalScrollController,
+                                physics: const BouncingScrollPhysics(),
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 8),
+                                    Wrap(
+                                      spacing: 14,
+                                      runSpacing: 18,
+                                      children: [
+                                        ..._commonIngredients.map((name) {
+                                          final localizedName = l10n.currentLanguage == '한국어' ? name : _getEnglishName(name);
+                                          return _buildIngredientCard(
+                                            localizedName,
+                                            isEditingFavorites,
+                                            () {
+                                              if (isEditingFavorites) {
+                                                setState(() => _commonIngredients.remove(name));
+                                                setModalState(() {});
+                                              } else {
+                                                HapticFeedback.lightImpact();
+                                                setState(() {
+                                                  final existing = _toBuyList.indexWhere((it) => it.name == localizedName);
+                                                  if (existing != -1) {
+                                                    _toBuyList[existing] = _toBuyList[existing].copyWith(
+                                                      quantity: _toBuyList[existing].quantity + 1,
+                                                    );
+                                                  } else {
+                                                    _toBuyList.add(ShoppingItem(
+                                                      id: DateTime.now().toString() + name,
+                                                      name: localizedName,
+                                                    ));
+                                                  }
+                                                  _scrollToBottom();
+                                                });
+                                              }
+                                            },
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 32),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // Input
+                            if (isEditingFavorites)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 16),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: ArtisanalTheme.primary.withValues(alpha: 0.1), width: 1.5),
+                                  ),
+                                  child: TextField(
+                                    controller: customController,
+                                    focusNode: customFocusNode,
+                                    style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink),
+                                    onSubmitted: (val) => addNewIngredient(val, setModalState),
+                                    decoration: InputDecoration(
+                                      hintText: l10n.currentLanguage == '한국어' ? '예: 바닐라 빈, 통밀가루...' : 'e.g., Vanilla Bean, Rye...',
+                                      hintStyle: ArtisanalTheme.hand(color: ArtisanalTheme.ink.withValues(alpha: 0.3), fontSize: 18),
+                                      border: InputBorder.none,
+                                      suffixIcon: Padding(
+                                        padding: const EdgeInsets.only(right: 4),
+                                        child: TextButton(
+                                          onPressed: () => addNewIngredient(customController.text, setModalState),
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: ArtisanalTheme.primary,
+                                            minimumSize: Size.zero,
+                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          ),
+                                          child: Text(
+                                            l10n.currentLanguage == '한국어' ? '등록' : 'Add',
+                                            style: ArtisanalTheme.hand(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildIngredientCard(String name, bool isDeleteMode, VoidCallback onTap) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        onTap();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: isDeleteMode ? const Color(0xFFFFF5F5) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isDeleteMode ? Colors.red.withValues(alpha: 0.2) : ArtisanalTheme.primary.withValues(alpha: 0.1),
-            width: 1.5,
+            color: isDeleteMode 
+                ? Colors.red.withValues(alpha: 0.3) 
+                : ArtisanalTheme.ink.withValues(alpha: 0.06),
+            width: 1.2,
           ),
           boxShadow: [
+            // Physical Button Shadow
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(2, 4),
+            ),
+            // Highlight for 3D look
+            const BoxShadow(
+              color: Colors.white,
+              blurRadius: 2,
+              offset: Offset(-1, -1),
             ),
           ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(name, style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink)),
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: isDeleteMode ? Colors.redAccent : ArtisanalTheme.primary.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              name,
+              style: ArtisanalTheme.hand(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDeleteMode ? Colors.red.shade900 : ArtisanalTheme.ink,
+                letterSpacing: 0.5,
+              ),
+            ),
             if (isDeleteMode) ...[
-              const SizedBox(width: 8),
-              const Icon(Icons.remove_circle, size: 16, color: Colors.redAccent),
-            ] else ...[
-              const SizedBox(width: 8),
-              const Icon(Icons.add, size: 16, color: ArtisanalTheme.primary),
+              const SizedBox(width: 12),
+              const Icon(Icons.remove_circle_outline, size: 16, color: Colors.redAccent),
             ],
           ],
         ),
@@ -459,6 +678,7 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
           ),
           Expanded(
             child: SingleChildScrollView(
+              controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
               child: Container(
                 width: double.infinity,
@@ -505,7 +725,7 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
                     ),
                     
                     // Section: In Stock
-                    _buildBasicSectionTitle(l10n.currentLanguage == '한국어' ? '🧊 냉장고 안' : '🧊 In Stock'),
+                    _buildBasicSectionTitle(l10n.currentLanguage == '한국어' ? '✅ 구매완료' : '✅ Completed'),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
                       child: _purchasedList.isEmpty 
@@ -596,15 +816,39 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
               padding: EdgeInsets.zero,
             ),
           ],
-          if (isPurchased)
-            IconButton(
-              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.black12),
-              onPressed: () {
-                setState(() => _purchasedList.removeWhere((it) => it.id == item.id));
-              },
-              constraints: const BoxConstraints(),
-              padding: EdgeInsets.zero,
+          if (isPurchased) ...[
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: ArtisanalTheme.primary.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.restore, size: 18, color: ArtisanalTheme.primary),
+                    onPressed: () => _undoPurchase(item),
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(4),
+                    tooltip: 'Restore',
+                  ),
+                  const SizedBox(width: 4),
+                  Container(width: 1, height: 12, color: Colors.black12),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
+                    onPressed: () {
+                      setState(() => _purchasedList.removeWhere((it) => it.id == item.id));
+                    },
+                    constraints: const BoxConstraints(),
+                    padding: const EdgeInsets.all(4),
+                    tooltip: 'Delete',
+                  ),
+                ],
+              ),
             ),
+          ],
         ],
       ),
     );
@@ -644,7 +888,7 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
         ),
 
         // SECTION 2: PURCHASED (FULFILLMENT)
-        _buildSectionHeader(l10n.currentLanguage == '한국어' ? '담은 제품' : 'COLLECTED', sectionKey: _purchasedSectionKey),
+        _buildSectionHeader(l10n.currentLanguage == '한국어' ? '구매완료' : 'COMPLETED', sectionKey: _purchasedSectionKey),
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(30, 10, 45, 100),

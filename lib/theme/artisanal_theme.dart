@@ -31,7 +31,7 @@ class ArtisanalTheme {
       ),
       scaffoldBackgroundColor: background,
       textTheme: TextTheme(
-        // Headlines: Gowun Batang (Elegant Korean/English Serif)
+        // Headlines & Display: Gowun Batang (Elegant Serif)
         displayLarge: GoogleFonts.gowunBatang(
           fontSize: 48,
           fontWeight: FontWeight.bold,
@@ -44,12 +44,43 @@ class ArtisanalTheme {
           color: onSurface,
           letterSpacing: -0.5,
         ),
+        displaySmall: GoogleFonts.gowunBatang(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: onSurface,
+        ),
+        headlineLarge: GoogleFonts.gowunBatang(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: onSurface,
+        ),
         headlineMedium: GoogleFonts.gowunBatang(
           fontSize: 24,
-          fontStyle: FontStyle.italic,
+          fontWeight: FontWeight.w600,
           color: primary,
         ),
-        // Body: Gowun Dodum (Clean & Modern)
+        headlineSmall: GoogleFonts.gowunBatang(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: onSurface,
+        ),
+        // Titles: Gowun Batang (Serif)
+        titleLarge: GoogleFonts.gowunBatang(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: onSurface,
+        ),
+        titleMedium: GoogleFonts.gowunBatang(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: onSurface,
+        ),
+        titleSmall: GoogleFonts.gowunBatang(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: onSurface,
+        ),
+        // Body: Gowun Dodum (Clean Sans-Serif)
         bodyLarge: GoogleFonts.gowunDodum(
           fontSize: 16,
           fontWeight: FontWeight.w400,
@@ -60,11 +91,27 @@ class ArtisanalTheme {
           fontWeight: FontWeight.w400,
           color: onSurface,
         ),
+        bodySmall: GoogleFonts.gowunDodum(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          color: onSurface.withValues(alpha: 0.7),
+        ),
+        // Labels: Gowun Dodum (Sans-Serif)
         labelLarge: GoogleFonts.gowunDodum(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: outline,
+          letterSpacing: 1.1,
+        ),
+        labelMedium: GoogleFonts.gowunDodum(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: outline,
-          letterSpacing: 1.2,
+        ),
+        labelSmall: GoogleFonts.gowunDodum(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: outline,
         ),
       ),
     );

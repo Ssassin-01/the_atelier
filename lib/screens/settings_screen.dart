@@ -70,14 +70,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(28, 48, 28, 16),
-              child: Text(
-                l10n.settings,
-                style: ArtisanalTheme.lightTheme.textTheme.displayLarge?.copyWith(
-                  fontSize: 32,
-                  color: ArtisanalTheme.ink,
-                  height: 1.1,
-                ),
+              padding: const EdgeInsets.fromLTRB(28, 64, 28, 16),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Text(
+                    l10n.settings,
+                    style: ArtisanalTheme.lightTheme.textTheme.displayLarge?.copyWith(
+                      fontSize: 32,
+                      color: ArtisanalTheme.ink,
+                      height: 1.1,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -167,25 +172,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
     final currentMode = settings.appMode;
     final isKo = l10n.currentLanguage == '한국어';
     
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.atelierMode.toUpperCase(),
-                style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.ink.withValues(alpha: 0.6))
-                    .copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2),
-              ),
-              const SizedBox(height: 2),
-              Container(height: 1.5, color: ArtisanalTheme.ink.withValues(alpha: 0.1), width: 60),
-            ],
-          ),
-        ),
-        Row(
+    return Row(
           children: [
             Expanded(
               child: _modeCard(
@@ -217,9 +204,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
               ),
             ),
           ],
-        ),
-      ],
-    );
+        );
   }
 
   Widget _modeCard(String title, String desc, IconData icon, bool isSelected, VoidCallback onTap) {
@@ -402,11 +387,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
               ),
               child: Text(
                 value,
-                style: const TextStyle(
-                  fontFamily: 'monospace',
+                style: ArtisanalTheme.receipt(
                   fontSize: 13,
                   color: ArtisanalTheme.ink,
                   letterSpacing: 1,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

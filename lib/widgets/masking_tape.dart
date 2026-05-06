@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/artisanal_theme.dart';
 
 class MaskingTape extends StatelessWidget {
   final String? label;
@@ -41,8 +42,7 @@ class MaskingTape extends StatelessWidget {
             child: label != null
                 ? Text(
                     label!.toUpperCase(),
-                    style: TextStyle(
-                      fontFamily: 'Courier', // Standard typewriter feel
+                    style: ArtisanalTheme.receipt(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                       color: Colors.black.withValues(alpha: 0.4),
