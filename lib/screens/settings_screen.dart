@@ -68,16 +68,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
       backgroundColor: ArtisanalTheme.background,
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            backgroundColor: ArtisanalTheme.background,
-            floating: true,
-            leading: const Icon(Icons.settings_outlined, color: ArtisanalTheme.ink),
-            title: Text(
-              l10n.settings,
-              style: ArtisanalTheme.hand(fontSize: 28, color: ArtisanalTheme.ink)
-                  .copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.5),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(28, 48, 28, 16),
+              child: Text(
+                l10n.settings,
+                style: ArtisanalTheme.lightTheme.textTheme.displayLarge?.copyWith(
+                  fontSize: 32,
+                  color: ArtisanalTheme.ink,
+                  height: 1.1,
+                ),
+              ),
             ),
-            centerTitle: true,
           ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
@@ -183,23 +185,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
             ],
           ),
         ),
-        // First row for main modes
         Row(
           children: [
             Expanded(
               child: _modeCard(
-                isKo ? '창작 모드' : l10n.creativeMode,
-                isKo ? '레시피 개발 및 창작 기록' : l10n.creativeModeDesc,
+                isKo ? '기본' : 'Basic',
+                '',
+                Icons.menu_book,
+                currentMode == 'basic',
+                () => ref.read(settingsProvider.notifier).updateAppMode('basic'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _modeCard(
+                isKo ? '창작' : 'Creative',
+                '',
                 Icons.edit_note,
                 currentMode == 'creative',
                 () => ref.read(settingsProvider.notifier).updateAppMode('creative'),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             Expanded(
               child: _modeCard(
-                isKo ? '경영 모드' : l10n.proMode,
-                isKo ? '원가 관리 및 비즈니스 분석' : l10n.proModeDesc,
+                isKo ? '경영' : 'Biz',
+                '',
                 Icons.analytics_outlined,
                 currentMode == 'business',
                 () => ref.read(settingsProvider.notifier).updateAppMode('business'),
@@ -207,21 +218,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        // Second row for Basic mode (Full width)
-        _modeCard(
-          isKo ? '기본 모드' : 'Basic Mode',
-          isKo ? '홈, 레시피, 장보기 중심의 심플한 구성' : 'Simple navigation: Home, Recipes, Shopping, Settings',
-          Icons.menu_book,
-          currentMode == 'basic',
-          () => ref.read(settingsProvider.notifier).updateAppMode('basic'),
-          isFullWidth: true,
-        ),
       ],
     );
   }
 
-  Widget _modeCard(String title, String desc, IconData icon, bool isSelected, VoidCallback onTap, {bool isFullWidth = false}) {
+  Widget _modeCard(String title, String desc, IconData icon, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
@@ -229,8 +230,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        width: isFullWidth ? double.infinity : null,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected ? ArtisanalTheme.surface : ArtisanalTheme.background.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
@@ -247,45 +247,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
           ] : [],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.ink.withValues(alpha: 0.3),
-                  size: 24,
-                ),
-                if (isFullWidth) ...[
-                  const SizedBox(width: 12),
-                  Text(
-                    title,
-                    style: ArtisanalTheme.hand(
-                      fontSize: 18,
-                      color: isSelected ? ArtisanalTheme.ink : ArtisanalTheme.ink.withValues(alpha: 0.4),
-                    ).copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ],
+            Icon(
+              icon,
+              color: isSelected ? ArtisanalTheme.primary : ArtisanalTheme.ink.withValues(alpha: 0.3),
+              size: 28,
             ),
-            if (!isFullWidth) ...[
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: ArtisanalTheme.hand(
-                  fontSize: 18,
-                  color: isSelected ? ArtisanalTheme.ink : ArtisanalTheme.ink.withValues(alpha: 0.4),
-                ).copyWith(fontWeight: FontWeight.bold),
-              ),
-            ],
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Text(
-              desc,
+              title,
               style: ArtisanalTheme.hand(
-                fontSize: 13,
-                color: ArtisanalTheme.ink.withValues(alpha: 0.4),
-              ),
-              maxLines: isFullWidth ? 1 : 2,
+                fontSize: 16,
+                color: isSelected ? ArtisanalTheme.ink : ArtisanalTheme.ink.withValues(alpha: 0.4),
+              ).copyWith(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
+              textAlign: TextAlign.center,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ],

@@ -4,6 +4,7 @@ import '../theme/artisanal_theme.dart';
 import '../widgets/artisanal_image.dart';
 import '../widgets/crumple_effect.dart';
 import '../widgets/masking_tape.dart';
+import '../l10n/app_localizations.dart';
 
 class RecipeIndexCard extends StatefulWidget {
   final dynamic recipe;
@@ -46,6 +47,7 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
 
   Future<void> _confirmDelete() async {
     _triggerFeedback();
+    final l10n = AppLocalizations.of(context);
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -55,7 +57,7 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
           borderRadius: BorderRadius.circular(4),
         ), // Sharp artisanal style
         title: Text(
-          "DELETE RECORD?",
+          l10n.deleteRecord.toUpperCase(),
           style: ArtisanalTheme.receipt(
             fontSize: 16,
             fontWeight: FontWeight.w900,
@@ -63,14 +65,16 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
           ),
         ),
         content: Text(
-          "This will permanently remove this entry from your archive drawer.",
+          l10n.currentLanguage == '한국어'
+              ? '이 레시피 기록을 보관함에서 영구적으로 삭제하시겠습니까?'
+              : "This will permanently remove this entry from your archive drawer.",
           style: ArtisanalTheme.hand(fontSize: 18),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              "CANCEL",
+              l10n.cancel.toUpperCase(),
               style: ArtisanalTheme.receipt(
                 color: ArtisanalTheme.ink.withValues(alpha: 0.4),
                 fontSize: 12,
@@ -81,7 +85,7 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(
-              "REMOVE",
+              l10n.remove.toUpperCase(),
               style: ArtisanalTheme.receipt(
                 color: ArtisanalTheme.redInk,
                 fontWeight: FontWeight.w900,
@@ -152,8 +156,11 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
                   ),
                   const Positioned(
                     top: -8,
-                    left: 20,
-                    child: MaskingTape(width: 60, rotation: -0.05),
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: MaskingTape(width: 60, rotation: -0.05),
+                    ),
                   ),
                 ],
               ),

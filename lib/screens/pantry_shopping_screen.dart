@@ -437,13 +437,17 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
+            padding: const EdgeInsets.fromLTRB(24, 48, 24, 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   l10n.currentLanguage == '한국어' ? '장보기 메모' : 'Shopping Note',
-                  style: ArtisanalTheme.hand(fontSize: 32, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink),
+                  style: ArtisanalTheme.lightTheme.textTheme.displayLarge?.copyWith(
+                    fontSize: 32,
+                    color: ArtisanalTheme.ink,
+                    height: 1.1,
+                  ),
                 ),
                 IconButton(
                   onPressed: _clearAll,
@@ -616,10 +620,17 @@ class _PantryShoppingScreenState extends ConsumerState<PantryShoppingScreen> wit
           pinned: true,
           backgroundColor: Colors.transparent,
           elevation: 0,
-          centerTitle: true,
-          title: Text(
-            l10n.currentLanguage == '한국어' ? '식재료 공정' : 'PANTRY PROCESS',
-            style: ArtisanalTheme.hand(fontSize: 28, fontWeight: FontWeight.bold, color: ArtisanalTheme.ink),
+          centerTitle: false, // Left aligned
+          title: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              l10n.currentLanguage == '한국어' ? '식재료 공정' : 'PANTRY PROCESS',
+              style: ArtisanalTheme.lightTheme.textTheme.displayLarge?.copyWith(
+                fontSize: 32,
+                color: ArtisanalTheme.ink,
+                height: 1.1,
+              ),
+            ),
           ),
         ),
         

@@ -690,49 +690,51 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
 
     _triggerFeedback();
 
-    // Check for new ingredients that aren't in the pantry yet
-    final pantryItems = ref.read(pantryProvider);
-    final allIngredientNames = draft.components
-        .expand((c) => c.ingredients)
-        .where((i) => i.name.trim().isNotEmpty)
-        .map((i) => i.name.trim())
-        .toSet()
-        .toList();
+    // Check for new ingredients that aren't in the pantry yet (Skip in Basic Mode)
+    if (settings.appMode != 'basic') {
+      final pantryItems = ref.read(pantryProvider);
+      final allIngredientNames = draft.components
+          .expand((c) => c.ingredients)
+          .where((i) => i.name.trim().isNotEmpty)
+          .map((i) => i.name.trim())
+          .toSet()
+          .toList();
 
-    final newIngredientNames = allIngredientNames
-        .where(
-          (name) => !pantryItems.any(
-            (p) => p.name.toLowerCase() == name.toLowerCase(),
-          ),
-        )
-        .toList();
+      final newIngredientNames = allIngredientNames
+          .where(
+            (name) => !pantryItems.any(
+              (p) => p.name.toLowerCase() == name.toLowerCase(),
+            ),
+          )
+          .toList();
 
-    if (newIngredientNames.isNotEmpty) {
-      final toRegister = await _showBulkNewIngredientsDialog(
-        context,
-        newIngredientNames,
-      );
-      
-      // If user clicked CANCEL (returns null), abort the whole save process
-      if (toRegister == null) return;
+      if (newIngredientNames.isNotEmpty) {
+        final toRegister = await _showBulkNewIngredientsDialog(
+          context,
+          newIngredientNames,
+        );
+        
+        // If user clicked CANCEL (returns null), abort the whole save process
+        if (toRegister == null) return;
 
-      // If user clicked REGISTER (returns non-empty list)
-      if (toRegister.isNotEmpty) {
-        for (final entry in toRegister) {
-          final newItem = PantryItem(
-            id: DateTime.now().millisecondsSinceEpoch.toString() + entry.name,
-            name: entry.name,
-            purchasePrice: 0,
-            targetQuantity: 1000,
-            currentStock: 0,
-            unit: 'g',
-            lastUpdated: DateTime.now(),
-            category: entry.category,
-          );
-          await ref.read(pantryProvider.notifier).addItem(newItem);
+        // If user clicked REGISTER (returns non-empty list)
+        if (toRegister.isNotEmpty) {
+          for (final entry in toRegister) {
+            final newItem = PantryItem(
+              id: DateTime.now().millisecondsSinceEpoch.toString() + entry.name,
+              name: entry.name,
+              purchasePrice: 0,
+              targetQuantity: 1000,
+              currentStock: 0,
+              unit: 'g',
+              lastUpdated: DateTime.now(),
+              category: entry.category,
+            );
+            await ref.read(pantryProvider.notifier).addItem(newItem);
+          }
         }
+        // If toRegister is empty (returns []), it was a SKIP. Proceed to save recipe without registering.
       }
-      // If toRegister is empty (returns []), it was a SKIP. Proceed to save recipe without registering.
     }
 
     HapticFeedback.heavyImpact();

@@ -99,8 +99,14 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
   }
 
   void _onEdit() {
+    // Map existing recipe to draft
+    // Map existing recipe to draft using the centralized factory
     final draft = RecipeDraft.fromModel(widget.recipe, ref.read(settingsProvider));
+
+    // Seed the provider
     ref.read(recipeDraftProvider.notifier).state = draft;
+
+    // Navigate to AddRecipeScreen in edit mode
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -120,7 +126,6 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
       (r) => r.id == widget.recipe.id,
       orElse: () => widget.recipe,
     );
-    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: ArtisanalTheme.background,
@@ -158,174 +163,151 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
               const SizedBox(width: 8),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                color: ArtisanalTheme.background,
-                child: SingleChildScrollView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 80),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Text(
-                          recipe.name,
-                          textAlign: TextAlign.center,
-                          style: ArtisanalTheme.lightTheme.textTheme.displayMedium
-                              ?.copyWith(fontSize: 34),
-                        ),
+              background: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 80),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                      child: Text(
+                        recipe.name,
+                        textAlign: TextAlign.center,
+                        style: ArtisanalTheme.lightTheme.textTheme.displayMedium
+                            ?.copyWith(fontSize: 34),
                       ),
-                      const SizedBox(height: 12),
-                      Stack(
-                        alignment: Alignment.topCenter,
-                        clipBehavior: Clip.none,
-                        children: [
-                          const WashiTape(width: 100, rotation: -0.05),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: PolaroidCard(
-                              width: 280,
-                              image: ArtisanalImage(
-                                imagePath: recipe.mainImageUrl,
-                                recipeName: recipe.name,
-                                fit: BoxFit.cover,
-                              ),
-                              title: DateFormat(
-                                'yyyy.MM.dd',
-                              ).format(recipe.createdAt),
+                    ),
+                    const SizedBox(height: 12),
+                    Stack(
+                      alignment: Alignment.topCenter,
+                      clipBehavior: Clip.none,
+                      children: [
+                        const WashiTape(width: 100, rotation: -0.05),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: PolaroidCard(
+                            width: 280,
+                            image: ArtisanalImage(
+                              imagePath: recipe.mainImageUrl,
+                              fit: BoxFit.cover,
                             ),
+                            title: DateFormat(
+                              'yyyy.MM.dd',
+                            ).format(recipe.createdAt),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 100),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 100),
+                  ],
                 ),
               ),
             ),
           ),
 
-          // ── BRIGHT 3D LIGHT MAPLE CUTTING BOARD ──
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
-            sliver: SliverToBoxAdapter(
-              child: CrumpleEffect(
-                controller: _crumpleController,
-                child: Container(
-                  constraints: BoxConstraints(minHeight: screenHeight * 0.7),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      // Warm, Lighter Side Thickness
-                      BoxShadow(
-                        color: const Color(0xFF8D6E63),
-                        offset: const Offset(0, 14),
-                        blurRadius: 0,
-                      ),
-                      // Drop Shadow
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        offset: const Offset(0, 18),
-                        blurRadius: 25,
-                      ),
-                    ],
-                    image: const DecorationImage(
-                      image: AssetImage('assets/images/cutting_board_texture.png'),
-                      fit: BoxFit.fitWidth,
-                      repeat: ImageRepeat.repeatY,
-                      alignment: Alignment.topCenter,
-                      filterQuality: FilterQuality.high,
-                    ),
+          SliverToBoxAdapter(
+            child: CrumpleEffect(
+              controller: _crumpleController,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: ArtisanalTheme.background,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(36),
+                    topRight: Radius.circular(36),
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 32),
-                      // Carved handle-hole
-                      Container(
-                        width: 70,
-                        height: 16,
+                ),
+                child: Stack(
+                  alignment: Alignment.topCenter,
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: 40,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(36),
+                            topRight: Radius.circular(36),
+                          ),
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.black.withValues(alpha: 0.5),
-                              Colors.black.withValues(alpha: 0.15),
+                              Colors.black.withValues(alpha: 0.04),
+                              Colors.transparent,
                             ],
                           ),
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.25),
-                              width: 1.5,
-                            ),
-                          ),
-                        ),
-                        child: Center(
-                          child: Container(
-                            width: 66,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              color: Colors.black.withValues(alpha: 0.1),
-                            ),
-                          ),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                    ),
 
-                      Center(
-                        child: TextButton.icon(
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  SummaryNoteScreen(recipe: recipe),
+                    Column(
+                      children: [
+                        const SizedBox(height: 16),
+                        Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    SummaryNoteScreen(recipe: recipe),
+                              ),
                             ),
-                          ),
-                          icon: const Icon(Icons.menu_book, size: 20),
-                          label: Text(
-                            l10n.openJournalSummary,
-                            style: ArtisanalTheme.hand(fontSize: 18),
-                          ),
-                          style: TextButton.styleFrom(
-                            foregroundColor: ArtisanalTheme.ink,
-                            backgroundColor: Colors.white.withValues(alpha: 0.3),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
+                            icon: const Icon(Icons.menu_book, size: 20),
+                            label: Text(
+                              l10n.openJournalSummary,
+                              style: ArtisanalTheme.hand(fontSize: 18),
+                            ),
+                            style: TextButton.styleFrom(
+                              foregroundColor: ArtisanalTheme.ink,
+                              backgroundColor: ArtisanalTheme.secondary
+                                  .withValues(alpha: 0.05),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
                             ),
                           ),
                         ),
-                      ),
 
-                      const SizedBox(height: 60),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Column(
-                          children: [
-                            ...recipe.components.map(
-                              (comp) => Padding(
-                                padding: const EdgeInsets.only(bottom: 32),
-                                child: AnimatedRecipePostIt(component: comp),
+                        const SizedBox(height: 60),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            children: [
+                              ...recipe.components.map(
+                                (comp) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 32),
+                                  child: AnimatedRecipePostIt(component: comp),
+                                ),
                               ),
-                            ),
-                            if (recipe.description != null &&
-                                recipe.description!.isNotEmpty) ...[
-                              const SizedBox(height: 10),
-                              _DescriptionCard(
-                                description: recipe.description!,
-                              ),
-                              const SizedBox(height: 32),
+                              if (recipe.description != null &&
+                                  recipe.description!.isNotEmpty) ...[
+                                const SizedBox(height: 10),
+                                _DescriptionCard(
+                                  description: recipe.description!,
+                                ),
+                                const SizedBox(height: 32),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 100),
-                    ],
-                  ),
+                        const SizedBox(height: 100),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -401,6 +383,7 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
           alignment: Alignment.topCenter,
           clipBehavior: Clip.none,
           children: [
+            // INTERACTIVE FLIP BUILDER
             AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
@@ -427,6 +410,7 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
               },
             ),
 
+            // Tab Indicators
             Positioned(
               top: 25,
               child: Row(
@@ -439,15 +423,17 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
               ),
             ),
 
+            // DYNAMIC WASHI TAPE (Reacts to flip tension)
             AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
+                // Sticker tilts slightly as the paper flips
                 final tension = math.sin(_controller.value * math.pi) * 0.04;
                 return Positioned(
                   top: -15,
                   child: WashiTape(
                     width: 90,
-                    rotation: 0.012 + tension,
+                    rotation: 0.012 + tension, // Add dynamic tilt
                     opacity: 0.85,
                   ),
                 );
@@ -459,7 +445,7 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
     );
   }
 
-  Widget _buildMiniPolaroid(String? imagePath) {
+  Widget _buildMiniPolaroid(String imagePath) {
     return Container(
       width: 80,
       padding: const EdgeInsets.fromLTRB(6, 6, 6, 18),
@@ -475,11 +461,7 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
       ),
       child: AspectRatio(
         aspectRatio: 1,
-        child: ArtisanalImage(
-          imagePath: imagePath,
-          recipeName: widget.component.title,
-          fit: BoxFit.cover,
-        ),
+        child: ArtisanalImage(imagePath: imagePath, fit: BoxFit.cover),
       ),
     );
   }
@@ -697,22 +679,23 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
               color: const Color(0xFFFEF9E7),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 20,
-                  offset: const Offset(8, 10),
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 15,
+                  offset: const Offset(6, 6),
                 ),
               ],
             ),
             child: child,
           ),
-          Positioned(
-            top: 50,
-            right: 15,
-            child: Transform.rotate(
-              angle: 0.08,
-              child: _buildMiniPolaroid(imageUrl),
+          if (imageUrl != null)
+            Positioned(
+              top: 50,
+              right: 15,
+              child: Transform.rotate(
+                angle: 0.08,
+                child: _buildMiniPolaroid(imageUrl),
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -737,7 +720,7 @@ class _DescriptionCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(16, 40, 16, 32),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFFDF5),
+                color: const Color(0xFFFFFDF5), // Warm parchment
                 borderRadius: BorderRadius.circular(2),
                 boxShadow: [
                   BoxShadow(
