@@ -190,7 +190,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen>
                             width: 280,
                             image: ArtisanalImage(
                               imagePath: recipe.mainImageUrl,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain, // Show whole image
                             ),
                             title: DateFormat(
                               'yyyy.MM.dd',

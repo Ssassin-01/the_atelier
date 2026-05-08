@@ -1193,4 +1193,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get crafting => '작업 중...';
+
+  @override
+  String get saveDraft => '임시 저장';
+
+  @override
+  String get saveRecipe => '레시피 저장';
+
+  @override
+  String get pleaseEnterRecipeName => '먼저 레시피 이름을 작성해주세요!';
 }

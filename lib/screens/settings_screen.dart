@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,6 +50,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
   }
 
   Future<void> _checkPermissions() async {
+    if (kIsWeb) return;
+    
     final camera = await Permission.camera.status;
     final photo = await Permission.photos.status;
     if (mounted) {

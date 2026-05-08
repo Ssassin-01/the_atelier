@@ -150,23 +150,53 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
                     child: ArtisanalImage(
                       imagePath: widget.recipe.mainImageUrl,
                       width: double.infinity,
-                      height: 120, // Reduced from 140
-                      fit: BoxFit.cover,
+                      height: 110, // Calibrated for shorter card
+                      fit: BoxFit.contain,
+                      backgroundColor: const Color(0xFFFDFCF7),
                     ),
                   ),
+                  if (widget.recipe.isDraft)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Transform.rotate(
+                        angle: -0.1,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color(0xFFD32F2F).withValues(alpha: 0.7),
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context).crafting,
+                            style: ArtisanalTheme.hand(
+                              color: const Color(0xFFD32F2F).withValues(alpha: 0.8),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   const Positioned(
                     top: -8,
                     left: 0,
                     right: 0,
                     child: Center(
-                      child: MaskingTape(width: 60, rotation: -0.05),
+                      child: MaskingTape(width: 50, rotation: -0.05),
                     ),
                   ),
                 ],
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -180,16 +210,16 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
                             Text(
                               widget.recipe.name,
                               style: ArtisanalTheme.hand(
-                                fontSize: 17, // Reduced from 18
+                                fontSize: 16,
                                 color: ArtisanalTheme.ink,
                               ).copyWith(fontWeight: FontWeight.bold),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 2),
                             if (widget.recipe.description != null &&
                                 (widget.recipe.description as String)
-                                    .isNotEmpty)
+                                    .isNotEmpty) ...[
+                              const SizedBox(height: 1),
                               Text(
                                 widget.recipe.description,
                                 style: ArtisanalTheme.hand(
@@ -201,10 +231,11 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
+                            ],
                           ],
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -252,7 +283,7 @@ class _MetaItem extends StatelessWidget {
         Text(
           label,
           style: ArtisanalTheme.hand(
-            fontSize: 14,
+            fontSize: 12,
             color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
           ),
         ),

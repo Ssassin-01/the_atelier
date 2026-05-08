@@ -2419,6 +2419,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Crafting...'**
   String get crafting;
+
+  /// No description provided for @saveDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Draft'**
+  String get saveDraft;
+
+  /// No description provided for @saveRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Recipe'**
+  String get saveRecipe;
+
+  /// No description provided for @pleaseEnterRecipeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a recipe name first!'**
+  String get pleaseEnterRecipeName;
 }
 
 class _AppLocalizationsDelegate

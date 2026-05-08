@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/artisanal_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../services/recipe_service.dart';
-import '../models/recipe.dart';
+import 'package:my_atelier/models/recipe.dart';
 import '../widgets/recipe_index_card.dart';
 import 'recipe_detail_screen.dart';
 
@@ -262,7 +262,7 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                             mainAxisSpacing: 20,
                             crossAxisSpacing: 16,
                             childAspectRatio:
-                                0.65, // More vertical space to prevent overflow
+                                0.75, // Updated ratio for more compact cards
                           ),
                       delegate: SliverChildBuilderDelegate((context, index) {
                         final recipe = filtered[index];

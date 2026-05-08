@@ -424,5 +424,8 @@
   "loadSamples": "샘플 데이터 로드",
   "viewFullRecipe": "전체 레시피 보기",
   "artisanalArchive": "아티장 아카이브",
-  "crafting": "작업 중..."
+  "crafting": "작업 중...",
+  "saveDraft": "임시 저장",
+  "saveRecipe": "레시피 저장",
+  "pleaseEnterRecipeName": "먼저 레시피 이름을 작성해주세요!"
 }

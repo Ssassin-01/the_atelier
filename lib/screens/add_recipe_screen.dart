@@ -295,7 +295,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               },
             ),
             title: Text(
-              l10n.currentLanguage == '한국어' ? '레시피 작성' : 'NEW RECIPE',
+              l10n.saveRecipe,
               style: ArtisanalTheme.hand(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -329,7 +329,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               TextButton(
                 onPressed: () => _saveRecipe(context, ref, draft, settings, isDraft: true),
                 child: Text(
-                  l10n.currentLanguage == '한국어' ? '임시저장' : 'DRAFT',
+                  l10n.saveDraft,
                   style: ArtisanalTheme.hand(
                     fontSize: 16,
                     color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
@@ -339,7 +339,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               TextButton(
                 onPressed: () => _saveRecipe(context, ref, draft, settings, isDraft: false),
                 child: Text(
-                  'SAVE',
+                  l10n.save,
                   style: ArtisanalTheme.hand(
                     fontSize: 18,
                     color: ArtisanalTheme.primary,
@@ -675,9 +675,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            l10n.currentLanguage == '한국어' 
-                ? '먼저 레시피 이름을 작성해주세요!' 
-                : l10n.nameYourMasterpiece,
+            l10n.pleaseEnterRecipeName,
             style: ArtisanalTheme.hand(color: Colors.white),
           ),
           backgroundColor: ArtisanalTheme.secondary.withValues(alpha: 0.9),

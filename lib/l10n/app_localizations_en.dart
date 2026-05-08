@@ -1220,4 +1220,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get crafting => 'Crafting...';
+
+  @override
+  String get saveDraft => 'Save Draft';
+
+  @override
+  String get saveRecipe => 'Save Recipe';
+
+  @override
+  String get pleaseEnterRecipeName => 'Please enter a recipe name first!';
 }

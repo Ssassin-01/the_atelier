@@ -197,7 +197,6 @@
   "noSalesRecords": "No sales recorded yet.",
   "deleteRecord": "Discard this record?",
   "delete": "Delete",
-  "cancel": "Cancel",
   "saleRegistered": "Sale registered with a flourish.",
   "newIngredientTitle": "New Ingredient Found!",
   "newIngredientDesc": "This isn't in your pantry yet. Should we add it to the shelf?",
@@ -426,5 +425,8 @@
   "loadSamples": "Load Sample Data",
   "viewFullRecipe": "View Full Recipe",
   "artisanalArchive": "Artisanal Archive",
-  "crafting": "Crafting..."
+  "crafting": "Crafting...",
+  "saveDraft": "Save Draft",
+  "saveRecipe": "Save Recipe",
+  "pleaseEnterRecipeName": "Please enter a recipe name first!"
 }
