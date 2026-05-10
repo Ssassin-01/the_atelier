@@ -113,25 +113,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                     trailer: settings.measurementSystem == 'metric' ? l10n.metric : l10n.imperial,
                     onTap: () => _showUnitPicker(context),
                   ),
-                  _settingsItem(
-                    Icons.payments_outlined,
-                    l10n.currencySymbolLabel,
-                    trailer: settings.currencySymbol,
-                    onTap: () => _showCurrencyPicker(context),
-                  ),
-                  _settingsItem(
-                    Icons.sync,
-                    l10n.refreshExchangeRates,
-                    infoMessage: l10n.refreshRatesInfo,
-                    onTap: () async {
-                      await ref.read(settingsProvider.notifier).refreshRates();
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.exchangeRatesUpdated)),
-                        );
-                      }
-                    },
-                  ),
+                  if (settings.appMode != 'basic') ...[
+                    _settingsItem(
+                      Icons.payments_outlined,
+                      l10n.currencySymbolLabel,
+                      trailer: settings.currencySymbol,
+                      onTap: () => _showCurrencyPicker(context),
+                    ),
+                    _settingsItem(
+                      Icons.sync,
+                      l10n.refreshExchangeRates,
+                      infoMessage: l10n.refreshRatesInfo,
+                      onTap: () async {
+                        await ref.read(settingsProvider.notifier).refreshRates();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.exchangeRatesUpdated)),
+                          );
+                        }
+                      },
+                    ),
+                  ],
                   _settingsItem(
                     Icons.store_outlined,
                     l10n.atelierProfile,
