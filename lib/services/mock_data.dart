@@ -179,5 +179,140 @@ List<Recipe> getMockRecipes() {
         ),
       ],
     ),
+    Recipe(
+      id: '2',
+      name: 'Lavender Lemon Madeleine',
+      description: 'A floral and zesty tea-time favorite, glazed with organic lavender syrup.',
+      mainImageUrl: 'assets/images/madeleine.png',
+      createdAt: DateTime.now().subtract(const Duration(days: 2)),
+      tags: ['Pastry', 'Teatime'],
+      components: [
+        RecipeComponent(
+          title: 'Madeleine Batter',
+          ingredients: [
+            Ingredient(name: 'Cake Flour', amount: '100', unit: 'g'),
+            Ingredient(name: 'Sugar', amount: '90', unit: 'g'),
+            Ingredient(name: 'Melted Butter', amount: '100', unit: 'g'),
+            Ingredient(name: 'Eggs', amount: '100', unit: 'g'),
+            Ingredient(name: 'Baking Powder', amount: '3', unit: 'g'),
+            Ingredient(name: 'Lemon Zest', amount: '2', unit: 'g'),
+          ],
+          steps: [
+            RecipeStep(description: 'Whisk eggs and sugar until pale.'),
+            RecipeStep(description: 'Sift flour and baking powder into egg mix.'),
+            RecipeStep(description: 'Fold in melted butter and lemon zest.'),
+            RecipeStep(description: 'Rest the batter in the fridge for 1 hour.'),
+            RecipeStep(description: 'Bake at 190°C for 11-13 minutes.'),
+          ],
+        ),
+        RecipeComponent(
+          title: 'Lavender Glaze',
+          ingredients: [
+            Ingredient(name: 'Powdered Sugar', amount: '80', unit: 'g'),
+            Ingredient(name: 'Lavender Tea', amount: '15', unit: 'g'),
+          ],
+          steps: [
+            RecipeStep(description: 'Whisk tea and powdered sugar until smooth.'),
+            RecipeStep(description: 'Dip warm madeleines into the glaze and let set.'),
+          ],
+        ),
+      ],
+    ),
+    Recipe(
+      id: '3',
+      name: 'Classic French Baguette',
+      description: 'Traditional baguettes using poolish pre-ferment for deep aroma and crispy crust.',
+      mainImageUrl: 'assets/images/baguette.png',
+      createdAt: DateTime.now().subtract(const Duration(days: 3)),
+      tags: ['Breads', 'Artisan'],
+      components: [
+        RecipeComponent(
+          title: 'Poolish Starter',
+          ingredients: [
+            Ingredient(name: 'Bread Flour', amount: '150', unit: 'g'),
+            Ingredient(name: 'Water', amount: '150', unit: 'g'),
+            Ingredient(name: 'Instant Yeast', amount: '0.2', unit: 'g'),
+          ],
+          steps: [
+            RecipeStep(description: 'Mix flour, water, and yeast until smooth.'),
+            RecipeStep(description: 'Ferment at room temperature for 12 hours.'),
+          ],
+        ),
+        RecipeComponent(
+          title: 'Main Dough',
+          ingredients: [
+            Ingredient(name: 'Bread Flour', amount: '350', unit: 'g'),
+            Ingredient(name: 'Water', amount: '200', unit: 'g'),
+            Ingredient(name: 'Salt', amount: '10', unit: 'g'),
+            Ingredient(name: 'Instant Yeast', amount: '1', unit: 'g'),
+          ],
+          steps: [
+            RecipeStep(description: 'Combine poolish, flour, water, and yeast. Autolyse 20m.'),
+            RecipeStep(description: 'Add salt and knead until moderate gluten development.'),
+            RecipeStep(description: 'Bulk ferment for 2 hours with folds at 45m and 90m.'),
+            RecipeStep(description: 'Divide, shape into baguettes, and final proof for 45m.'),
+            RecipeStep(description: 'Score and bake at 240°C with steam for 22-25m.'),
+          ],
+        ),
+      ],
+    ),
+    Recipe(
+      id: '4',
+      name: 'Rosemary Olive Oil Cake',
+      description: 'A moist and aromatic dessert infused with extra virgin olive oil and fresh herbs.',
+      mainImageUrl: 'assets/images/cake.png',
+      createdAt: DateTime.now().subtract(const Duration(days: 4)),
+      tags: ['Cakes', 'Desserts'],
+      components: [
+        RecipeComponent(
+          title: 'Cake Batter',
+          ingredients: [
+            Ingredient(name: 'All-Purpose Flour', amount: '200', unit: 'g'),
+            Ingredient(name: 'Sugar', amount: '150', unit: 'g'),
+            Ingredient(name: 'Olive Oil', amount: '120', unit: 'g'),
+            Ingredient(name: 'Yogurt', amount: '100', unit: 'g'),
+            Ingredient(name: 'Eggs', amount: '110', unit: 'g'),
+            Ingredient(name: 'Fresh Rosemary (minced)', amount: '5', unit: 'g'),
+            Ingredient(name: 'Baking Powder', amount: '5', unit: 'g'),
+          ],
+          steps: [
+            RecipeStep(description: 'Beat eggs and sugar until thickened.'),
+            RecipeStep(description: 'Drizzle in extra virgin olive oil and yogurt.'),
+            RecipeStep(description: 'Fold in sifted dry ingredients and minced rosemary.'),
+            RecipeStep(description: 'Pour into a lined tin and bake at 175°C for 40-45m.'),
+          ],
+        ),
+      ],
+    ),
+    Recipe(
+      id: '5',
+      name: 'Brown Butter Chocolate Cookies',
+      description: 'Rich, chewy cookies with nutty brown butter and dark chocolate chunks.',
+      mainImageUrl: 'assets/images/cookies.png',
+      createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      tags: ['Cookies', 'Signature'],
+      components: [
+        RecipeComponent(
+          title: 'Cookie Dough',
+          ingredients: [
+            Ingredient(name: 'All-Purpose Flour', amount: '220', unit: 'g'),
+            Ingredient(name: 'Brown Sugar', amount: '130', unit: 'g'),
+            Ingredient(name: 'White Sugar', amount: '70', unit: 'g'),
+            Ingredient(name: 'Unsalted Butter', amount: '150', unit: 'g'),
+            Ingredient(name: 'Dark Chocolate (70%)', amount: '150', unit: 'g'),
+            Ingredient(name: 'Egg', amount: '55', unit: 'g'),
+            Ingredient(name: 'Baking Soda', amount: '3', unit: 'g'),
+            Ingredient(name: 'Flaky Sea Salt', amount: '2', unit: 'g'),
+          ],
+          steps: [
+            RecipeStep(description: 'Melt butter in a pan until browned and fragrant. Cool.'),
+            RecipeStep(description: 'Whisk brown butter, sugars, and egg together.'),
+            RecipeStep(description: 'Fold in flour, baking soda, and chopped dark chocolate.'),
+            RecipeStep(description: 'Rest the cookie dough in the fridge for 2 hours.'),
+            RecipeStep(description: 'Scoop, sprinkle with sea salt, and bake at 180°C for 10-12m.'),
+          ],
+        ),
+      ],
+    ),
   ];
 }
