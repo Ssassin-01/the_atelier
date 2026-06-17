@@ -156,8 +156,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                 ]),
                 const SizedBox(height: 28),
                 _buildSettingsGroup(l10n.information, [
-                  _settingsItem(Icons.contact_support_outlined, l10n.helpAndSupport),
-                  _settingsItem(Icons.policy_outlined, l10n.termsAndPrivacy),
+                  _settingsItem(
+                    Icons.policy_outlined,
+                    l10n.termsAndPrivacy,
+                    onTap: () => _showTermsAndPrivacyDialog(context),
+                  ),
                   _settingsItemStatic(Icons.info_outline, l10n.appVersion, value: 'v1.0.0'),
                 ]),
                 const SizedBox(height: 120),
@@ -443,6 +446,68 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
       default:
         return l10n.systemLanguage;
     }
+  }
+
+  void _showTermsAndPrivacyDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isKo = l10n.currentLanguage == '한국어';
+
+    final String title = isKo ? "이용약관 및 개인정보 정책" : "Terms & Privacy Policy";
+    final String content = isKo 
+      ? "■ 개인정보 처리방침\n\n"
+        "1. 개인정보 수집 및 이용\n"
+        "'My Atelier' 앱은 회원의 별도 가입 절차 없이 오프라인으로 작동하며, 서버로 어떠한 개인정보도 전송하거나 수집하지 않습니다. 모든 레시피, 재고 내역, 매입/매출 등의 데이터는 사용자의 스마트폰 기기 내부(Hive 로컬 데이터베이스)에만 안전하게 저장됩니다.\n\n"
+        "2. 권한 사용 안내\n"
+        "앱 내 레시피 사진 등록 및 스케치 저장을 위해 카메라 촬영 및 갤러리(사진첩) 접근 권한을 사용합니다. 권한은 해당 기능 실행 시에만 사용되며 수집되지 않습니다.\n\n"
+        "3. 데이터 보관 및 파기\n"
+        "사용자의 모든 데이터는 기기 내부에 저장되므로, 앱을 삭제하거나 설정의 '모든 데이터 초기화' 기능을 수행하면 모든 데이터가 영구 파기되어 복구할 수 없습니다.\n\n\n"
+        "■ 서비스 이용약관\n\n"
+        "1. 서비스 목적\n"
+        "본 앱은 제과제빵 및 요리 레시피 기록, R&D 구상, 간이 재고 및 매출 관리를 돕는 개인용 노트 도구입니다.\n\n"
+        "2. 면책 조항\n"
+        "개발자는 사용자의 데이터 관리 소홀(기기 변경, 분실, 앱 무단 삭제 등)로 인한 데이터 유실에 책임을 지지 않습니다. 오프라인 앱의 특성상 주기적인 백업 관리를 권장합니다."
+      : "■ Privacy Policy\n\n"
+        "1. Collection of Information\n"
+        "'My Atelier' operates completely offline. We do not collect, store, or transmit any of your personal data to external servers. All recipes, inventory lists, and ledger data are saved locally on your device.\n\n"
+        "2. Permissions\n"
+        "We request access to your Camera and Photo Gallery solely to allow you to take and attach photos to your recipes. We do not upload these photos to any server.\n\n"
+        "3. Data Deletion\n"
+        "Because all data is stored on your device, deleting the app or selecting 'Reset All Data' in settings will permanently delete all your records.\n\n\n"
+        "■ Terms of Service\n\n"
+        "1. Service Purpose\n"
+        "This app is a personal notebook utility designed to help you organize recipes, log inventory, and track basic sales.\n\n"
+        "2. Limitation of Liability\n"
+        "The developer is not responsible for any data loss caused by device loss, app uninstallation, or lack of backups.";
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: ArtisanalTheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          title,
+          style: ArtisanalTheme.hand(fontSize: 22, color: ArtisanalTheme.ink).copyWith(fontWeight: FontWeight.bold),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Text(
+              content,
+              style: ArtisanalTheme.receipt(fontSize: 14, color: ArtisanalTheme.ink.withValues(alpha: 0.8), height: 1.4),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              l10n.ok,
+              style: ArtisanalTheme.hand(fontSize: 18, color: ArtisanalTheme.primary, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showLanguagePicker(BuildContext context) {
