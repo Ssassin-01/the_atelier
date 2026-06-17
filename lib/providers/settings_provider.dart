@@ -20,7 +20,7 @@ class SettingsState {
     required this.atelierName,
     required this.atelierContact,
     this.customRates = const {},
-    this.appMode = 'business',
+    this.appMode = 'basic',
   });
 
   // Backward compatibility getters
@@ -184,7 +184,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
             customRates: Map<String, double>.from(
               _box.get('customRates', defaultValue: <String, double>{}),
             ),
-            appMode: _box.get('appMode', defaultValue: _box.get('isBusinessMode', defaultValue: true) ? 'business' : 'creative'),
+            appMode: _box.get('appMode', defaultValue: 'basic'),
           ),
         ) {
     checkAndRefreshRates();

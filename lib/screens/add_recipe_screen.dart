@@ -118,11 +118,12 @@ class RecipeDraft {
     double? sellingPrice,
     double? targetYield,
     bool? isDraft,
+    bool clearMainImage = false,
   }) {
     return RecipeDraft(
       name: name ?? this.name,
       description: description ?? this.description,
-      mainImagePath: mainImagePath ?? this.mainImagePath,
+      mainImagePath: clearMainImage ? null : (mainImagePath ?? this.mainImagePath),
       components: components ?? this.components,
       sellingPrice: sellingPrice ?? this.sellingPrice,
       targetYield: targetYield ?? this.targetYield,
@@ -199,6 +200,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
   final Map<String, FocusNode> _focusNodes = {};
   final Map<String, GlobalKey> _photoKeys = {};
   final ScrollController _scrollController = ScrollController();
+  bool _isSaving = false;
 
   void _triggerFeedback() {
     HapticFeedback.lightImpact();
@@ -273,392 +275,399 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
 
     // Remove English patching logic to respect user request and l10n
 
-    return Scaffold(
-      backgroundColor: const Color(
-        0xFFFAF9F6,
-      ), // Reverted to original Linen White
-      body: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          SliverAppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            floating: true,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: ArtisanalTheme.ink),
-              onPressed: () {
-                if (widget.onBack != null) {
-                  widget.onBack!();
-                } else {
-                  Navigator.pop(context);
-                }
-              },
-            ),
-            title: Text(
-              l10n.saveRecipe,
-              style: ArtisanalTheme.hand(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: ArtisanalTheme.ink,
-                letterSpacing: 1.2,
-              ),
-            ),
-            actions: [
-              IconButton(
-                padding: const EdgeInsets.only(right: 8),
-                icon: const Icon(
-                  Icons.auto_stories_outlined,
-                  color: ArtisanalTheme.primary,
-                ),
-                tooltip: l10n.previewInJournal,
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) {
+          if (!_isSaving && draft.name.trim().isNotEmpty) {
+            _saveRecipe(context, ref, draft, settings, isDraft: true, shouldPop: false);
+          }
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(
+          0xFFFAF9F6,
+        ), // Reverted to original Linen White
+        body: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            SliverAppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              floating: true,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: ArtisanalTheme.ink),
                 onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => DraggableScrollableSheet(
-                      initialChildSize: 0.9,
-                      minChildSize: 0.5,
-                      maxChildSize: 0.95,
-                      builder: (_, controller) =>
-                          RecipePreviewSheet(draft: draft),
-                    ),
-                  );
+                  if (widget.onBack != null) {
+                    widget.onBack!();
+                  } else {
+                    Navigator.pop(context);
+                  }
                 },
               ),
-              TextButton(
-                onPressed: () => _saveRecipe(context, ref, draft, settings, isDraft: true),
-                child: Text(
-                  l10n.saveDraft,
-                  style: ArtisanalTheme.hand(
-                    fontSize: 16,
-                    color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
-                  ),
+              title: Text(
+                l10n.saveRecipe,
+                style: ArtisanalTheme.hand(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: ArtisanalTheme.ink,
+                  letterSpacing: 1.2,
                 ),
               ),
-              TextButton(
-                onPressed: () => _saveRecipe(context, ref, draft, settings, isDraft: false),
-                child: Text(
-                  l10n.save,
-                  style: ArtisanalTheme.hand(
-                    fontSize: 18,
+              actions: [
+                IconButton(
+                  padding: const EdgeInsets.only(right: 8),
+                  icon: const Icon(
+                    Icons.auto_stories_outlined,
                     color: ArtisanalTheme.primary,
                   ),
-                ),
-              ),
-              const SizedBox(width: 16),
-            ],
-          ),
-
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 28.0),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: 10),
-
-                // ── Photo Selector with Tape ────────────────────────────────
-                Stack(
-                  alignment: Alignment.topCenter,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: _buildPhotoSelector(
-                        context,
-                        draft.mainImagePath,
-                        (path) {
-                          notifier.update(
-                            (s) => RecipeDraft(
-                              name: s.name,
-                              description: s.description,
-                              mainImagePath: path,
-                              components: s.components,
-                            ),
-                          );
-                        },
-                        height: 280,
-                        label: l10n.addCoverMedia,
-                      ),
-                    ),
-                    const MaskingTape(width: 140, label: "MAIN VIEW"),
-                  ],
-                ),
-
-                const SizedBox(height: 32),
-                TextField(
-                  onChanged: (val) {
-                    _triggerFeedback();
-                    notifier.update(
-                      (s) => RecipeDraft(
-                        name: val,
-                        description: s.description,
-                        mainImagePath: s.mainImagePath,
-                        components: s.components,
+                  tooltip: l10n.previewInJournal,
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => DraggableScrollableSheet(
+                        initialChildSize: 0.9,
+                        minChildSize: 0.5,
+                        maxChildSize: 0.95,
+                        builder: (_, controller) =>
+                            RecipePreviewSheet(draft: draft),
                       ),
                     );
                   },
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    hintText: l10n.recipeNameHint,
-                    hintStyle: GoogleFonts.notoSerif(
-                      fontSize: 26,
-                      fontStyle: FontStyle.italic,
-                      color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() => _isSaving = true);
+                    _saveRecipe(context, ref, draft, settings, isDraft: true);
+                  },
+                  child: Text(
+                    l10n.saveDraft,
+                    style: ArtisanalTheme.hand(
+                      fontSize: 16,
+                      color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
                     ),
-                    border: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black12, width: 1),
-                    ),
-                    focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: ArtisanalTheme.primary,
-                        width: 2,
-                      ),
-                    ),
-                    enabledBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black12, width: 1),
-                    ),
-                  ),
-                  style: GoogleFonts.notoSerif(
-                    fontSize: 26,
-                    fontStyle: FontStyle.italic,
-                    color: ArtisanalTheme.ink,
                   ),
                 ),
-
-                // ── Description (Artisanal Notes) Section ──────────────────────────
-                const SizedBox(height: 48),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFDFBF7), // Creamy paper color
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: ArtisanalTheme.ink.withValues(alpha: 0.05),
+                TextButton(
+                  onPressed: () {
+                    setState(() => _isSaving = true);
+                    _saveRecipe(context, ref, draft, settings, isDraft: false);
+                  },
+                  child: Text(
+                    l10n.save,
+                    style: ArtisanalTheme.hand(
+                      fontSize: 18,
+                      color: ArtisanalTheme.primary,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                const SizedBox(width: 16),
+              ],
+            ),
+  
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 28.0),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  const SizedBox(height: 10),
+  
+                  // ── Photo Selector with Tape ────────────────────────────────
+                  Stack(
+                    alignment: Alignment.topCenter,
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.edit_note,
-                            size: 18,
-                            color: ArtisanalTheme.primary.withValues(
-                              alpha: 0.4,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            l10n.artisanalNotes.toUpperCase(),
-                            style: ArtisanalTheme.hand(
-                              fontSize: 13,
-                              letterSpacing: 2,
-                              fontWeight: FontWeight.bold,
-                              color: ArtisanalTheme.secondary.withValues(
-                                alpha: 0.6,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        onChanged: (val) {
-                          _triggerFeedback();
-                          notifier.update((s) => s.copyWith(description: val));
-                        },
-                        controller: _descController,
-                        maxLines: null,
-                        minLines: 3,
-                        decoration: InputDecoration(
-                          hintText: l10n.recipeDescriptionHint,
-                          hintStyle: ArtisanalTheme.hand(
-                            fontSize: 16,
-                            color: ArtisanalTheme.ink.withValues(alpha: 0.15),
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        style: ArtisanalTheme.hand(
-                          fontSize: 17,
-                          height: 1.6,
-                          color: ArtisanalTheme.ink,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                if (settings.isBusinessMode) ...[
-                  const SizedBox(height: 32),
-                  _buildBusinessFields(l10n, settings, draft, notifier),
-                ],
-
-                const SizedBox(height: 48),
-
-                // ── Summary Row (Subtle) ────────────────────────────────────
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      l10n.estWeight,
-                      style: ArtisanalTheme.hand(
-                        fontSize: 12,
-                        color: ArtisanalTheme.secondary,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      settings.formatWeight(draft.totalWeight, settings.weightUnit),
-                      style: GoogleFonts.notoSerif(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: ArtisanalTheme.secondary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                if (draft.components.any(
-                  (c) => c.ingredients.isNotEmpty && !c.ingredients.any((e) => e.isFlour),
-                ))
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 24, left: 4),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: ArtisanalTheme.primary.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: ArtisanalTheme.primary.withValues(alpha: 0.1),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.lightbulb_outline,
-                                size: 18,
-                                color: ArtisanalTheme.primary,
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  l10n.bakerPercentageTip,
-                                  style: ArtisanalTheme.hand(
-                                    fontSize: 14,
-                                    color: ArtisanalTheme.ink.withValues(
-                                      alpha: 0.7,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.touch_app_outlined,
-                                size: 18,
-                                color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  l10n.unitSelectionTip,
-                                  style: ArtisanalTheme.hand(
-                                    fontSize: 14,
-                                    color: ArtisanalTheme.ink.withValues(
-                                      alpha: 0.7,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                ...draft.components.asMap().entries.map(
-                  (entry) => _buildComponentSection(
-                    context,
-                    ref,
-                    entry.value,
-                    entry.key,
-                    l10n,
-                    settings,
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () {
-                      _triggerFeedback();
-                      final newId = DateTime.now().millisecondsSinceEpoch.toString();
-                      notifier.update((s) {
-                        final newComps =
-                            List<RecipeComponentDraft>.from(s.components)..add(
-                              RecipeComponentDraft(
-                                id: newId,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: _buildPhotoSelector(
+                          context,
+                          draft.mainImagePath,
+                          (path) {
+                            notifier.update(
+                              (s) => s.copyWith(
+                                mainImagePath: path,
+                                clearMainImage: path == null,
                               ),
                             );
-                        return s.copyWith(components: newComps);
-                      });
-                      // Auto-scroll to new component and FOCUS it
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (_scrollController.hasClients) {
-                          _scrollController.animateTo(
-                            _scrollController.position.maxScrollExtent,
-                            duration: const Duration(milliseconds: 500),
-                            curve: Curves.easeOut,
-                          );
-                        }
-                        // Request focus for the newly added component's title
-                        _getFocusNode("${newId}_title").requestFocus();
-                      });
+                          },
+                          height: 280,
+                          label: l10n.addCoverMedia,
+                        ),
+                      ),
+                      const MaskingTape(width: 140, label: "MAIN VIEW"),
+                    ],
+                  ),
+  
+                  const SizedBox(height: 32),
+                  TextField(
+                    onChanged: (val) {
+                      _triggerFeedback();
+                      notifier.update((s) => s.copyWith(name: val));
                     },
-                    icon: const Icon(Icons.library_add_outlined),
-                    label: Text(
-                      l10n.addAnotherComponent,
-                      style: ArtisanalTheme.hand(fontSize: 18),
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      hintText: l10n.recipeNameHint,
+                      hintStyle: GoogleFonts.notoSerif(
+                        fontSize: 26,
+                        fontStyle: FontStyle.italic,
+                        color: ArtisanalTheme.ink.withValues(alpha: 0.1),
+                      ),
+                      border: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black12, width: 1),
+                      ),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: ArtisanalTheme.primary,
+                          width: 2,
+                        ),
+                      ),
+                      enabledBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black12, width: 1),
+                      ),
                     ),
-                    style: TextButton.styleFrom(
-                      foregroundColor: ArtisanalTheme.secondary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+                    style: GoogleFonts.notoSerif(
+                      fontSize: 26,
+                      fontStyle: FontStyle.italic,
+                      color: ArtisanalTheme.ink,
+                    ),
+                  ),
+  
+                  // ── Description (Artisanal Notes) Section ──────────────────────────
+                  const SizedBox(height: 48),
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFDFBF7), // Creamy paper color
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: ArtisanalTheme.ink.withValues(alpha: 0.05),
                       ),
-                      side: BorderSide(
-                        color: ArtisanalTheme.secondary.withValues(alpha: 0.2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.edit_note,
+                              size: 18,
+                              color: ArtisanalTheme.primary.withValues(
+                                alpha: 0.4,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              l10n.artisanalNotes.toUpperCase(),
+                              style: ArtisanalTheme.hand(
+                                fontSize: 13,
+                                letterSpacing: 2,
+                                fontWeight: FontWeight.bold,
+                                color: ArtisanalTheme.secondary.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          onChanged: (val) {
+                            _triggerFeedback();
+                            notifier.update((s) => s.copyWith(description: val));
+                          },
+                          controller: _descController,
+                          maxLines: null,
+                          minLines: 3,
+                          decoration: InputDecoration(
+                            hintText: l10n.recipeDescriptionHint,
+                            hintStyle: ArtisanalTheme.hand(
+                              fontSize: 16,
+                              color: ArtisanalTheme.ink.withValues(alpha: 0.15),
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          style: ArtisanalTheme.hand(
+                            fontSize: 17,
+                            height: 1.6,
+                            color: ArtisanalTheme.ink,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+  
+                  if (settings.isBusinessMode) ...[
+                    const SizedBox(height: 32),
+                    _buildBusinessFields(l10n, settings, draft, notifier),
+                  ],
+  
+                  const SizedBox(height: 48),
+  
+                  // ── Summary Row (Subtle) ────────────────────────────────────
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        l10n.estWeight,
+                        style: ArtisanalTheme.hand(
+                          fontSize: 12,
+                          color: ArtisanalTheme.secondary,
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                      const SizedBox(width: 8),
+                      Text(
+                        settings.formatWeight(draft.totalWeight, settings.weightUnit),
+                        style: GoogleFonts.notoSerif(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: ArtisanalTheme.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+  
+                  if (draft.components.any(
+                    (c) => c.ingredients.isNotEmpty && !c.ingredients.any((e) => e.isFlour),
+                  ))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 24, left: 4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: ArtisanalTheme.primary.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: ArtisanalTheme.primary.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.lightbulb_outline,
+                                  size: 18,
+                                  color: ArtisanalTheme.primary,
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    l10n.bakerPercentageTip,
+                                    style: ArtisanalTheme.hand(
+                                      fontSize: 14,
+                                      color: ArtisanalTheme.ink.withValues(
+                                        alpha: 0.7,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.touch_app_outlined,
+                                  size: 18,
+                                  color: ArtisanalTheme.secondary.withValues(alpha: 0.5),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    l10n.unitSelectionTip,
+                                    style: ArtisanalTheme.hand(
+                                      fontSize: 14,
+                                      color: ArtisanalTheme.ink.withValues(
+                                        alpha: 0.7,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+  
+                  ...draft.components.asMap().entries.map(
+                    (entry) => _buildComponentSection(
+                      context,
+                      ref,
+                      entry.value,
+                      entry.key,
+                      l10n,
+                      settings,
+                    ),
+                  ),
+  
+                  const SizedBox(height: 24),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        _triggerFeedback();
+                        final newId = DateTime.now().millisecondsSinceEpoch.toString();
+                        notifier.update((s) {
+                          final newComps =
+                              List<RecipeComponentDraft>.from(s.components)..add(
+                                RecipeComponentDraft(
+                                  id: newId,
+                                ),
+                              );
+                          return s.copyWith(components: newComps);
+                        });
+                        // Auto-scroll to new component and FOCUS it
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (_scrollController.hasClients) {
+                            _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent,
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeOut,
+                            );
+                          }
+                          // Request focus for the newly added component's title
+                          _getFocusNode("${newId}_title").requestFocus();
+                        });
+                      },
+                      icon: const Icon(Icons.library_add_outlined),
+                      label: Text(
+                        l10n.addAnotherComponent,
+                        style: ArtisanalTheme.hand(fontSize: 18),
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: ArtisanalTheme.secondary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        side: BorderSide(
+                          color: ArtisanalTheme.secondary.withValues(alpha: 0.2),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
                   ),
-                ),
-
-                const SizedBox(height: 100),
-              ]),
+  
+                  const SizedBox(height: 100),
+                ]),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -669,9 +678,11 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     RecipeDraft draft,
     SettingsState settings, {
     bool isDraft = false,
+    bool shouldPop = true,
   }) async {
     final l10n = AppLocalizations.of(context);
     if (draft.name.trim().isEmpty) {
+      setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -781,10 +792,12 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
     if (context.mounted) {
       // SnackBar removed as per user request
 
-      if (widget.onBack != null) {
-        widget.onBack!();
-      } else {
-        Navigator.pop(context);
+      if (shouldPop) {
+        if (widget.onBack != null) {
+          widget.onBack!();
+        } else {
+          Navigator.pop(context);
+        }
       }
     }
   }
@@ -1376,11 +1389,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                             component.imagePath = component.imagePath == null
                                 ? 'placeholder'
                                 : null;
-                            return RecipeDraft(
-                              name: s.name,
-                              mainImagePath: s.mainImagePath,
-                              components: s.components,
-                            );
+                            return s.copyWith();
                           });
                           // Give a small delay for the widget to appear then scroll
                           Future.delayed(const Duration(milliseconds: 150), () {
@@ -1410,11 +1419,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                         final newComps = List<RecipeComponentDraft>.from(
                           s.components,
                         )..removeAt(index);
-                        return RecipeDraft(
-                          name: s.name,
-                          mainImagePath: s.mainImagePath,
-                          components: newComps,
-                        );
+                        return s.copyWith(components: newComps);
                       });
                     },
                   ),
@@ -1592,11 +1597,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               _triggerFeedback();
               notifier.update((s) {
                 entry.isFlour = !entry.isFlour;
-                return RecipeDraft(
-                  name: s.name,
-                  mainImagePath: s.mainImagePath,
-                  components: s.components,
-                );
+                return s.copyWith();
               });
             },
             child: Icon(
@@ -1735,11 +1736,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     _triggerFeedback();
                     notifier.update((s) {
                       entry.weight = settings.convertToGrams(double.tryParse(val) ?? 0, entry.unit);
-                      return RecipeDraft(
-                        name: s.name,
-                        mainImagePath: s.mainImagePath,
-                        components: s.components,
-                      );
+                      return s.copyWith();
                     });
                   },
                   focusNode: _getFocusNode("${entry.id}_weight"),

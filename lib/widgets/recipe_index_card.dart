@@ -31,7 +31,7 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
     super.initState();
     _crumpleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 350),
     );
   }
 
@@ -199,42 +199,38 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Flexible(
-                        // Wrapped in Flexible to prevent overflow
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.recipe.name,
+                      Text(
+                        widget.recipe.name,
+                        style: ArtisanalTheme.hand(
+                          fontSize: 16,
+                          color: ArtisanalTheme.ink,
+                        ).copyWith(fontWeight: FontWeight.bold),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (widget.recipe.description != null &&
+                          (widget.recipe.description as String)
+                              .isNotEmpty) ...[
+                        const SizedBox(height: 1),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              widget.recipe.description,
                               style: ArtisanalTheme.hand(
-                                fontSize: 16,
-                                color: ArtisanalTheme.ink,
-                              ).copyWith(fontWeight: FontWeight.bold),
-                              maxLines: 2,
+                                fontSize: 12,
+                                color: ArtisanalTheme.ink.withValues(
+                                  alpha: 0.45,
+                                ),
+                              ),
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            if (widget.recipe.description != null &&
-                                (widget.recipe.description as String)
-                                    .isNotEmpty) ...[
-                              const SizedBox(height: 1),
-                              Text(
-                                widget.recipe.description,
-                                style: ArtisanalTheme.hand(
-                                  fontSize: 12,
-                                  color: ArtisanalTheme.ink.withValues(
-                                    alpha: 0.45,
-                                  ),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ],
+                          ),
                         ),
-                      ),
+                      ] else
+                        const Spacer(),
                       const SizedBox(height: 2),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

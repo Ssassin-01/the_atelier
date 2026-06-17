@@ -144,6 +144,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currentLanguage => 'English';
 
   @override
+  String get systemLanguage => 'System';
+
+  @override
+  String get korean => 'Korean';
+
+  @override
+  String get english => 'English';
+
+  @override
   String get notifications => 'Notifications';
 
   @override
@@ -1056,60 +1065,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'SAVE';
 
   @override
-  String get quote1 =>
-      'Baking bread is not just a skill, it is a process of patience dealing with living organisms.';
+  String get quote1 => 'No one is born a great cook, one learns by doing.';
 
   @override
-  String get quote1Author => 'Raymond Calvel';
+  String get quote1Author => 'Julia Child';
 
   @override
   String get quote2 =>
-      'Good bread starts with honest ingredients and the sincere touch of a baker.';
+      'A recipe has no soul. You, as the cook, must bring soul to the recipe.';
 
   @override
-  String get quote2Author => 'Richard Bertinet';
+  String get quote2Author => 'Thomas Keller';
 
   @override
-  String get quote3 =>
-      'Flour is the baker\'s canvas, and yeast is the paint that breathes life into it.';
+  String get quote3 => 'There is no good cooking without good ingredients.';
 
   @override
-  String get quote3Author => 'Chad Robertson';
+  String get quote3Author => 'Paul Bocuse';
 
   @override
   String get quote4 =>
-      'The crackle of a perfect crust is the most beautiful compliment the oven gives to the baker.';
+      'One cannot think well, love well, sleep well, if one has not dined well.';
 
   @override
-  String get quote4Author => 'Jeffrey Hamelman';
+  String get quote4Author => 'Virginia Woolf';
 
   @override
-  String get quote5 =>
-      'In slowly fermented bread, there is a deep flavor that only time can create.';
+  String get quote5 => 'Food is our common ground, a universal experience.';
 
   @override
-  String get quote5Author => 'Ken Forkish';
+  String get quote5Author => 'James Beard';
 
   @override
-  String get quote6 =>
-      'Baking begins with science and finishes as an art form.';
+  String get quote6 => 'Good food is the foundation of genuine happiness.';
 
   @override
-  String get quote6Author => 'Peter Reinhart';
+  String get quote6Author => 'Auguste Escoffier';
 
   @override
   String get quote7 =>
-      'With every degree of temperature change, the soul of the bread breathes too.';
+      'Cooking is the ultimate art because it combines all the senses.';
 
   @override
-  String get quote7Author => 'Artisanal Proverb';
+  String get quote7Author => 'Jacques Pépin';
 
   @override
   String get quote8 =>
-      'We are not just making bread; we are baking warm comfort for someone\'s morning.';
+      'Cooking is a love affair: you have to be in love with the products, and then with the people you cook for.';
 
   @override
-  String get quote8Author => 'Baker\'s Philosophy';
+  String get quote8Author => 'Alain Ducasse';
 
   @override
   String get bakerPercentageTip =>

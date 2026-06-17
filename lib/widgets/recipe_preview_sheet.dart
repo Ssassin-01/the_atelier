@@ -169,7 +169,7 @@ class _JournalPagePreview extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Text(
                               draft.description,
-                              textAlign: TextAlign.justify,
+                              textAlign: TextAlign.left,
                               style: ArtisanalTheme.hand(
                                 fontSize: 18,
                                 height: 1.8,

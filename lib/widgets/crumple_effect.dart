@@ -26,38 +26,38 @@ class _CrumpleEffectState extends State<CrumpleEffect> {
   void initState() {
     super.initState();
 
-    _scale = Tween<double>(begin: 1.0, end: 0.2).animate(
+    _scale = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(
         parent: widget.controller,
-        curve: const Interval(0.0, 0.8, curve: Curves.easeInBack),
+        curve: const Interval(0.0, 1.0, curve: Curves.easeInBack),
       ),
     );
 
-    _rotation = Tween<double>(begin: 0.0, end: 0.3).animate(
+    _rotation = Tween<double>(begin: 0.0, end: 0.4).animate(
       CurvedAnimation(
         parent: widget.controller,
-        curve: const Interval(0.2, 1.0, curve: Curves.easeInOut),
+        curve: const Interval(0.0, 1.0, curve: Curves.easeIn),
       ),
     );
 
     _opacity = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(
         parent: widget.controller,
-        curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
+        curve: const Interval(0.2, 1.0, curve: Curves.easeOut),
       ),
     );
 
-    _skewX = Tween<double>(begin: 0.0, end: 0.2).animate(
+    _skewX = Tween<double>(begin: 0.0, end: 0.1).animate(
       CurvedAnimation(
         parent: widget.controller,
-        curve: const Interval(0.0, 0.7, curve: Curves.elasticIn),
+        curve: const Interval(0.0, 0.8, curve: Curves.easeIn),
       ),
     );
 
-    _skewY = Tween<double>(begin: 0.0, end: -0.1).animate(
+    _skewY = Tween<double>(begin: 0.0, end: -0.05).animate(
       CurvedAnimation(
         parent: widget.controller,
-        curve: const Interval(0.0, 0.7, curve: Curves.elasticIn),
+        curve: const Interval(0.0, 0.8, curve: Curves.easeIn),
       ),
     );
   }

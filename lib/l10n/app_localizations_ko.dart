@@ -142,6 +142,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get currentLanguage => '한국어';
 
   @override
+  String get systemLanguage => '시스템 설정';
+
+  @override
+  String get korean => '한국어';
+
+  @override
+  String get english => '영어';
+
+  @override
   String get notifications => '알림';
 
   @override
@@ -1040,52 +1049,53 @@ class AppLocalizationsKo extends AppLocalizations {
   String get save => '저장';
 
   @override
-  String get quote1 => '빵을 굽는 것은 단순한 기술이 아니라, 살아있는 생명을 다루는 인내의 과정입니다.';
+  String get quote1 => '누구나 처음부터 훌륭한 요리사로 태어나지 않는다. 행함으로써 배울 뿐이다.';
 
   @override
-  String get quote1Author => '레이몽 칼벨 (Raymond Calvel)';
+  String get quote1Author => '줄리아 차일드 (Julia Child)';
 
   @override
-  String get quote2 => '좋은 빵은 정직한 재료와 제빵사의 성실한 손길에서 시작됩니다.';
+  String get quote2 => '레시피 자체에는 영혼이 없다. 요리사로서 당신이 레시피에 영혼을 불어넣어야 한다.';
 
   @override
-  String get quote2Author => '리처드 버티넷 (Richard Bertinet)';
+  String get quote2Author => '토마스 켈러 (Thomas Keller)';
 
   @override
-  String get quote3 => '밀가루는 제빵사의 캔버스이고, 효모는 그 위에 생명을 불어넣는 물감입니다.';
+  String get quote3 => '좋은 재료 없이는 좋은 요리도 없다.';
 
   @override
-  String get quote3Author => '채드 로버트슨 (Chad Robertson)';
+  String get quote3Author => '폴 보퀴즈 (Paul Bocuse)';
 
   @override
-  String get quote4 => '완벽한 크러스트의 바스락거림은 오븐이 제빵사에게 건네는 가장 아름다운 찬사입니다.';
+  String get quote4 => '잘 먹지 못하면 잘 생각할 수 없고, 잘 사랑할 수 없으며, 잠도 잘 수 없다.';
 
   @override
-  String get quote4Author => '제프리 하멜만 (Jeffrey Hamelman)';
+  String get quote4Author => '버지니아 울프 (Virginia Woolf)';
 
   @override
-  String get quote5 => '천천히 발효된 빵 속에는 시간만이 만들어낼 수 있는 깊은 풍미가 깃들어 있습니다.';
+  String get quote5 => '음식은 우리의 공통분모이자 전 인류의 보편적인 경험이다.';
 
   @override
-  String get quote5Author => '켄 포키쉬 (Ken Forkish)';
+  String get quote5Author => '제임스 비어드 (James Beard)';
 
   @override
-  String get quote6 => '제빵은 과학으로 시작해서 예술로 완성되는 여정입니다.';
+  String get quote6 => '좋은 음식은 진정한 행복의 기초가 된다.';
 
   @override
-  String get quote6Author => '피터 라인하트 (Peter Reinhart)';
+  String get quote6Author => '오귀스트 에스코피에 (Auguste Escoffier)';
 
   @override
-  String get quote7 => '온도가 1도 변할 때마다 빵의 영혼도 함께 숨을 쉽니다.';
+  String get quote7 => '요리는 모든 감각을 결합하기 때문에 궁극의 예술이다.';
 
   @override
-  String get quote7Author => '모스크바의 제빵사 격언';
+  String get quote7Author => '자크 페팽 (Jacques Pépin)';
 
   @override
-  String get quote8 => '우리는 빵을 만드는 것이 아니라, 누군가의 아침에 따스한 위로를 굽는 것입니다.';
+  String get quote8 =>
+      '요리는 사랑의 일화다. 재료와 사랑에 빠져야 하고, 그 요리를 대접받을 사람과 사랑에 빠져야 한다.';
 
   @override
-  String get quote8Author => '아티잔 베이커의 철학';
+  String get quote8Author => '알랭 듀카스 (Alain Ducasse)';
 
   @override
   String get bakerPercentageTip =>

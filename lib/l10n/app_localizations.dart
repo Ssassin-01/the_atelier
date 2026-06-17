@@ -362,6 +362,24 @@ abstract class AppLocalizations {
   /// **'English'**
   String get currentLanguage;
 
+  /// No description provided for @systemLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get systemLanguage;
+
+  /// No description provided for @korean.
+  ///
+  /// In en, this message translates to:
+  /// **'Korean'**
+  String get korean;
+
+  /// No description provided for @english.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get english;
+
   /// No description provided for @notifications.
   ///
   /// In en, this message translates to:
@@ -2117,97 +2135,97 @@ abstract class AppLocalizations {
   /// No description provided for @quote1.
   ///
   /// In en, this message translates to:
-  /// **'Baking bread is not just a skill, it is a process of patience dealing with living organisms.'**
+  /// **'No one is born a great cook, one learns by doing.'**
   String get quote1;
 
   /// No description provided for @quote1Author.
   ///
   /// In en, this message translates to:
-  /// **'Raymond Calvel'**
+  /// **'Julia Child'**
   String get quote1Author;
 
   /// No description provided for @quote2.
   ///
   /// In en, this message translates to:
-  /// **'Good bread starts with honest ingredients and the sincere touch of a baker.'**
+  /// **'A recipe has no soul. You, as the cook, must bring soul to the recipe.'**
   String get quote2;
 
   /// No description provided for @quote2Author.
   ///
   /// In en, this message translates to:
-  /// **'Richard Bertinet'**
+  /// **'Thomas Keller'**
   String get quote2Author;
 
   /// No description provided for @quote3.
   ///
   /// In en, this message translates to:
-  /// **'Flour is the baker\'s canvas, and yeast is the paint that breathes life into it.'**
+  /// **'There is no good cooking without good ingredients.'**
   String get quote3;
 
   /// No description provided for @quote3Author.
   ///
   /// In en, this message translates to:
-  /// **'Chad Robertson'**
+  /// **'Paul Bocuse'**
   String get quote3Author;
 
   /// No description provided for @quote4.
   ///
   /// In en, this message translates to:
-  /// **'The crackle of a perfect crust is the most beautiful compliment the oven gives to the baker.'**
+  /// **'One cannot think well, love well, sleep well, if one has not dined well.'**
   String get quote4;
 
   /// No description provided for @quote4Author.
   ///
   /// In en, this message translates to:
-  /// **'Jeffrey Hamelman'**
+  /// **'Virginia Woolf'**
   String get quote4Author;
 
   /// No description provided for @quote5.
   ///
   /// In en, this message translates to:
-  /// **'In slowly fermented bread, there is a deep flavor that only time can create.'**
+  /// **'Food is our common ground, a universal experience.'**
   String get quote5;
 
   /// No description provided for @quote5Author.
   ///
   /// In en, this message translates to:
-  /// **'Ken Forkish'**
+  /// **'James Beard'**
   String get quote5Author;
 
   /// No description provided for @quote6.
   ///
   /// In en, this message translates to:
-  /// **'Baking begins with science and finishes as an art form.'**
+  /// **'Good food is the foundation of genuine happiness.'**
   String get quote6;
 
   /// No description provided for @quote6Author.
   ///
   /// In en, this message translates to:
-  /// **'Peter Reinhart'**
+  /// **'Auguste Escoffier'**
   String get quote6Author;
 
   /// No description provided for @quote7.
   ///
   /// In en, this message translates to:
-  /// **'With every degree of temperature change, the soul of the bread breathes too.'**
+  /// **'Cooking is the ultimate art because it combines all the senses.'**
   String get quote7;
 
   /// No description provided for @quote7Author.
   ///
   /// In en, this message translates to:
-  /// **'Artisanal Proverb'**
+  /// **'Jacques Pépin'**
   String get quote7Author;
 
   /// No description provided for @quote8.
   ///
   /// In en, this message translates to:
-  /// **'We are not just making bread; we are baking warm comfort for someone\'s morning.'**
+  /// **'Cooking is a love affair: you have to be in love with the products, and then with the people you cook for.'**
   String get quote8;
 
   /// No description provided for @quote8Author.
   ///
   /// In en, this message translates to:
-  /// **'Baker\'s Philosophy'**
+  /// **'Alain Ducasse'**
   String get quote8Author;
 
   /// No description provided for @bakerPercentageTip.

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -94,18 +93,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 8),
-                _buildModeSelector(l10n, settings),
-                const SizedBox(height: 28),
+                // Mode selector hidden since Basic is the only mode in this version
+                // _buildModeSelector(l10n, settings),
+                // const SizedBox(height: 28),
                 _buildSettingsGroup(l10n.preferences, [
                   _settingsItem(
                     Icons.language,
                     l10n.language,
-                    trailer: l10n.currentLanguage == 'English' ? "English" : "한국어",
-                    onTap: () {
-                      final activeLocale = Localizations.localeOf(context);
-                      final newLocale = activeLocale.languageCode == 'en' ? const Locale('ko') : const Locale('en');
-                      ref.read(localeProvider.notifier).state = newLocale;
-                    },
+                    trailer: _getLanguageTrailer(ref.watch(localeProvider.notifier).currentLanguageCode, l10n),
+                    onTap: () => _showLanguagePicker(context),
                   ),
                   _settingsItem(
                     Icons.scale_outlined,
@@ -173,6 +169,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
     );
   }
 
+  /* Commented out for basic-only version
   Widget _buildModeSelector(AppLocalizations l10n, SettingsState settings) {
     final currentMode = settings.appMode;
     final isKo = l10n.currentLanguage == '한국어';
@@ -188,6 +185,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                 () => ref.read(settingsProvider.notifier).updateAppMode('basic'),
               ),
             ),
+            // Hide Creative and Business modes for initial Basic-only release.
+            // They will be re-enabled in future updates.
+            /*
             const SizedBox(width: 8),
             Expanded(
               child: _modeCard(
@@ -208,6 +208,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
                 () => ref.read(settingsProvider.notifier).updateAppMode('business'),
               ),
             ),
+            */
           ],
         );
   }
@@ -260,6 +261,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
       ),
     );
   }
+  */
 
   Widget _buildSettingsGroup(String title, List<Widget> items) {
     return Column(
@@ -429,6 +431,42 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with WidgetsBin
           ),
         ],
       ),
+    );
+  }
+
+  String _getLanguageTrailer(String code, AppLocalizations l10n) {
+    switch (code) {
+      case 'en':
+        return l10n.english;
+      case 'ko':
+        return l10n.korean;
+      default:
+        return l10n.systemLanguage;
+    }
+  }
+
+  void _showLanguagePicker(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final languages = [
+      ('system', l10n.systemLanguage, l10n.systemLanguage, Icons.settings_suggest_outlined),
+      ('en', l10n.english, "English", Icons.language_outlined),
+      ('ko', l10n.korean, "한국어", Icons.language_outlined),
+    ];
+
+    _showArtisanalSelector(
+      context,
+      title: l10n.language,
+      options: languages
+          .map((lang) => _SelectorOption(
+                value: lang.$1,
+                label: lang.$2,
+                description: lang.$3,
+                icon: lang.$4,
+              ))
+          .toList(),
+      onSelected: (value) =>
+          ref.read(localeProvider.notifier).setLanguage(value),
+      selectedValue: ref.read(localeProvider.notifier).currentLanguageCode,
     );
   }
 
