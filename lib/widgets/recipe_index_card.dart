@@ -209,28 +209,7 @@ class _RecipeIndexCardState extends State<RecipeIndexCard>
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (widget.recipe.description != null &&
-                          (widget.recipe.description as String)
-                              .isNotEmpty) ...[
-                        const SizedBox(height: 1),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              widget.recipe.description,
-                              style: ArtisanalTheme.hand(
-                                fontSize: 12,
-                                color: ArtisanalTheme.ink.withValues(
-                                  alpha: 0.45,
-                                ),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                      ] else
-                        const Spacer(),
+                      const Spacer(),
                       const SizedBox(height: 2),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -28,7 +28,6 @@ class _StudioLogScreenState extends ConsumerState<StudioLogScreen>
 
   // Sequences
   late Animation<double> _lidOpacity;
-  late Animation<Offset> _lidPosition;
   late Animation<double> _flyProgress;
   late Animation<double> _textReveal;
   late Animation<double> _openProgress;

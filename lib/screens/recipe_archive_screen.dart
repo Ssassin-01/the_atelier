@@ -89,7 +89,7 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
           controller: _scrollController,
           slivers: [
             SliverAppBar(
-              expandedHeight: 160,
+              expandedHeight: 125,
               floating: false,
               snap: false,
               pinned: false,
@@ -102,7 +102,7 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                 expandedTitleScale: 1,
                 background: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(28, 40, 28, 0),
+                    padding: const EdgeInsets.fromLTRB(28, 24, 28, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -138,11 +138,11 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                             Text(
                               "VOL. ${DateTime.now().year}",
                               style: ArtisanalTheme.receipt(
-                                fontSize: 10,
-                                color: ArtisanalTheme.secondary.withValues(
-                                  alpha: 0.4,
+                                  fontSize: 10,
+                                  color: ArtisanalTheme.secondary.withValues(
+                                    alpha: 0.4,
+                                  ),
                                 ),
-                              ),
                             ),
                           ],
                         ),
@@ -170,9 +170,10 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
             SliverPersistentHeader(
               pinned: true,
               delegate: _SliverSearchDelegate(
+                topPadding: MediaQuery.of(context).padding.top,
                 child: Container(
                   color: ArtisanalTheme.background,
-                  padding: const EdgeInsets.fromLTRB(28, 20, 28, 12),
+                  padding: const EdgeInsets.fromLTRB(28, 6, 28, 12),
                   child: _SearchBar(
                     hint: l10n.searchRecipes,
                     focusNode: _searchFocusNode,
@@ -262,7 +263,7 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
                             mainAxisSpacing: 20,
                             crossAxisSpacing: 16,
                             childAspectRatio:
-                                0.75, // Updated ratio for more compact cards
+                                0.70, // Updated ratio for more height space to prevent overflow
                           ),
                       delegate: SliverChildBuilderDelegate((context, index) {
                         final recipe = filtered[index];
@@ -292,13 +293,14 @@ class _RecipeArchiveScreenState extends ConsumerState<RecipeArchiveScreen> {
 
 class _SliverSearchDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
+  final double topPadding;
 
-  _SliverSearchDelegate({required this.child});
+  _SliverSearchDelegate({required this.child, required this.topPadding});
 
   @override
-  double get minExtent => 80;
+  double get minExtent => 66 + topPadding;
   @override
-  double get maxExtent => 80;
+  double get maxExtent => 66 + topPadding;
 
   @override
   Widget build(
@@ -306,12 +308,16 @@ class _SliverSearchDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return child;
+    return Container(
+      color: ArtisanalTheme.background,
+      padding: EdgeInsets.only(top: topPadding),
+      child: child,
+    );
   }
 
   @override
   bool shouldRebuild(_SliverSearchDelegate oldDelegate) {
-    return false;
+    return oldDelegate.topPadding != topPadding || oldDelegate.child != child;
   }
 }
 

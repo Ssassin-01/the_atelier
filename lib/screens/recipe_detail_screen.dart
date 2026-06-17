@@ -473,16 +473,25 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 20),
-        SizedBox(
-          width: 180,
-          child: Text(
-            widget.component.title,
-            style: ArtisanalTheme.hand(
-              fontSize: 26,
-              color: ArtisanalTheme.ink,
-            ).copyWith(fontWeight: FontWeight.bold),
-            maxLines: 2,
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final screenWidth = MediaQuery.of(context).size.width;
+            final availableWidth = widget.component.imageUrl != null
+                ? 140.0 // Limit width to 140 to force wrapping to 2 lines and clear the photo
+                : screenWidth - 32 - 56;
+            return SizedBox(
+              width: availableWidth,
+              child: Text(
+                widget.component.title,
+                style: ArtisanalTheme.hand(
+                  fontSize: 26,
+                  color: ArtisanalTheme.ink,
+                ).copyWith(fontWeight: FontWeight.bold),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          }
         ),
         const SizedBox(height: 20),
         ...() {
@@ -581,18 +590,27 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 20),
-        SizedBox(
-          width: 180,
-          child: Text(
-            l10n.currentLanguage == '한국어'
-                ? '조리법: ${widget.component.title}'
-                : 'Method: ${widget.component.title}',
-            style: ArtisanalTheme.hand(
-              fontSize: 22,
-              color: ArtisanalTheme.primary,
-            ).copyWith(fontWeight: FontWeight.bold),
-            maxLines: 2,
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final screenWidth = MediaQuery.of(context).size.width;
+            final availableWidth = widget.component.imageUrl != null
+                ? 140.0 // Limit width to 140 to force wrapping to 2 lines and clear the photo
+                : screenWidth - 32 - 56;
+            return SizedBox(
+              width: availableWidth,
+              child: Text(
+                l10n.currentLanguage == '한국어'
+                    ? '조리법: ${widget.component.title}'
+                    : 'Method: ${widget.component.title}',
+                style: ArtisanalTheme.hand(
+                  fontSize: 22,
+                  color: ArtisanalTheme.primary,
+                ).copyWith(fontWeight: FontWeight.bold),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          }
         ),
         const SizedBox(height: 20),
         ...widget.component.steps.asMap().entries.map(
@@ -669,7 +687,7 @@ class _AnimatedRecipePostItState extends ConsumerState<AnimatedRecipePostIt>
 
   Widget _postItWrapper(Widget child, String? imageUrl) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 32),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
