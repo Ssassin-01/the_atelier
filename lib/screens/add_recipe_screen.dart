@@ -295,6 +295,7 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               backgroundColor: Colors.transparent,
               elevation: 0,
               floating: true,
+              centerTitle: false,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: ArtisanalTheme.ink),
                 onPressed: () {
@@ -316,9 +317,8 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
               ),
               actions: [
                 IconButton(
-                  padding: const EdgeInsets.only(right: 8),
                   icon: const Icon(
-                    Icons.auto_stories_outlined,
+                    Icons.visibility_outlined,
                     color: ArtisanalTheme.primary,
                   ),
                   tooltip: l10n.previewInJournal,
@@ -337,31 +337,27 @@ class _AddRecipeScreenState extends ConsumerState<AddRecipeScreen> {
                     );
                   },
                 ),
-                TextButton(
+                IconButton(
                   onPressed: () {
                     setState(() => _isSaving = true);
                     _saveRecipe(context, ref, draft, settings, isDraft: true);
                   },
-                  child: Text(
-                    l10n.saveDraft,
-                    style: ArtisanalTheme.hand(
-                      fontSize: 16,
-                      color: ArtisanalTheme.secondary.withValues(alpha: 0.6),
-                    ),
+                  icon: const Icon(
+                    Icons.pending_actions_outlined,
+                    color: ArtisanalTheme.primary,
                   ),
+                  tooltip: l10n.saveDraft,
                 ),
-                TextButton(
+                IconButton(
                   onPressed: () {
                     setState(() => _isSaving = true);
                     _saveRecipe(context, ref, draft, settings, isDraft: false);
                   },
-                  child: Text(
-                    l10n.save,
-                    style: ArtisanalTheme.hand(
-                      fontSize: 18,
-                      color: ArtisanalTheme.primary,
-                    ),
+                  icon: const Icon(
+                    Icons.save,
+                    color: ArtisanalTheme.primary,
                   ),
+                  tooltip: l10n.save,
                 ),
                 const SizedBox(width: 16),
               ],

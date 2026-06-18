@@ -22,7 +22,7 @@ import 'models/recipe.dart';
 import 'models/component.dart';
 import 'models/ingredient.dart';
 import 'models/step.dart';
-import 'services/mock_data.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,10 +53,11 @@ void main() async {
     await Hive.openBox<BusinessTransaction>('transactions');
     await Hive.openBox('settings');
 
-    // Populate with mock data only if boxes are empty
-    if (recipeBox.isEmpty) {
-      for (var recipe in getMockRecipes()) {
-        await recipeBox.put(recipe.id, recipe);
+    // Delete existing seeded mock data from local database
+    final mockIds = ['pumpkin-dessert', '1', '2', '3', '4', '5'];
+    for (var id in mockIds) {
+      if (recipeBox.containsKey(id)) {
+        await recipeBox.delete(id);
       }
     }
   } catch (e) {
@@ -98,7 +99,6 @@ class MainScaffold extends ConsumerStatefulWidget {
 }
 
 class _MainScaffoldState extends ConsumerState<MainScaffold> {
-
   void _onItemTapped(int index) {
     ref.read(navigationProvider.notifier).state = index;
   }
@@ -221,7 +221,10 @@ class _MainScaffoldState extends ConsumerState<MainScaffold> {
           child: const Icon(Icons.draw, color: Colors.white, size: 32),
         ),
       ),
-      body: IndexedStack(index: ref.watch(navigationProvider), children: allScreens),
+      body: IndexedStack(
+        index: ref.watch(navigationProvider),
+        children: allScreens,
+      ),
     );
   }
 

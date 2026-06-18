@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/recipe.dart';
 
-import 'mock_data.dart';
+
 
 final recipeServiceProvider = Provider((ref) => RecipeService());
 
@@ -26,11 +26,7 @@ class RecipeService {
   }
 
   Future<void> seedInitialData() async {
-    if (_recipeBox.isNotEmpty) return;
-
-    for (var recipe in getMockRecipes()) {
-      await _recipeBox.put(recipe.id, recipe);
-    }
+    // No-op to disable mock seeding
   }
 }
 
